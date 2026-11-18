@@ -1,12 +1,10 @@
 {
- "updated": "2026-11-18T12:30:00Z",
- "mode": "snapshot",
+ "updated": "2026-11-18T13:12:03.406Z",
+ "mode": "live",
+ "season": "2026",
  "sources": [
-  "Table: plstats.uk (8 Nov 2026)",
-  "xG: winner364.com (17 Nov 2026)",
-  "Players: vavel.com (after Round 10)",
-  "Weather: manual default",
-  "La Liga, Bundesliga and Ligue 1 appear after the first live update"
+  "API-Football (fixtures, table, form, players, injuries, xG, corners, cards)",
+  "Open-Meteo (kick-off weather)"
  ],
  "leagues": [
   {
