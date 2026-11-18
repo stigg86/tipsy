@@ -55,21 +55,25 @@ const ELO_ALIAS = { "Paris SG": "Paris Saint-Germain", "Bilbao": "Athletic Club"
   "Betis": "Real Betis", "Atletico": "Atletico Madrid", "Celta": "Celta Vigo", "Leverkusen": "Bayer Leverkusen",
   "Frankfurt": "Eintracht Frankfurt", "Werder": "Werder Bremen", "Wolves": "Wolverhampton", "Inter": "Internazionale",
   "Saint-Etienne": "Saint Etienne", "Sporting": "Sporting CP" };
-async function loadElo() {
+async function loadElo(cache) {
   const day = new Date().toISOString().slice(0, 10);
-  for (const base of ["http://api.clubelo.com/", "https://api.clubelo.com/"]) {
+  for (const [i, base] of ["http://api.clubelo.com/", "https://api.clubelo.com/", "http://api.clubelo.com/", "http://clubelo.com/API/"].entries()) {
+    if (i) await sleep(4000 * i);
     try {
-      const r = await fetch(base + day);
+      const r = await fetch(base + day, { headers: { "User-Agent": "Mozilla/5.0 (Tipsy football tips; GitHub Actions)" } });
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
       const lines = (await r.text()).trim().split(/\r?\n/);
       const head = lines.shift().split(",");
       const ix = k => head.indexOf(k);
       const rows = lines.map(l => l.split(",")).map(c => ({ club: c[ix("Club")], country: c[ix("Country")], level: Number(c[ix("Level")]), elo: Number(c[ix("Elo")]) }))
         .filter(x => x.club && x.elo > 0);
+      if (rows.length < 100) throw new Error(`only ${rows.length} rows`);
       console.log(`  ClubElo: ${rows.length} clubs`);
+      cache.elo = { day, rows: rows.filter(x => Object.values(ELO_COUNTRY).includes(x.country)) };
       return rows;
     } catch (e) { console.warn("ClubElo:", base, e.message); }
   }
+  if (cache.elo?.rows?.length) { console.warn(`ClubElo: using saved ratings from ${cache.elo.day}`); return cache.elo.rows; }
   return null;
 }
 let ELO = null, CL = null;
@@ -316,9 +320,12 @@ async function buildLeague(code, cache, prev) {
     } catch (e) { console.warn("weather:", e.message); }
   }
 
-  // Bookmaker odds
+  // Bookmaker odds (refreshed at most every 6 hours to save credits; otherwise reuse the last prices)
   const oddsByMatch = {};
-  if (ODDS_KEY && info.odds && next.length) {
+  const prevOdds = Object.fromEntries((prev?.matches || []).filter(x => x.odds).map(x => [x.id, x.odds]));
+  const fresh = cache.oddsAt?.[code] && Date.now() - cache.oddsAt[code] < 6 * 3600e3 && Object.keys(prevOdds).length;
+  if (fresh) { Object.assign(oddsByMatch, prevOdds); console.log(`  odds: reusing prices from ${new Date(cache.oddsAt[code]).toISOString()} (under 6 hours old)`); }
+  else if (ODDS_KEY && info.odds && next.length) {
     if (oddsLeft !== null && oddsLeft < ODDS_MIN_LEFT) console.warn(`odds: skipped, only ${oddsLeft} credits left this month`);
     else {
       try {
@@ -334,6 +341,7 @@ async function buildLeague(code, cache, prev) {
           if (bestM) { const o = parseOdds(ev); if (o) oddsByMatch[bestM.id] = o; }
         }
         console.log(`  odds matched for ${Object.keys(oddsByMatch).length}/${next.length} matches`);
+        (cache.oddsAt ??= {})[code] = Date.now();
       } catch (e) { console.warn("odds:", e.message); }
     }
   }
@@ -392,7 +400,7 @@ async function main() {
   const prevBy = Object.fromEntries((previous?.leagues || []).map(l => [l.code || l.name, l]));
 
   if (LEAGUES.includes("PL")) FPL = await loadFPL();
-  ELO = await loadElo();
+  ELO = await loadElo(cache);
   try { CL = (await fd("/competitions/CL/matches")).matches || []; console.log(`  Champions League: ${CL.length} matches (for rest days)`); }
   catch (e) { console.warn("Champions League:", e.message); CL = []; }
   const leagues = [];
