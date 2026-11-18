@@ -116,7 +116,6 @@ async function odds(sport) {
   url.searchParams.set("regions", "uk");
   url.searchParams.set("markets", "h2h,totals");
   url.searchParams.set("oddsFormat", "decimal");
-  url.searchParams.set("includeLinks", "true");
   const r = await fetch(url);
   const left = r.headers.get("x-requests-remaining");
   if (left !== null) oddsLeft = Number(left);
@@ -348,11 +347,6 @@ async function buildLeague(code, cache, prev) {
           if (bestM) { const o = parseOdds(ev); if (o) oddsByMatch[bestM.id] = o; }
         }
         console.log(`  odds matched for ${Object.keys(oddsByMatch).length}/${next.length} matches`);
-        const st = {};
-        for (const o of Object.values(oddsByMatch)) for (const [k, v] of Object.entries(o)) if (k !== "_ev") for (const r of v.all) {
-          const b = (st[r[0]] ??= { slip: 0, market: 0, event: 0, none: 0, ex: "" }); b[r[3] || "none"]++; if (r[2] && !b.ex) b.ex = r[2];
-        }
-        for (const [b, v] of Object.entries(st)) console.log(`  LINKS ${b}: slip ${v.slip}, market ${v.market}, event ${v.event}, none ${v.none}${v.ex ? " e.g. " + v.ex.slice(0, 110) : ""}`);
         (cache.oddsAt ??= {})[code] = Date.now();
       } catch (e) { console.warn("odds:", e.message); }
     }

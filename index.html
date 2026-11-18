@@ -372,7 +372,6 @@ section[data-sec]>h2:first-child{margin-top:10px}
     <li><b>Goals markets</b> – expected goals feed a Poisson scoreline model (0–0 to 8–8) with the Dixon–Coles correction, which adds a little to 0–0 and 1–1 and takes it from 1–0 and 0–1. That gives win/draw/loss, double chance, over/under 1.5/2.5/3.5, both teams to score and the most likely score.</li>
     <li><b>Score predictions</b> – the predicted score is the most likely scoreline for the most likely result. For a likely home win that's usually 1–0 or 2–1, even when 1–1 is the single most common score. Exact scores are hard: even the best-placed scoreline rarely tops 15%.</li>
     <li><b>Bookmakers in the tips</b> – where odds exist, we work out the expected goals the bookmakers' prices imply and blend them 50/50 with ours. Bookmakers know things our data can't see, such as rotation and late team news, so this makes the tips more accurate. The value finder still uses our model on its own, so it isn't just comparing bookmakers with themselves.</li>
-    <li><b>Links to bookmakers</b> – buttons open the bookmaker with the best price. Sky Bet links put the bet straight on your betslip; other bookmakers open on the match page so you can tap the bet. You still log in and confirm every bet yourself. Tipsy doesn't earn anything from these links.</li>
     <li><b>Value</b> – edge = (30% model chance + 70% bookmaker consensus) × best sportsbook price − 1, skipping longshots over 5.0 and big model/market disagreements. The "Bookies" figure is the average UK price turned into a chance with the bookmaker's margin removed. If the model and the bookies disagree a lot, the bookies are more often right.</li>
     <li><b>Accumulators</b> – the chance all legs land is each leg's chance multiplied together; fair odds = 1 ÷ that chance. Legs from the same match are linked, so for those the combined figure is only a rough guide.</li>
   </ul></div>
@@ -477,7 +476,7 @@ function renderCards(){
       <div class="bar" style="margin-top:8px">
         <div class="h" style="flex:${r.pH}">${pc(r.pH)}</div><div class="d" style="flex:${r.pD}">${pc(r.pD)}</div><div class="a" style="flex:${r.pA}">${pc(r.pA)}</div>
       </div>
-      ${m.odds&&m.odds["1"]?`<div class="cardodds">${[["1",m.h],["X","Draw"],["2",m.a]].map(([k,n])=>{const o=m.odds[k],l=o&&linkFor(m,k,o.k),u=l&&safeUrl(l.url);const inner=`<small>${esc(n)}</small><b>${o?o.b.toFixed(2):"–"}</b><small>${o?esc(o.k)+(u?" ↗":""):""}</small>`;return u?`<a href="${esc(u)}" target="_blank" rel="noopener noreferrer" class="betbox">${inner}</a>`:`<div>${inner}</div>`}).join("")}</div>`:`<div class="mute" style="font-size:12px;margin-top:6px">No bookmaker prices for this match yet.</div>`}
+      ${m.odds&&m.odds["1"]?`<div class="cardodds">${[["1",m.h],["X","Draw"],["2",m.a]].map(([k,n])=>{const o=m.odds[k];return `<div><small>${esc(n)}</small><b>${o?o.b.toFixed(2):"–"}</b><small>${o?esc(o.k):""}</small></div>`}).join("")}</div>`:`<div class="mute" style="font-size:12px;margin-top:6px">No bookmaker prices for this match yet.</div>`}
       <div class="stats stats6">
         <div class="stat"><small>xG home</small><b>${r.lh.toFixed(2)}</b></div>
         <div class="stat"><small>xG away</small><b>${r.la.toFixed(2)}</b></div>
@@ -527,6 +526,7 @@ function oddsTxt(m,key,p){
   return p?`<span class="odds fair">fair odds ${(1/p).toFixed(2)} · no bookie price in our data</span>`:"";
 }
 
+const poss=b=>/s$/i.test(b)?b+"'":b+"'s"; // Ladbrokes' / Coral's
 // ---------- Links to bookmakers ----------
 function linkFor(m,key,book){
   const o=m.odds&&m.odds[key],r=o&&o.all&&o.all.find(x=>x[0]===book);
@@ -535,10 +535,7 @@ function linkFor(m,key,book){
   return ev?{url:ev,kind:"event"}:null;
 }
 const safeUrl=u=>/^https:\/\//i.test(u||"")?u:null;
-function betLink(m,key,book){
-  if(!book)return"";const l=linkFor(m,key,book);if(!l||!safeUrl(l.url))return"";
-  return `<a class="betlink ${l.kind==="slip"?"slip":""}" href="${esc(l.url)}" target="_blank" rel="noopener noreferrer">${l.kind==="slip"?`Add to ${esc(book)} slip`:`Open at ${esc(book)}`} ↗</a>`;
-}
+function betLink(){return ""}
 const bestBook=(m,key)=>m.odds&&m.odds[key]?m.odds[key].k:null;
 
 // add/remove a bet from the user's own accumulator
@@ -590,7 +587,7 @@ function priceTable(m){
   const list=[...books].sort((a,b)=>cols.reduce((s,[k])=>s+(priceAt(m,k,b)||0),0)<cols.reduce((s,[k])=>s+(priceAt(m,k,a)||0),0)?-1:1);
   return `<div class="ptwrap"><div class="plh">Bookmaker prices <small class="mute">· best in green · Home = ${esc(m.h)}</small></div>
   <table class="ptab"><thead><tr><th>Bookmaker</th>${cols.map(([,l])=>`<th>${l}</th>`).join("")}</tr></thead><tbody>${
-    list.map(b=>{const ev=(m.odds._ev&&m.odds._ev[b])||cols.map(([k])=>{const l=linkFor(m,k,b);return l&&l.url}).find(Boolean);const u=safeUrl(ev);return `<tr><td>${u?`<a class="tlink" href="${esc(u)}" target="_blank" rel="noopener noreferrer">${esc(b)} ↗</a>`:esc(b)}</td>${cols.map(([k])=>{const p=priceAt(m,k,b);return `<td class="${p&&p===m.odds[k].b?"best":""}">${p?p.toFixed(2):"–"}</td>`}).join("")}</tr>`}).join("")
+    list.map(b=>{return `<tr><td>${esc(b)}</td>${cols.map(([k])=>{const p=priceAt(m,k,b);return `<td class="${p&&p===m.odds[k].b?"best":""}">${p?p.toFixed(2):"–"}</td>`}).join("")}</tr>`}).join("")
   }</tbody></table></div>`;
 }
 const topBooks=(o,n=3)=>o&&o.all?o.all.slice(0,n).map(([b,p])=>`${esc(b)} ${p.toFixed(2)}`).join(" · "):"";
@@ -706,18 +703,18 @@ function whereToBet(){
   const full=rows.filter(r=>r.c===L.length);
   const missing=L.length-priced.length;
   const head=`<div class="plh">🏦 Where to place it <small class="mute">· price for the legs each bookie offers</small></div>`;
-  const placeList=b=>`<div class="placelist"><div class="plh">Open each bet at ${esc(b)}</div>${L.map(({m,x},j)=>{
-      const l=linkFor(m,x.key,b),u=l&&safeUrl(l.url),p=priceAt(m,x.key,b);
-      return `<div class="prow"><span><b>${j+1}. ${esc(x.label)}</b><small>${esc(m.h)} v ${esc(m.a)}${p?` · ${p.toFixed(2)}`:""}</small></span>${u?`<a class="betlink ${l.kind==="slip"?"slip":""}" href="${esc(u)}" target="_blank" rel="noopener noreferrer">${l.kind==="slip"?"Add to slip":"Open"} ↗</a>`:`<small class="mute">no link</small>`}</div>`}).join("")}
-      <div class="accnote">Add each bet to your ${esc(b)} betslip, then place it as a ${L.length}-fold accumulator there.</div></div>`;
+  const placeList=b=>`<div class="placelist"><div class="plh">${esc(poss(b))} price for each bet</div>${L.map(({m,x},j)=>{
+      const p=priceAt(m,x.key,b);
+      return `<div class="prow"><span><b>${j+1}. ${esc(x.label)}</b><small>${esc(m.h)} v ${esc(m.a)}</small></span><b class="odds">${p?p.toFixed(2):"–"}</b></div>`}).join("")}
+      <div class="accnote">Find these ${L.length} bets on ${esc(b)} and place them together as a ${L.length}-fold accumulator.</div></div>`;
   const list=rows.slice(0,6).map((r,i)=>r.c<L.length
     ?`<button class="wrow part" data-book="${esc(r.b)}"><span>${i+1}. ${esc(r.b)} <small class="mute">${r.c}/${L.length} bets</small><small class="tapnote">Tap to keep only the ${r.c} bet${r.c===1?"":"s"} ${esc(r.b)} offers</small></span><b>${fmt(r.p)}</b></button>`
-    :`<button class="wrow ${accaBook===r.b?"top chosen":""}" data-place="${esc(r.b)}"><span>${i+1}. ${esc(r.b)}<small class="tapnote">${accaBook===r.b?"✓ Placing here – open each bet below":"Tap to place here"}</small></span><b>${fmt(r.p)}</b></button>${accaBook===r.b?placeList(r.b):""}`).join("");
+    :`<button class="wrow ${accaBook===r.b?"top chosen":""}" data-place="${esc(r.b)}"><span>${i+1}. ${esc(r.b)}<small class="tapnote">${accaBook===r.b?"✓ Showing ${esc(poss(r.b))} prices":"Tap to see their prices"}</small></span><b>${fmt(r.p)}</b></button>${accaBook===r.b?placeList(r.b):""}`).join("");
   let note;
   if(full.length) note=`${full.length} bookie${full.length===1?" prices":"s price"} every leg. £10 at ${esc(full[0].b)} would return £${(10*full[0].p).toFixed(2)} if it all lands.`;
   else note=`No single bookie prices every leg${missing?` (${missing} leg${missing===1?" is a":"s are"} double chance or BTTS, which the free feed doesn't price)`:""}. Goals over/under is only priced by a few bookies in our data, so try swapping those legs for match results.`;
   const top=rows[0],sumTxt=full.length?`🏦 Best place: <b>${esc(full[0].b)}</b> ${fmt(full[0].p)}`:`🏦 Best place: <b>${esc(top.b)}</b> <small class="mute">${top.c}/${L.length} bets</small>`;
-  return `<details class="where" id="whereBox" ${whereOpen||accaBook?"open":""}><summary>${accaBook?`🏦 Placing at <b>${esc(accaBook)}</b>`:sumTxt}<small class="mute"> · compare bookies</small></summary>${head}${list}<div class="accnote">${note} Prices change, so check on the bookie's site.</div></details>`;
+  return `<details class="where" id="whereBox" ${whereOpen||accaBook?"open":""}><summary>${accaBook?`🏦 <b>${esc(accaBook)}</b> ${fmt(rows.find(r=>r.b===accaBook)?.p||0)}`:sumTxt}<small class="mute"> · compare bookies</small></summary>${head}${list}<div class="accnote">${note} Prices change, so check on the bookie's site.</div></details>`;
 }
 
 function renderAcca(){
@@ -731,7 +728,7 @@ function renderAcca(){
     comb*=x.p;bcomb*=blendP(x);counts[l.mid]=(counts[l.mid]||0)+1;if(x.o)price*=x.o.b;else allPriced=false;
     return `<div class="leg"><span class="n">${i+1}</span>
       <div class="what"><b data-go="${m.id}" data-lgi="${LG.indexOf(m.L)}">${esc(x.label)}</b><small>${esc(m.h)} v ${esc(m.a)} · ${esc(m.L.name)} · ${esc(m.d)} ${esc(m.k)}</small>
-        <small>${betLink(m,l.key,accaBook||(x.o&&x.o.k))}</small></div>
+</div>
       <span class="pct">${pc(x.p)}${x.o?`<small style="display:block;font:500 11px Inter;color:var(--mute)">${accaBook?`${priceAt(m,l.key,accaBook).toFixed(2)} · ${esc(accaBook)}`:`${x.o.b.toFixed(2)} · ${esc(x.o.k)}`}</small>`:""}</span><button class="legx" data-rm="${i}" aria-label="Remove">×</button></div>`;
   }).join("");
   const same=Object.values(counts).some(c=>c>1);
@@ -799,7 +796,6 @@ function rememberOpen(){document.querySelectorAll("details[data-det]").forEach(d
 
 document.addEventListener("click",e=>{
   const t=e.target;
-  if(t.closest("a.betlink,a.betbox,a.tlink"))return; // open the bookmaker in a new tab
   const pb=t.closest("[data-place]");
   if(pb){accaBook=accaBook===pb.dataset.place?null:pb.dataset.place;renderAcca();return;}
   const wb=t.closest("[data-book]");
