@@ -117,12 +117,12 @@ function sim(a, b) {
   return n / Math.min(A.size, B.size);
 }
 
-function parseOdds(ev, homeName, awayName) {
-  const best = {}, all = {};
+function parseOdds(ev) {
+  const prices = {}; // key -> { book: price }
   const put = (key, price, book) => {
     if (!(price > 1)) return;
-    (all[key] ??= []).push(price);
-    if (!best[key] || price > best[key].b) best[key] = { b: price, k: book };
+    const k = (prices[key] ??= {});
+    if (!k[book] || price > k[book]) k[book] = price;
   };
   for (const bm of ev.bookmakers || []) {
     if (/^(betfair_ex|matchbook|smarkets)/.test(bm.key || "")) continue; // exchanges charge commission – compare sportsbooks only
@@ -137,16 +137,16 @@ function parseOdds(ev, homeName, awayName) {
         for (const o of mk.outcomes || []) {
           const line = Number(o.point);
           if (![1.5, 2.5, 3.5].includes(line)) continue;
-          const k = (o.name === "Over" ? "O" : "U") + String(line).replace(".", "");
-          put(k, o.price, bm.title);
+          put((o.name === "Over" ? "O" : "U") + String(line).replace(".", ""), o.price, bm.title);
         }
       }
     }
   }
   const out = {};
-  for (const [k, v] of Object.entries(best)) {
-    const arr = all[k];
-    out[k] = { b: v.b, k: v.k, a: +(arr.reduce((s, x) => s + x, 0) / arr.length).toFixed(3), n: arr.length };
+  for (const [k, byBook] of Object.entries(prices)) {
+    const all = Object.entries(byBook).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+    const avg = all.reduce((s, x) => s + x[1], 0) / all.length;
+    out[k] = { b: all[0][1], k: all[0][0], a: +avg.toFixed(3), n: all.length, all };
   }
   return Object.keys(out).length ? out : null;
 }

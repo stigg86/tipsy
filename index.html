@@ -133,6 +133,20 @@ footer{font-size:11.5px;color:var(--mute);margin-top:22px;text-align:center}
 .rbtn.on{border-color:var(--accent);background:rgba(61,220,151,.12)}
 .manual{border-top:1px solid var(--line)}
 .manual summary{padding:10px 0 2px}
+.ptwrap{display:grid;gap:6px}
+.ptab{width:100%;border-collapse:collapse;font-size:12px}
+.ptab th{color:var(--mute);font-weight:500;text-align:right;padding:4px 3px;border-bottom:1px solid var(--line);font-size:11px}
+.ptab th:first-child,.ptab td:first-child{text-align:left}
+.ptab td{padding:5px 3px;text-align:right;border-bottom:1px solid rgba(37,53,48,.5);font-family:"Space Grotesk"}
+.ptab td:first-child{font-family:Inter;color:var(--ink)}
+.ptab td.best{color:var(--home);font-weight:700}
+.books{color:var(--ink)!important;opacity:.85}
+.where{margin-top:10px;display:grid;gap:4px}
+.wrow{display:flex;justify-content:space-between;background:var(--panel2);border-radius:8px;padding:7px 10px;font-size:13px}
+.wrow b{font-family:"Space Grotesk"}
+.wrow.top{outline:1px solid var(--home)}
+.wrow.top b{color:var(--home)}
+#pricedOnly.on{border-color:var(--accent);color:var(--accent)}
 </style>
 </head>
 <body>
@@ -177,6 +191,8 @@ footer{font-size:11.5px;color:var(--mute);margin-top:22px;text-align:center}
         <button class="rbtn" data-risk="risky"><b>🔥 Risky</b><small>30–56%, bigger odds</small></button>
         <button class="rbtn" data-risk="value"><b>💎 Best value</b><small>beats the bookies' price</small></button>
       </div>
+      <button class="btn ghost" id="pricedOnly" style="margin-top:8px">💷 Only bets with bookie prices</button>
+      <div class="mute" style="font-size:11.5px;margin-top:4px">Turn on to compare bookies for the whole accumulator – uses match result and goals over/under only.</div>
     </div>
     <details class="manual">
       <summary>Add bets one by one</summary>
@@ -413,6 +429,7 @@ function renderCards(){
       <summary>All bets · why · weather · team news</summary>
       <div class="adj">
         <div class="mkts">${markets(m).filter(x=>x.o||!/^U|^CU|^KU|^BN/.test(x.key)).map(x=>{const e=edgeOf(x);return `<div class="mk ${e!=null&&e>=.05?"val":""}"><span>${esc(x.label)}${x.o?`<small> @${x.o.b.toFixed(2)}</small>`:""}</span><b>${pc(x.p)}</b></div>`}).join("")}</div>
+        ${priceTable(m)}
         ${m.odds?'<div class="mute" style="font-size:11.5px">@ = best UK bookmaker price. Green = value (30% model + 70% bookies beats that price by 3%+).</div>':""}
         <ul class="why">${reasons(m,r).map(x=>`<li>${x}</li>`).join("")}</ul>
         <div class="row"><span>Weather</span>
@@ -445,6 +462,22 @@ function renderPicks(){
     `<div class="empty">${mode==="corners"||mode==="cards"?"Corner and card stats arrive with the first data update.":"No matches yet."}</div>`;
 }
 
+// ---------- Bookmaker prices ----------
+const PRICE_COLS=[["1","Home"],["X","Draw"],["2","Away"],["O25","Over 2.5"],["U25","Under 2.5"]];
+function priceAt(m,key,book){const o=m.odds&&m.odds[key];if(!o||!o.all)return null;const r=o.all.find(x=>x[0]===book);return r?r[1]:null}
+function priceTable(m){
+  if(!m.odds)return"";
+  const cols=PRICE_COLS.filter(([k])=>m.odds[k]&&m.odds[k].all);
+  if(!cols.length)return"";
+  const books=new Set();cols.forEach(([k])=>m.odds[k].all.forEach(([b])=>books.add(b)));
+  const list=[...books].sort((a,b)=>cols.reduce((s,[k])=>s+(priceAt(m,k,b)||0),0)<cols.reduce((s,[k])=>s+(priceAt(m,k,a)||0),0)?-1:1);
+  return `<div class="ptwrap"><div class="plh">Bookmaker prices <small class="mute">· best in green · Home = ${esc(m.h)}</small></div>
+  <table class="ptab"><thead><tr><th>Bookmaker</th>${cols.map(([,l])=>`<th>${l}</th>`).join("")}</tr></thead><tbody>${
+    list.map(b=>`<tr><td>${esc(b)}</td>${cols.map(([k])=>{const p=priceAt(m,k,b);return `<td class="${p&&p===m.odds[k].b?"best":""}">${p?p.toFixed(2):"–"}</td>`}).join("")}</tr>`).join("")
+  }</tbody></table></div>`;
+}
+const topBooks=(o,n=3)=>o&&o.all?o.all.slice(0,n).map(([b,p])=>`${esc(b)} ${p.toFixed(2)}`).join(" · "):"";
+
 // ---------- Value finder ----------
 function renderValue(){
   const el=document.getElementById("value"),list=[];
@@ -455,7 +488,8 @@ function renderValue(){
   el.innerHTML=list.slice(0,10).map(({m,x,e})=>`
     <div class="pick vrow" data-go="${m.id}" data-lgi="${LG.indexOf(m.L)}">
       <div class="what"><b>${esc(x.label)}</b><small>${esc(m.h)} v ${esc(m.a)} · ${esc(m.L.name)} · ${esc(m.d)}</small>
-        <small>Model ${pc(x.p)} · Bookies ${pc(x.mp)} · Blend ${pc(blendP(x))} · Best ${x.o.b.toFixed(2)} @ ${esc(x.o.k)}</small></div>
+        <small>Model ${pc(x.p)} · Bookies ${pc(x.mp)} · Blend ${pc(blendP(x))}</small>
+        <small class="books">💷 ${topBooks(x.o)}</small></div>
       <div style="text-align:right"><span class="pct" style="color:var(--home)">+${Math.round(e*100)}%</span>
         <button class="addtip" data-addm="${m.id}" data-addk="${x.key}" style="margin-top:4px">+ Acca</button></div>
     </div>`).join("");
@@ -494,7 +528,7 @@ function addLeg(mid,key){
   legs.push({mid:Number(mid)||mid,key});autoNote="";saveLegs();renderAuto();renderAcca();updateAddBtn();
 }
 // Auto-build: N legs, one per match, chosen by risk level
-let autoN=4, autoRisk="balanced", autoNote="";
+let autoN=4, autoRisk="balanced", autoNote="", pricedOnly=false;
 const RISK={
   safe:    {lo:.70,hi:.93, label:"Safe",       ok:k=>k!=="X"},
   balanced:{lo:.52,hi:.78, label:"Balanced",   ok:k=>!["12","X","U15"].includes(k)},
@@ -506,7 +540,7 @@ function autoBuild(risk){
   const all=LG.flatMap(L=>(L.matches||[]).filter(m=>m._r));
   const picks=[];let filled=0;
   for(const m of all){
-    let opts=markets(m).filter(x=>x.p>=R.lo&&x.p<=R.hi&&R.ok(x.key));
+    let opts=markets(m).filter(x=>x.p>=R.lo&&x.p<=R.hi&&R.ok(x.key)&&(!pricedOnly||x.o));
     let best=null;
     if(risk==="value"){
       const v=opts.map(x=>({x,e:edgeOf(x)})).filter(o=>o.e!=null&&o.e>0).sort((a,b)=>b.e-a.e);
@@ -526,7 +560,7 @@ function autoBuild(risk){
   // value mode: top up with balanced picks if there aren't enough priced value bets
   if(risk==="value"&&chosen.length<autoN){
     const used=new Set(chosen.map(c=>c.mid));
-    const extra=all.filter(m=>!used.has(m.id)).map(m=>{const o=markets(m).filter(x=>x.p>=.52&&x.p<=.78&&RISK.balanced.ok(x.key)).sort((a,b)=>b.p-a.p)[0];return o?{mid:m.id,key:o.key,score:o.p}:null}).filter(Boolean).sort((a,b)=>b.score-a.score);
+    const extra=all.filter(m=>!used.has(m.id)).map(m=>{const o=markets(m).filter(x=>x.p>=.52&&x.p<=.78&&RISK.balanced.ok(x.key)&&(!pricedOnly||x.o)).sort((a,b)=>b.p-a.p)[0];return o?{mid:m.id,key:o.key,score:o.p}:null}).filter(Boolean).sort((a,b)=>b.score-a.score);
     filled=Math.min(autoN-chosen.length,extra.length);
     chosen=chosen.concat(extra.slice(0,filled));
   }
@@ -541,10 +575,29 @@ function autoBuild(risk){
 function renderAuto(){
   document.getElementById("autoN").textContent=autoN;
   document.querySelectorAll("[data-risk]").forEach(b=>b.classList.toggle("on",b.dataset.risk===autoRisk&&legs.length>0));
+  const pb=document.getElementById("pricedOnly");if(pb){pb.classList.toggle("on",pricedOnly);pb.textContent=(pricedOnly?"✓ ":"")+"💷 Only bets with bookie prices";}
 }
 function quick(kind){
   if(kind==="clear"){legs=[];autoNote="";saveLegs();renderAuto();renderAcca();updateAddBtn();}
 }
+// Rank bookmakers by the price they'd pay for the whole accumulator (an acca must be placed at one bookie)
+function whereToBet(){
+  const L=legs.map(l=>{const m=MATCH[l.mid];return m&&{m,x:market(m,l.key)}}).filter(Boolean);
+  if(!L.length)return"";
+  const priced=L.filter(({x})=>x.o&&x.o.all);
+  if(priced.length<L.length){
+    const n=L.length-priced.length;
+    return `<div class="accnote">🏦 ${n} leg${n===1?" has":"s have"} no bookmaker prices in our data (double chance and BTTS aren't in the free feed), so we can't compare bookies for the whole accumulator.</div>`;
+  }
+  const books=new Set(priced[0].x.o.all.map(r=>r[0]));
+  const rows=[...books].map(b=>{let p=1;for(const {m,x} of priced){const v=priceAt(m,x.key,b);if(!v)return null;p*=v;}return [b,p];}).filter(Boolean).sort((a,b)=>b[1]-a[1]);
+  if(!rows.length)return `<div class="accnote">🏦 No single bookmaker prices every leg of this accumulator.</div>`;
+  const fmt=p=>p>=1000?Math.round(p).toLocaleString():p.toFixed(2);
+  return `<div class="where"><div class="plh">🏦 Where to place it <small class="mute">· whole-accumulator price</small></div>
+    ${rows.slice(0,6).map(([b,p],i)=>`<div class="wrow ${i===0?"top":""}"><span>${i+1}. ${esc(b)}</span><b>${fmt(p)}</b></div>`).join("")}
+    <div class="accnote">${rows.length} bookie${rows.length===1?" prices":"s price"} every leg. £10 at ${esc(rows[0][0])} would return £${(10*rows[0][1]).toFixed(2)} if it all lands. Prices change, so check on the bookie's site.</div></div>`;
+}
+
 function renderAcca(){
   const el=document.getElementById("acca");
   if(!legs.length){el.innerHTML=`<div class="empty">Choose how many legs and a risk level for an instant accumulator, or add bets one by one below – up to ${MAXLEGS} legs.</div>`;return;}
@@ -554,7 +607,7 @@ function renderAcca(){
     comb*=x.p;bcomb*=blendP(x);counts[l.mid]=(counts[l.mid]||0)+1;if(x.o)price*=x.o.b;else allPriced=false;
     return `<div class="leg"><span class="n">${i+1}</span>
       <div class="what" data-go="${m.id}" data-lgi="${LG.indexOf(m.L)}"><b>${esc(x.label)}</b><small>${esc(m.h)} v ${esc(m.a)} · ${esc(m.L.name)} · ${esc(m.d)} ${esc(m.k)}</small></div>
-      <span class="pct">${pc(x.p)}${x.o?`<small style="display:block;font:500 11px Inter;color:var(--mute)">@${x.o.b.toFixed(2)}</small>`:""}</span><button class="legx" data-rm="${i}" aria-label="Remove">×</button></div>`;
+      <span class="pct">${pc(x.p)}${x.o?`<small style="display:block;font:500 11px Inter;color:var(--mute)">${x.o.b.toFixed(2)} · ${esc(x.o.k)}</small>`:""}</span><button class="legx" data-rm="${i}" aria-label="Remove">×</button></div>`;
   }).join("");
   const same=Object.values(counts).some(c=>c>1);
   el.innerHTML=rows+`
@@ -565,6 +618,7 @@ function renderAcca(){
     ${allPriced?`<div class="accsum"><div class="stat"><small>Best bookie price</small><b>${price>=1000?Math.round(price).toLocaleString():price.toFixed(2)}</b></div>
       <div class="stat"><small>Edge (blend)</small><b style="color:${bcomb*price-1>=0?"var(--home)":"var(--bad)"}">${bcomb*price-1>=0?"+":""}${Math.round((bcomb*price-1)*100)}%</b></div></div>
       <div class="accnote">Best price multiplies the top UK price for each leg, which may be at different bookies. One bookie's acca price is usually lower.</div>`:""}
+    ${whereToBet()}
     ${autoNote?`<div class="warn">${esc(autoNote)}</div>`:""}
     ${same?'<div class="warn">⚠ Some legs are from the same match, so they\'re linked – treat the combined figure as a rough guide.</div>':""}
     <div class="accnote">Only worth backing if the bookie's price is higher than the fair odds. Every extra leg cuts the chance it all lands.</div>`;
@@ -590,6 +644,7 @@ document.addEventListener("click",e=>{
   if(tb){document.querySelectorAll(".tab[data-m]").forEach(x=>x.classList.toggle("on",x===tb));mode=tb.dataset.m;renderPicks();return;}
   const at=t.closest("[data-addm]");
   if(at){addLeg(at.dataset.addm,at.dataset.addk);at.textContent="✓ Added";return;}
+  if(t.closest("#pricedOnly")){pricedOnly=!pricedOnly;renderAuto();if(legs.length)autoBuild(autoRisk);return;}
   const rk=t.closest("[data-risk]");
   if(rk){autoBuild(rk.dataset.risk);return;}
   const an=t.closest("[data-autod]");
