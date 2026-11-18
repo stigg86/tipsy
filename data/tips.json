@@ -1,0 +1,849 @@
+{
+ "updated": "2026-11-18T12:30:00Z",
+ "mode": "snapshot",
+ "round": "Regular Season - 11",
+ "sources": [
+  "Table: plstats.uk (8 Nov 2026)",
+  "xG: winner364.com (17 Nov 2026)",
+  "Players: vavel.com (after Round 10)",
+  "Weather: manual default"
+ ],
+ "teams": {
+  "Arsenal": {
+   "o": [
+    10,
+    15,
+    5
+   ],
+   "h": [
+    5,
+    10,
+    2
+   ],
+   "a": [
+    5,
+    5,
+    3
+   ],
+   "f": "WWWWW",
+   "xg": [
+    1.61,
+    0.76
+   ]
+  },
+  "Brighton": {
+   "o": [
+    10,
+    26,
+    7
+   ],
+   "h": [
+    5,
+    15,
+    1
+   ],
+   "a": [
+    5,
+    11,
+    6
+   ],
+   "f": "WWLWW",
+   "xg": [
+    1.93,
+    1.36
+   ]
+  },
+  "Man City": {
+   "o": [
+    10,
+    21,
+    13
+   ],
+   "h": [
+    5,
+    11,
+    7
+   ],
+   "a": [
+    5,
+    10,
+    6
+   ],
+   "f": "WWLLL",
+   "xg": [
+    2.04,
+    1.25
+   ]
+  },
+  "Liverpool": {
+   "o": [
+    10,
+    14,
+    10
+   ],
+   "h": [
+    5,
+    4,
+    6
+   ],
+   "a": [
+    5,
+    10,
+    4
+   ],
+   "f": "LWWLW",
+   "xg": [
+    1.58,
+    1.31
+   ]
+  },
+  "Chelsea": {
+   "o": [
+    10,
+    19,
+    16
+   ],
+   "h": [
+    5,
+    13,
+    8
+   ],
+   "a": [
+    5,
+    6,
+    8
+   ],
+   "f": "WWLWL",
+   "xg": [
+    1.35,
+    1.5
+   ]
+  },
+  "Everton": {
+   "o": [
+    10,
+    12,
+    10
+   ],
+   "h": [
+    5,
+    8,
+    5
+   ],
+   "a": [
+    5,
+    4,
+    5
+   ],
+   "f": "DLLWW",
+   "xg": [
+    1.36,
+    1.44
+   ]
+  },
+  "Bournemouth": {
+   "o": [
+    10,
+    16,
+    14
+   ],
+   "h": [
+    5,
+    7,
+    4
+   ],
+   "a": [
+    5,
+    9,
+    10
+   ],
+   "f": "LWWWW",
+   "xg": [
+    1.8,
+    1.14
+   ]
+  },
+  "Brentford": {
+   "o": [
+    10,
+    16,
+    11
+   ],
+   "h": [
+    5,
+    10,
+    3
+   ],
+   "a": [
+    5,
+    6,
+    8
+   ],
+   "f": "DLDWL",
+   "xg": [
+    1.45,
+    1.48
+   ]
+  },
+  "Leeds": {
+   "o": [
+    10,
+    10,
+    8
+   ],
+   "h": [
+    5,
+    7,
+    3
+   ],
+   "a": [
+    5,
+    3,
+    5
+   ],
+   "f": "LDDLW",
+   "xg": [
+    1.31,
+    1.24
+   ]
+  },
+  "Aston Villa": {
+   "o": [
+    10,
+    14,
+    17
+   ],
+   "h": [
+    5,
+    6,
+    7
+   ],
+   "a": [
+    5,
+    8,
+    10
+   ],
+   "f": "DWWDD",
+   "xg": [
+    1.37,
+    1.86
+   ]
+  },
+  "Tottenham": {
+   "o": [
+    10,
+    10,
+    11
+   ],
+   "h": [
+    5,
+    7,
+    6
+   ],
+   "a": [
+    5,
+    3,
+    5
+   ],
+   "f": "DWWWL",
+   "xg": [
+    1.24,
+    1.2
+   ]
+  },
+  "Newcastle": {
+   "o": [
+    10,
+    13,
+    16
+   ],
+   "h": [
+    5,
+    6,
+    7
+   ],
+   "a": [
+    5,
+    7,
+    9
+   ],
+   "f": "LLWLD",
+   "xg": [
+    1.17,
+    1.63
+   ]
+  },
+  "Hull": {
+   "o": [
+    10,
+    11,
+    11
+   ],
+   "h": [
+    5,
+    7,
+    5
+   ],
+   "a": [
+    5,
+    4,
+    6
+   ],
+   "f": "DLDDL",
+   "xg": [
+    0.95,
+    1.45
+   ]
+  },
+  "Ipswich": {
+   "o": [
+    10,
+    15,
+    20
+   ],
+   "h": [
+    5,
+    6,
+    7
+   ],
+   "a": [
+    5,
+    9,
+    13
+   ],
+   "f": "WLDDL",
+   "xg": [
+    1.33,
+    1.94
+   ]
+  },
+  "Fulham": {
+   "o": [
+    10,
+    10,
+    12
+   ],
+   "h": [
+    5,
+    7,
+    8
+   ],
+   "a": [
+    5,
+    3,
+    4
+   ],
+   "f": "LWWDD",
+   "xg": [
+    1.44,
+    1.34
+   ]
+  },
+  "Nott'm Forest": {
+   "o": [
+    10,
+    9,
+    13
+   ],
+   "h": [
+    5,
+    3,
+    4
+   ],
+   "a": [
+    5,
+    6,
+    9
+   ],
+   "f": "LLDLW",
+   "xg": [
+    1.57,
+    1.1
+   ]
+  },
+  "Coventry": {
+   "o": [
+    10,
+    10,
+    19
+   ],
+   "h": [
+    5,
+    7,
+    9
+   ],
+   "a": [
+    5,
+    3,
+    10
+   ],
+   "f": "WLLWL",
+   "xg": [
+    0.95,
+    1.51
+   ]
+  },
+  "Man Utd": {
+   "o": [
+    10,
+    14,
+    19
+   ],
+   "h": [
+    5,
+    10,
+    11
+   ],
+   "a": [
+    5,
+    4,
+    8
+   ],
+   "f": "DDLLD",
+   "xg": [
+    1.74,
+    1.78
+   ]
+  },
+  "Sunderland": {
+   "o": [
+    10,
+    8,
+    17
+   ],
+   "h": [
+    5,
+    2,
+    4
+   ],
+   "a": [
+    5,
+    6,
+    13
+   ],
+   "f": "LLDLW",
+   "xg": [
+    1.56,
+    1.64
+   ]
+  },
+  "Crystal Palace": {
+   "o": [
+    10,
+    10,
+    24
+   ],
+   "h": [
+    5,
+    7,
+    13
+   ],
+   "a": [
+    5,
+    3,
+    11
+   ],
+   "f": "WLLLL",
+   "xg": [
+    1.38,
+    2.19
+   ]
+  }
+ },
+ "players": {
+  "Man City": [
+   {
+    "name": "Haaland",
+    "g": 9,
+    "a": 0,
+    "apps": 10
+   },
+   {
+    "name": "Cherki",
+    "g": 5,
+    "a": 2,
+    "apps": 9
+   },
+   {
+    "name": "Semenyo",
+    "g": 2,
+    "a": 3,
+    "apps": 7
+   },
+   {
+    "name": "Gvardiol",
+    "g": 1,
+    "a": 4,
+    "apps": 10
+   }
+  ],
+  "Liverpool": [
+   {
+    "name": "Isak",
+    "g": 7,
+    "a": 0,
+    "apps": 9
+   },
+   {
+    "name": "Wirtz",
+    "g": 1,
+    "a": 3,
+    "apps": 10
+   },
+   {
+    "name": "Gakpo",
+    "g": 1,
+    "a": 3,
+    "apps": 8
+   }
+  ],
+  "Everton": [
+   {
+    "name": "Barry",
+    "g": 6,
+    "a": 1,
+    "apps": 10
+   }
+  ],
+  "Aston Villa": [
+   {
+    "name": "N. Jackson",
+    "g": 6,
+    "a": 1,
+    "apps": 9
+   },
+   {
+    "name": "McGinn",
+    "g": 2,
+    "a": 4,
+    "apps": 10
+   },
+   {
+    "name": "Manzambi",
+    "g": 2,
+    "a": 3,
+    "apps": 7
+   }
+  ],
+  "Bournemouth": [
+   {
+    "name": "Evanilson",
+    "g": 5,
+    "a": 4,
+    "apps": 10
+   },
+   {
+    "name": "Tavernier",
+    "g": 5,
+    "a": 0,
+    "apps": 10
+   }
+  ],
+  "Chelsea": [
+   {
+    "name": "João Pedro",
+    "g": 5,
+    "a": 3,
+    "apps": 6
+   },
+   {
+    "name": "Rogers",
+    "g": 5,
+    "a": 1,
+    "apps": 10
+   },
+   {
+    "name": "Palmer",
+    "g": 3,
+    "a": 3,
+    "apps": 10
+   }
+  ],
+  "Brighton": [
+   {
+    "name": "Groß",
+    "g": 4,
+    "a": 4,
+    "apps": 10
+   },
+   {
+    "name": "De Cuyper",
+    "g": 2,
+    "a": 3,
+    "apps": 10
+   }
+  ],
+  "Man Utd": [
+   {
+    "name": "B. Fernandes",
+    "g": 4,
+    "a": 2,
+    "apps": 9
+   },
+   {
+    "name": "Mbeumo",
+    "g": 4,
+    "a": 0,
+    "apps": 10
+   }
+  ],
+  "Leeds": [
+   {
+    "name": "Calvert-Lewin",
+    "g": 4,
+    "a": 1,
+    "apps": 10
+   }
+  ],
+  "Hull": [
+   {
+    "name": "Belloumi",
+    "g": 3,
+    "a": 2,
+    "apps": 9
+   }
+  ],
+  "Arsenal": [
+   {
+    "name": "Rice",
+    "g": 0,
+    "a": 5,
+    "apps": 10
+   },
+   {
+    "name": "B. White",
+    "g": 0,
+    "a": 3,
+    "apps": 7
+   }
+  ],
+  "Nott'm Forest": [
+   {
+    "name": "Gibbs-White",
+    "g": 1,
+    "a": 3,
+    "apps": 9
+   }
+  ],
+  "Crystal Palace": [
+   {
+    "name": "Kamada",
+    "g": 1,
+    "a": 3,
+    "apps": 10
+   }
+  ]
+ },
+ "matches": [
+  {
+   "id": 1,
+   "date": "2026-11-21T12:30:00Z",
+   "d": "Sat 21 Nov",
+   "k": "12:30",
+   "h": "Man City",
+   "a": "Fulham",
+   "v": "Etihad Stadium",
+   "w": "light",
+   "wx": null,
+   "inj": {
+    "h": {
+     "players": [],
+     "others": 0
+    },
+    "a": {
+     "players": [],
+     "others": 0
+    }
+   }
+  },
+  {
+   "id": 2,
+   "date": "2026-11-21T15:00:00Z",
+   "d": "Sat 21 Nov",
+   "k": "15:00",
+   "h": "Bournemouth",
+   "a": "Nott'm Forest",
+   "v": "Vitality Stadium",
+   "w": "light",
+   "wx": null,
+   "inj": {
+    "h": {
+     "players": [],
+     "others": 0
+    },
+    "a": {
+     "players": [],
+     "others": 0
+    }
+   }
+  },
+  {
+   "id": 3,
+   "date": "2026-11-21T15:00:00Z",
+   "d": "Sat 21 Nov",
+   "k": "15:00",
+   "h": "Aston Villa",
+   "a": "Sunderland",
+   "v": "Villa Park",
+   "w": "light",
+   "wx": null,
+   "inj": {
+    "h": {
+     "players": [],
+     "others": 0
+    },
+    "a": {
+     "players": [],
+     "others": 0
+    }
+   }
+  },
+  {
+   "id": 4,
+   "date": "2026-11-21T15:00:00Z",
+   "d": "Sat 21 Nov",
+   "k": "15:00",
+   "h": "Chelsea",
+   "a": "Leeds",
+   "v": "Stamford Bridge",
+   "w": "light",
+   "wx": null,
+   "inj": {
+    "h": {
+     "players": [],
+     "others": 0
+    },
+    "a": {
+     "players": [],
+     "others": 0
+    }
+   }
+  },
+  {
+   "id": 5,
+   "date": "2026-11-21T15:00:00Z",
+   "d": "Sat 21 Nov",
+   "k": "15:00",
+   "h": "Coventry",
+   "a": "Crystal Palace",
+   "v": "CBS Arena",
+   "w": "light",
+   "wx": null,
+   "inj": {
+    "h": {
+     "players": [],
+     "others": 0
+    },
+    "a": {
+     "players": [],
+     "others": 0
+    }
+   }
+  },
+  {
+   "id": 6,
+   "date": "2026-11-21T15:00:00Z",
+   "d": "Sat 21 Nov",
+   "k": "15:00",
+   "h": "Tottenham",
+   "a": "Ipswich",
+   "v": "Tottenham Hotspur Stadium",
+   "w": "light",
+   "wx": null,
+   "inj": {
+    "h": {
+     "players": [],
+     "others": 0
+    },
+    "a": {
+     "players": [],
+     "others": 0
+    }
+   }
+  },
+  {
+   "id": 7,
+   "date": "2026-11-21T17:30:00Z",
+   "d": "Sat 21 Nov",
+   "k": "17:30",
+   "h": "Newcastle",
+   "a": "Arsenal",
+   "v": "St James' Park",
+   "w": "light",
+   "wx": null,
+   "inj": {
+    "h": {
+     "players": [],
+     "others": 0
+    },
+    "a": {
+     "players": [],
+     "others": 0
+    }
+   }
+  },
+  {
+   "id": 8,
+   "date": "2026-11-22T14:00:00Z",
+   "d": "Sun 22 Nov",
+   "k": "14:00",
+   "h": "Hull",
+   "a": "Brighton",
+   "v": "MKM Stadium",
+   "w": "rain",
+   "wx": null,
+   "inj": {
+    "h": {
+     "players": [],
+     "others": 0
+    },
+    "a": {
+     "players": [],
+     "others": 0
+    }
+   }
+  },
+  {
+   "id": 9,
+   "date": "2026-11-22T16:30:00Z",
+   "d": "Sun 22 Nov",
+   "k": "16:30",
+   "h": "Liverpool",
+   "a": "Man Utd",
+   "v": "Anfield",
+   "w": "rain",
+   "wx": null,
+   "inj": {
+    "h": {
+     "players": [],
+     "others": 0
+    },
+    "a": {
+     "players": [],
+     "others": 0
+    }
+   }
+  },
+  {
+   "id": 10,
+   "date": "2026-11-23T20:00:00Z",
+   "d": "Mon 23 Nov",
+   "k": "20:00",
+   "h": "Brentford",
+   "a": "Everton",
+   "v": "Gtech Community Stadium",
+   "w": "light",
+   "wx": null,
+   "inj": {
+    "h": {
+     "players": [],
+     "others": 0
+    },
+    "a": {
+     "players": [],
+     "others": 0
+    }
+   }
+  }
+ ]
+}

@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tipsy – Premier League Tips</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0c1210;--panel:#141d19;--panel2:#1a2621;--line:#253530;--ink:#e9f2ee;--mute:#8aa39a;
+  --home:#3ddc97;--draw:#e8c547;--away:#5aa9ff;--bad:#ff6b6b;--accent:#3ddc97;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.45 Inter,system-ui,sans-serif;padding:0 0 60px}
+h1,h2,h3,.num{font-family:"Space Grotesk",Inter,sans-serif}
+.wrap{max-width:760px;margin:0 auto;padding:0 14px}
+header{padding:22px 0 14px;border-bottom:1px solid var(--line);margin-bottom:16px;
+  background:radial-gradient(1200px 200px at 20% -40%,rgba(61,220,151,.18),transparent)}
+header h1{font-size:26px;letter-spacing:-.5px}
+header h1 span{color:var(--accent)}
+header p{color:var(--mute);font-size:13px;margin-top:4px}
+.note{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:12.5px;color:var(--mute);margin-bottom:16px}
+.note b{color:var(--ink)}
+h2{font-size:17px;margin:22px 0 10px}
+.tabs{display:flex;gap:6px;margin:6px 0 14px;flex-wrap:wrap}
+.tab{background:var(--panel);border:1px solid var(--line);color:var(--mute);padding:7px 12px;border-radius:999px;font-size:13px;cursor:pointer}
+.tab.on{background:var(--accent);color:#04140d;border-color:var(--accent);font-weight:600}
+.picks{display:grid;gap:8px}
+.pick{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;cursor:pointer}
+.pick .rank{font-family:"Space Grotesk";color:var(--mute);width:18px}
+.pick .what{flex:1}
+.pick .what b{display:block;font-size:14.5px}
+.pick .what small{color:var(--mute);font-size:12px}
+.badge{font-size:11px;font-weight:600;padding:3px 8px;border-radius:999px;white-space:nowrap}
+.b-strong{background:rgba(61,220,151,.18);color:var(--home)}
+.b-good{background:rgba(90,169,255,.18);color:var(--away)}
+.b-lean{background:rgba(232,197,71,.18);color:var(--draw)}
+.b-avoid{background:rgba(255,107,107,.15);color:var(--bad)}
+.pct{font-family:"Space Grotesk";font-size:20px;font-weight:700;min-width:52px;text-align:right}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;margin-bottom:12px;overflow:hidden}
+.card .top{padding:12px 14px 10px}
+.meta{font-size:12px;color:var(--mute);display:flex;justify-content:space-between;gap:8px}
+.teams{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:8px;margin:8px 0 10px}
+.team{font-weight:600;font-size:15px}
+.team.r{text-align:right}
+.score{font-family:"Space Grotesk";font-size:13px;color:var(--mute);text-align:center}
+.score b{display:block;color:var(--ink);font-size:20px}
+.form{display:flex;gap:3px;margin-top:4px}
+.team.r .form{justify-content:flex-end}
+.f{width:17px;height:17px;border-radius:4px;font-size:10px;font-weight:700;display:grid;place-items:center;color:#04140d}
+.f.W{background:var(--home)}.f.D{background:var(--draw)}.f.L{background:var(--bad)}
+.bar{display:flex;height:28px;border-radius:8px;overflow:hidden;font-size:12px;font-weight:600;color:#04140d}
+.bar div{display:grid;place-items:center;min-width:0;transition:flex .3s}
+.bar .h{background:var(--home)}.bar .d{background:var(--draw)}.bar .a{background:var(--away)}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:10px}
+.stat{background:var(--panel2);border-radius:9px;padding:7px 8px}
+.stat small{display:block;color:var(--mute);font-size:10.5px;text-transform:uppercase;letter-spacing:.4px}
+.stat b{font-family:"Space Grotesk";font-size:15px}
+.tip{margin-top:10px;display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13.5px}
+.tip b{color:var(--accent)}
+details{border-top:1px solid var(--line)}
+summary{padding:10px 14px;font-size:13px;color:var(--mute);cursor:pointer;list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::after{content:" ▾"}
+details[open] summary::after{content:" ▴"}
+.adj{padding:2px 14px 14px;display:grid;gap:10px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:13px}
+select{background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:6px 8px;font:inherit;font-size:13px}
+.step{display:flex;align-items:center;gap:6px}
+.step button{width:28px;height:28px;border-radius:7px;border:1px solid var(--line);background:var(--panel2);color:var(--ink);font-size:16px;cursor:pointer}
+.step span{min-width:16px;text-align:center;font-family:"Space Grotesk"}
+.why{font-size:12.5px;color:var(--mute);line-height:1.5}
+.why li{margin-left:16px}
+.how{font-size:13px;color:var(--mute);background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+.how li{margin:4px 0 4px 18px}
+.how b{color:var(--ink)}
+footer{font-size:11.5px;color:var(--mute);margin-top:22px;text-align:center}
+.flash{outline:2px solid var(--accent)}
+.pl{display:grid;gap:6px}
+.plh{font-size:13px}
+.mute{color:var(--mute);font-size:12px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:10px;padding:6px 9px;text-align:left;cursor:pointer;font:inherit}
+.chip b{display:block;font-size:13px}
+.chip span{font-size:11px;color:var(--mute)}
+.chip.off{border-color:var(--bad);background:rgba(255,107,107,.12)}
+.chip.off b{text-decoration:line-through;color:var(--bad)}
+.injrow{font-size:11.5px;color:var(--mute);margin-top:4px}
+.xgrow{display:flex;justify-content:space-between;font-size:11.5px;color:var(--mute);margin-top:6px}
+.acca{background:linear-gradient(160deg,rgba(61,220,151,.12),var(--panel) 60%);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.leg{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dashed var(--line);cursor:pointer}
+.leg:last-of-type{border-bottom:0}
+.leg .n{font-family:"Space Grotesk";width:22px;height:22px;border-radius:50%;background:var(--panel2);display:grid;place-items:center;font-size:12px;color:var(--mute)}
+.leg .what{flex:1}.leg .what b{display:block;font-size:14px}.leg .what small{color:var(--mute);font-size:12px}
+.accsum{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.accsum .stat b{font-size:20px}
+.accnote{font-size:12px;color:var(--mute);margin-top:8px}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <h1>Tips<span>y</span></h1>
+  <p>Premier League · <span id="round"></span> · tips, not bets</p>
+</div></header>
+
+<div class="wrap">
+  <div class="note"><b>Updated:</b> <span id="updated">…</span>. Table, last-5 form, xG, player stats, injuries and kick-off weather refresh automatically. Injured players are already marked out – tap to change. Percentages are model estimates, not certainties. 18+ · BeGambleAware.org</div>
+
+  <h2>Top tips this round</h2>
+  <div class="tabs" id="tabs">
+    <button class="tab on" data-m="result">Match result</button>
+    <button class="tab" data-m="goals">Goals (O/U 2.5)</button>
+    <button class="tab" data-m="btts">Both teams score</button>
+  </div>
+  <div class="picks" id="picks"></div>
+
+  <h2>4-fold accumulator</h2>
+  <div class="tabs" id="accTabs">
+    <button class="tab on" data-acc="win">Straight wins</button>
+    <button class="tab" data-acc="safe">Safer mix</button>
+  </div>
+  <div class="acca" id="acca"></div>
+
+  <h2>All matches</h2>
+  <div id="cards"></div>
+
+  <h2>How the model works</h2>
+  <div class="how"><ul>
+    <li><b>Attack & defence strength</b> – half from actual goals (home/away split plus overall), half from <b>season xG and xGA per game</b>. xG measures chance quality, so it filters out lucky finishing and freak results. Then it's pulled slightly towards average, because 10 games is a small sample.</li>
+    <li><b>Player form</b> – each team's players in the league's top 15 scorers or assisters, with goals, assists and goal involvements per game. Tap a player who's out and their team's attack drops by their share of its goals (goals + half of assists), less ~40% for whoever replaces them.</li>
+    <li><b>Last 5 form</b> – points from the last five, with recent games weighted heavier (newest ×5, oldest ×1). Hot teams get up to ~+15% on expected goals, cold teams lose the same.</li>
+    <li><b>Home advantage</b> – built in, because home and away goal rates are modelled separately.</li>
+    <li><b>Weather</b> – heavy rain, strong wind and freezing conditions cut expected goals (roughly 2–10%), which nudges draws and unders up.</li>
+    <li><b>Other key players out</b> – for anyone not listed (defenders, keepers): each one trims that side's attack by 6% and adds 3% to what they concede.</li>
+    <li><b>Result</b> – expected goals feed a Poisson scoreline model (0–0 up to 8–8) to get win/draw/loss, over 2.5, both-teams-to-score and the most likely score.</li>
+  </ul></div>
+
+  <footer>Sources: <span id="srcs"></span><br>For fun and info only. Never stake what you can't afford to lose.</footer>
+</div>
+
+<script>
+// Data is loaded from data/tips.json (built by scripts/build.mjs on a schedule)
+let T={},M=[],XG={},P={},DATA=null,AVG_H=1.4,AVG_A=1.2,AVG=1.3,XGAVG=1.4;
+const out={};
+function init(d){
+  DATA=d; M=d.matches; P={}; XG={}; T={};
+  for(const [k,v] of Object.entries(d.teams)){ T[k]={o:v.o,h:v.h,a:v.a,f:v.f||""}; if(v.xg) XG[k]=v.xg; }
+  for(const [k,v] of Object.entries(d.players||{})) P[k]=v.map(p=>[p.name,p.g,p.a,Math.max(1,p.apps||1)]);
+  let hg=0,hp=0,ag=0,ap=0;
+  for(const t of Object.values(T)){hg+=t.h[1];hp+=t.h[0];ag+=t.a[1];ap+=t.a[0];}
+  AVG_H=hp?hg/hp:1.4; AVG_A=ap?ag/ap:1.2; AVG=(hp+ap)?(hg+ag)/(hp+ap):1.3;
+  const xs=Object.values(XG); XGAVG=xs.length?xs.reduce((s,v)=>s+v[0],0)/xs.length:1.4;
+  M.forEach(m=>{
+    const inj=m.inj||{h:{players:[],others:0},a:{players:[],others:0}};
+    const known=t=>new Set((P[t]||[]).map(p=>p[0]));
+    out[m.id]={
+      h:Math.min(3,inj.h.others||0), a:Math.min(3,inj.a.others||0),
+      ph:new Set(inj.h.players.filter(n=>known(m.h).has(n))),
+      pa:new Set(inj.a.players.filter(n=>known(m.a).has(n)))
+    };
+    m.injNames={h:inj.h.all||inj.h.players,a:inj.a.all||inj.a.players};
+    if(!WX[m.w]) m.w="light";
+  });
+}
+// share of team attack a player carries; replacement covers ~40%
+function playerHit(team,names){
+  if(!names||!names.size) return 0;
+  const goals=T[team].o[1]||1; let s=0;
+  (P[team]||[]).forEach(p=>{ if(names.has(p[0])) s+=(p[1]+.5*p[2])/goals; });
+  return Math.min(.35, s*.6);
+}
+const WX = {dry:["Dry / clear",1],light:["Light rain / showers",.98],rain:["Heavy rain",.94],wind:["Strong wind",.93],cold:["Freezing / snow",.90]};
+
+const shrink=x=>0.7*x+0.3;
+function formPPG(s){const w=[1,2,3,4,5];let p=0,ws=0;[...s].forEach((r,i)=>{p+=w[i]*(r==="W"?3:r==="D"?1:0);ws+=w[i]});return p/ws}
+function formFactor(s){const f=1+0.15*(formPPG(s)-1.4)/1.6;return Math.max(.85,Math.min(1.15,f))}
+function pois(l,k){let p=Math.exp(-l);for(let i=1;i<=k;i++)p*=l/i;return p}
+
+function model(m){
+  const H=T[m.h],A=T[m.a];
+  const XH=XG[m.h]||null,XA=XG[m.a]||null;
+  const mix=(g,x)=>x==null?g:.5*g+.5*x;
+  // goals-based strength (venue + overall), blended 50/50 with xG-based strength, then shrunk to average
+  const r0=(x,n)=>n?x/n:0;
+  const hAtt=shrink(mix(.5*r0(H.h[1],H.h[0])/AVG_H+.5*r0(H.o[1],H.o[0])/AVG, XH&&XH[0]/XGAVG));
+  const hDef=shrink(mix(.5*r0(H.h[2],H.h[0])/AVG_A+.5*r0(H.o[2],H.o[0])/AVG, XH&&XH[1]/XGAVG));
+  const aAtt=shrink(mix(.5*r0(A.a[1],A.a[0])/AVG_A+.5*r0(A.o[1],A.o[0])/AVG, XA&&XA[0]/XGAVG));
+  const aDef=shrink(mix(.5*r0(A.a[2],A.a[0])/AVG_H+.5*r0(A.o[2],A.o[0])/AVG, XA&&XA[1]/XGAVG));
+  const fh=formFactor(H.f), fa=formFactor(A.f);
+  const wx=WX[m.w][1], o=out[m.id];
+  const kh=playerHit(m.h,o.ph), ka=playerHit(m.a,o.pa);
+  let lh=AVG_H*hAtt*aDef*fh/Math.sqrt(fa)*wx*(1-.06*o.h)*(1+.03*o.a)*(1-kh);
+  let la=AVG_A*aAtt*hDef*fa/Math.sqrt(fh)*wx*(1-.06*o.a)*(1+.03*o.h)*(1-ka);
+  let pH=0,pD=0,pA=0,o25=0,btts=0,best=[0,0,0];
+  for(let i=0;i<=8;i++)for(let j=0;j<=8;j++){
+    const p=pois(lh,i)*pois(la,j);
+    if(i>j)pH+=p;else if(i===j)pD+=p;else pA+=p;
+    if(i+j>2)o25+=p; if(i>0&&j>0)btts+=p;
+    if(p>best[2])best=[i,j,p];
+  }
+  const s=pH+pD+pA; pH/=s;pD/=s;pA/=s;
+  return {lh,la,pH,pD,pA,o25,btts,best,fh,fa};
+}
+
+function grade(p){return p>=.6?["Strong","b-strong"]:p>=.5?["Good","b-good"]:p>=.4?["Lean","b-lean"]:["Avoid","b-avoid"]}
+function resultTip(m,r){
+  const opts=[[r.pH,m.h+" to win"],[r.pD,"Draw"],[r.pA,m.a+" to win"]].sort((x,y)=>y[0]-x[0]);
+  if(opts[0][0]<.45){ // offer double chance
+    const dcH=r.pH+r.pD, dcA=r.pA+r.pD;
+    return dcH>=dcA?[dcH,m.h+" or draw","Double chance"]:[dcA,m.a+" or draw","Double chance"];
+  }
+  return [opts[0][0],opts[0][1],"Match result"];
+}
+const pc=x=>Math.round(x*100)+"%";
+
+function reasons(m,r){
+  const H=T[m.h],A=T[m.a],l=[];
+  const hp=formPPG(H.f),ap=formPPG(A.f);
+  if(Math.abs(hp-ap)>.6) l.push(`${hp>ap?m.h:m.a} in much better recent form (${(hp>ap?H:A).f.slice(-3).split("").join("-")} last three).`);
+  const hHomePPG=(H.h[1]-H.h[2])/H.h[0], aAwayGD=(A.a[1]-A.a[2])/A.a[0];
+  l.push(`${m.h} at home: ${H.h[1]} scored, ${H.h[2]} conceded in ${H.h[0]}. ${m.a} away: ${A.a[1]} scored, ${A.a[2]} conceded in ${A.a[0]}.`);
+  if(WX[m.w][1]<.97) l.push(`${WX[m.w][0]} lowers expected goals.`);
+  [[m.h,"home"],[m.a,"away"]].forEach(([t])=>{
+    const x=XG[t]; if(!x) return; const luck=T[t].o[1]-x[0]*T[t].o[0];
+    if(luck>=4) l.push(`${t} have scored ${luck.toFixed(1)} more than their xG – likely to cool off.`);
+    if(luck<=-4) l.push(`${t} are ${(-luck).toFixed(1)} goals below their xG – creating more than they score.`);
+  });
+  const o=out[m.id], gone=[...o.ph,...o.pa];
+  if(o.h||o.a||gone.length) l.push(`Absences applied: ${[gone.join(", "), o.h?`${m.h} +${o.h} others`:"", o.a?`${m.a} +${o.a} others`:""].filter(Boolean).join(" · ")}.`);
+  if(r.lh+r.la>3.1) l.push("Both defences leaky – goals expected.");
+  if(r.lh+r.la<2.2) l.push("Low-scoring profile – unders/draw worth a look.");
+  return l;
+}
+
+function xgTxt(t,pre){const x=XG[t];return x?`${pre}xG ${x[0].toFixed(2)} · xGA ${x[1].toFixed(2)}`:"xG n/a"}
+function injTxt(m){const n=m.injNames||{h:[],a:[]};if(!(n.h||[]).length&&!(n.a||[]).length)return"";
+  return `<div class="injrow">🚑 ${[...(n.h||[]).map(x=>m.h+": "+x),...(n.a||[]).map(x=>m.a+": "+x)].join(" · ")}</div>`}
+function wxTxt(m){if(!m.wx)return"";return `<div class="injrow">🌦 ${WX[m.w][0]} · ${m.wx.temp}°C · rain ${m.wx.precip}mm/h · wind ${m.wx.wind}km/h</div>`}
+function players(m,side){
+  const team=side==="h"?m.h:m.a, list=P[team], set=out[m.id]["p"+side];
+  if(!list) return `<div class="pl"><div class="plh">${team} · key players</div><small class="mute">No one in the league's top 15 scorers/assisters – use the steppers below.</small></div>`;
+  return `<div class="pl"><div class="plh">${team} · key players <small class="mute">(tap if out)</small></div><div class="chips">${
+    list.map(p=>`<button class="chip ${set.has(p[0])?"off":""}" data-pid="${m.id}" data-side="${side}" data-name="${p[0]}">
+      <b>${p[0]}</b><span>${p[1]}G ${p[2]}A · ${((p[1]+p[2])/p[3]).toFixed(1)}/g</span></button>`).join("")}</div></div>`;
+}
+function form(s){return `<div class="form">${[...s].map(c=>`<span class="f ${c}">${c}</span>`).join("")}</div>`}
+
+function render(){
+  const cards=document.getElementById("cards"); cards.innerHTML="";
+  M.forEach(m=>{
+    const r=model(m), t=resultTip(m,r), g=grade(t[0]);
+    m._r=r;
+    const el=document.createElement("div"); el.className="card"; el.id="m"+m.id;
+    el.innerHTML=`
+    <div class="top">
+      <div class="meta"><span>${m.d} · ${m.k}</span><span>${m.v}</span></div>
+      <div class="teams">
+        <div class="team">${m.h}${form(T[m.h].f)}</div>
+        <div class="score"><b>${r.best[0]}–${r.best[1]}</b>likely</div>
+        <div class="team r">${m.a}${form(T[m.a].f)}</div>
+      </div>
+      <div class="xgrow"><span>${xgTxt(m.h,"Season ")}</span><span>${xgTxt(m.a,"")}</span></div>${injTxt(m)}${wxTxt(m)}
+      <div class="bar">
+        <div class="h" style="flex:${r.pH}">${pc(r.pH)}</div>
+        <div class="d" style="flex:${r.pD}">${pc(r.pD)}</div>
+        <div class="a" style="flex:${r.pA}">${pc(r.pA)}</div>
+      </div>
+      <div class="stats">
+        <div class="stat"><small>xG home</small><b>${r.lh.toFixed(2)}</b></div>
+        <div class="stat"><small>xG away</small><b>${r.la.toFixed(2)}</b></div>
+        <div class="stat"><small>Over 2.5</small><b>${pc(r.o25)}</b></div>
+        <div class="stat"><small>BTTS</small><b>${pc(r.btts)}</b></div>
+      </div>
+      <div class="tip"><span>Tip: <b>${t[1]}</b> · ${pc(t[0])}</span><span class="badge ${g[1]}">${g[0]}</span></div>
+    </div>
+    <details>
+      <summary>Why · weather · team news</summary>
+      <div class="adj">
+        <ul class="why">${reasons(m,r).map(x=>`<li>${x}</li>`).join("")}</ul>
+        <div class="row"><span>Weather</span>
+          <select data-id="${m.id}">${Object.entries(WX).map(([k,v])=>`<option value="${k}" ${k===m.w?"selected":""}>${v[0]}</option>`).join("")}</select></div>
+        ${players(m,"h")}${players(m,"a")}
+        <div class="row"><span>Other key players out – ${m.h}</span>
+          <div class="step"><button data-id="${m.id}" data-s="h" data-d="-1">−</button><span>${out[m.id].h}</span><button data-id="${m.id}" data-s="h" data-d="1">+</button></div></div>
+        <div class="row"><span>Other key players out – ${m.a}</span>
+          <div class="step"><button data-id="${m.id}" data-s="a" data-d="-1">−</button><span>${out[m.id].a}</span><button data-id="${m.id}" data-s="a" data-d="1">+</button></div></div>
+      </div>
+    </details>`;
+    cards.appendChild(el);
+  });
+  renderPicks();
+  renderAcca();
+}
+
+let mode="result";
+function renderPicks(){
+  const list=M.map(m=>{
+    const r=m._r;
+    if(mode==="result"){const t=resultTip(m,r);return {m,p:t[0],what:t[1],sub:`${m.h} v ${m.a} · ${t[2]}`}}
+    if(mode==="goals"){const over=r.o25>=.5;return {m,p:over?r.o25:1-r.o25,what:(over?"Over":"Under")+" 2.5 goals",sub:`${m.h} v ${m.a} · xG ${(r.lh+r.la).toFixed(1)}`}}
+    const y=r.btts>=.5;return {m,p:y?r.btts:1-r.btts,what:"BTTS: "+(y?"Yes":"No"),sub:`${m.h} v ${m.a}`}
+  }).sort((a,b)=>b.p-a.p).slice(0,5);
+  document.getElementById("picks").innerHTML=list.map((x,i)=>{const g=grade(x.p);return `
+    <div class="pick" data-go="${x.m.id}"><span class="rank">${i+1}</span>
+      <div class="what"><b>${x.what}</b><small>${x.sub}</small></div>
+      <span class="badge ${g[1]}">${g[0]}</span><span class="pct">${pc(x.p)}</span></div>`}).join("");
+}
+
+let accMode="win";
+function renderAcca(){
+  const legs=M.map(m=>{
+    const r=m._r;
+    let opts;
+    if(accMode==="win"){
+      opts=[[r.pH,m.h+" to win"],[r.pA,m.a+" to win"]];
+    }else{
+      opts=[[r.pH+r.pD,m.h+" or draw"],[r.pA+r.pD,m.a+" or draw"],
+            [r.o25,"Over 2.5 goals"],[1-r.o25,"Under 2.5 goals"],
+            [r.btts,"Both teams to score"],[1-r.btts,"Not both teams to score"]]
+            .filter(o=>!(o[1].includes("or draw")&&o[0]>.9)); // skip near-certain, no-value legs
+    }
+    opts.sort((a,b)=>b[0]-a[0]);
+    return {m,p:opts[0][0],what:opts[0][1]};
+  }).sort((a,b)=>b.p-a.p).slice(0,4);
+  const comb=legs.reduce((x,l)=>x*l.p,1);
+  document.getElementById("acca").innerHTML=legs.map((l,i)=>`
+    <div class="leg" data-go="${l.m.id}"><span class="n">${i+1}</span>
+      <div class="what"><b>${l.what}</b><small>${l.m.h} v ${l.m.a} · ${l.m.d} ${l.m.k}</small></div>
+      <span class="pct">${pc(l.p)}</span></div>`).join("")+`
+    <div class="accsum">
+      <div class="stat"><small>Chance all 4 land</small><b>${(comb*100).toFixed(1)}%</b></div>
+      <div class="stat"><small>Fair odds (model)</small><b>${(1/comb).toFixed(2)}</b></div>
+    </div>
+    <div class="accnote">${accMode==="win"
+      ?"The four most likely outright winners in different games. Only worth it if the bookies' acca price is higher than the fair odds."
+      :"Picks the surest market in each game from double chance, over/under 2.5 and both-teams-to-score. Lands more often, pays less."}
+      Each leg looks good on its own, but all four landing together is far less likely.</div>`;
+}
+
+document.addEventListener("click",e=>{
+  const ch=e.target.closest(".chip");
+  if(ch){const s=out[ch.dataset.pid]["p"+ch.dataset.side];s.has(ch.dataset.name)?s.delete(ch.dataset.name):s.add(ch.dataset.name);
+    render();document.querySelector("#m"+ch.dataset.pid+" details").open=true;return;}
+  const at=e.target.closest("[data-acc]");
+  if(at){document.querySelectorAll("[data-acc]").forEach(x=>x.classList.toggle("on",x===at));accMode=at.dataset.acc;renderAcca();return;}
+  const lg=e.target.closest(".leg");
+  if(lg){const c=document.getElementById("m"+lg.dataset.go);c.scrollIntoView({behavior:"smooth",block:"center"});c.classList.add("flash");setTimeout(()=>c.classList.remove("flash"),1200);return;}
+  const b=e.target.closest("button[data-s]");
+  if(b){const o=out[b.dataset.id];o[b.dataset.s]=Math.max(0,Math.min(5,o[b.dataset.s]+ +b.dataset.d));
+    const open=b.closest("details").open;render();if(open)document.querySelector("#m"+b.dataset.id+" details").open=true;return;}
+  const t=e.target.closest(".tab");
+  if(t){document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on",x===t));mode=t.dataset.m;renderPicks();return;}
+  const p=e.target.closest(".pick");
+  if(p){const c=document.getElementById("m"+p.dataset.go);c.scrollIntoView({behavior:"smooth",block:"center"});c.classList.add("flash");setTimeout(()=>c.classList.remove("flash"),1200);}
+});
+document.addEventListener("change",e=>{
+  const s=e.target.closest("select[data-id]"); if(!s)return;
+  const m=M.find(x=>x.id==s.dataset.id); m.w=s.value; render();
+  document.querySelector("#m"+m.id+" details").open=true;
+});
+fetch("data/tips.json",{cache:"no-store"}).then(r=>{if(!r.ok)throw 0;return r.json()}).then(d=>{
+  init(d);
+  const up=new Date(d.updated);
+  document.getElementById("updated").textContent=up.toLocaleString("en-GB",{weekday:"short",day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"});
+  document.getElementById("round").textContent=(d.round||"").replace("Regular Season - ","Matchday ");
+  document.getElementById("srcs").textContent=(d.sources||[]).join(" · ");
+  render();
+}).catch(()=>{document.getElementById("cards").innerHTML='<div class="note">Couldn\'t load the latest data. Try again shortly.</div>'});
+</script>
+</body>
+</html>
