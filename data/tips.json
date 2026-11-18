@@ -1,16 +1,17 @@
 {
- "updated": "2026-11-18T13:12:03.406Z",
+ "updated": "2026-11-18T13:37:18.804Z",
  "mode": "live",
- "season": "2026",
  "sources": [
-  "API-Football (fixtures, table, form, players, injuries, xG, corners, cards)",
+  "football-data.org (fixtures, results, tables, scorers)",
+  "The Odds API (UK bookmaker odds)",
   "Open-Meteo (kick-off weather)"
  ],
+ "oddsCreditsLeft": 492,
  "leagues": [
   {
-   "id": 39,
+   "code": "PL",
    "name": "Premier League",
-   "round": "Regular Season - 11",
+   "round": "Matchday 11",
    "teams": {
     "Arsenal": {
      "o": [
@@ -29,186 +30,9 @@
       3
      ],
      "f": "WWWWW",
-     "xg": [
-      1.61,
-      0.76
-     ]
-    },
-    "Brighton": {
-     "o": [
-      10,
-      26,
-      7
-     ],
-     "h": [
-      5,
-      15,
-      1
-     ],
-     "a": [
-      5,
-      11,
-      6
-     ],
-     "f": "WWLWW",
-     "xg": [
-      1.93,
-      1.36
-     ]
-    },
-    "Man City": {
-     "o": [
-      10,
-      21,
-      13
-     ],
-     "h": [
-      5,
-      11,
-      7
-     ],
-     "a": [
-      5,
-      10,
-      6
-     ],
-     "f": "WWLLL",
-     "xg": [
-      2.04,
-      1.25
-     ]
-    },
-    "Liverpool": {
-     "o": [
-      10,
-      14,
-      10
-     ],
-     "h": [
-      5,
-      4,
-      6
-     ],
-     "a": [
-      5,
-      10,
-      4
-     ],
-     "f": "LWWLW",
-     "xg": [
-      1.58,
-      1.31
-     ]
-    },
-    "Chelsea": {
-     "o": [
-      10,
-      19,
-      16
-     ],
-     "h": [
-      5,
-      13,
-      8
-     ],
-     "a": [
-      5,
-      6,
-      8
-     ],
-     "f": "WWLWL",
-     "xg": [
-      1.35,
-      1.5
-     ]
-    },
-    "Everton": {
-     "o": [
-      10,
-      12,
-      10
-     ],
-     "h": [
-      5,
-      8,
-      5
-     ],
-     "a": [
-      5,
-      4,
-      5
-     ],
-     "f": "DLLWW",
-     "xg": [
-      1.36,
-      1.44
-     ]
-    },
-    "Bournemouth": {
-     "o": [
-      10,
-      16,
-      14
-     ],
-     "h": [
-      5,
-      7,
-      4
-     ],
-     "a": [
-      5,
-      9,
-      10
-     ],
-     "f": "LWWWW",
-     "xg": [
-      1.8,
-      1.14
-     ]
-    },
-    "Brentford": {
-     "o": [
-      10,
-      16,
-      11
-     ],
-     "h": [
-      5,
-      10,
-      3
-     ],
-     "a": [
-      5,
-      6,
-      8
-     ],
-     "f": "DLDWL",
-     "xg": [
-      1.45,
-      1.48
-     ]
-    },
-    "Leeds": {
-     "o": [
-      10,
-      10,
-      8
-     ],
-     "h": [
-      5,
-      7,
-      3
-     ],
-     "a": [
-      5,
-      3,
-      5
-     ],
-     "f": "LDDLW",
-     "xg": [
-      1.31,
-      1.24
-     ]
+     "xg": null,
+     "cn": null,
+     "cd": null
     },
     "Aston Villa": {
      "o": [
@@ -227,98 +51,51 @@
       10
      ],
      "f": "DWWDD",
-     "xg": [
-      1.37,
-      1.86
-     ]
+     "xg": null,
+     "cn": null,
+     "cd": null
     },
-    "Tottenham": {
+    "Chelsea": {
      "o": [
       10,
-      10,
-      11
-     ],
-     "h": [
-      5,
-      7,
-      6
-     ],
-     "a": [
-      5,
-      3,
-      5
-     ],
-     "f": "DWWWL",
-     "xg": [
-      1.24,
-      1.2
-     ]
-    },
-    "Newcastle": {
-     "o": [
-      10,
-      13,
+      19,
       16
      ],
      "h": [
       5,
-      6,
-      7
+      13,
+      8
      ],
      "a": [
       5,
-      7,
-      9
+      6,
+      8
      ],
-     "f": "LLWLD",
-     "xg": [
-      1.17,
-      1.63
-     ]
+     "f": "WWLWL",
+     "xg": null,
+     "cn": null,
+     "cd": null
     },
-    "Hull": {
+    "Everton": {
      "o": [
       10,
-      11,
-      11
+      12,
+      10
      ],
      "h": [
       5,
-      7,
+      8,
       5
      ],
      "a": [
       5,
       4,
-      6
+      5
      ],
-     "f": "DLDDL",
-     "xg": [
-      0.95,
-      1.45
-     ]
-    },
-    "Ipswich": {
-     "o": [
-      10,
-      15,
-      20
-     ],
-     "h": [
-      5,
-      6,
-      7
-     ],
-     "a": [
-      5,
-      9,
-      13
-     ],
-     "f": "WLDDL",
-     "xg": [
-      1.33,
-      1.94
-     ]
+     "f": "DLLWW",
+     "xg": null,
+     "cn": null,
+     "cd": null
     },
     "Fulham": {
      "o": [
@@ -337,54 +114,51 @@
       4
      ],
      "f": "LWWDD",
-     "xg": [
-      1.44,
-      1.34
-     ]
+     "xg": null,
+     "cn": null,
+     "cd": null
     },
-    "Nott'm Forest": {
+    "Liverpool": {
      "o": [
       10,
-      9,
+      14,
+      10
+     ],
+     "h": [
+      5,
+      4,
+      6
+     ],
+     "a": [
+      5,
+      10,
+      4
+     ],
+     "f": "LWWLW",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Man City": {
+     "o": [
+      10,
+      21,
       13
      ],
      "h": [
       5,
-      3,
-      4
+      11,
+      7
      ],
      "a": [
       5,
-      6,
-      9
-     ],
-     "f": "LLDLW",
-     "xg": [
-      1.57,
-      1.1
-     ]
-    },
-    "Coventry": {
-     "o": [
       10,
-      10,
-      19
+      6
      ],
-     "h": [
-      5,
-      7,
-      9
-     ],
-     "a": [
-      5,
-      3,
-      10
-     ],
-     "f": "WLLWL",
-     "xg": [
-      0.95,
-      1.51
-     ]
+     "f": "WWLLL",
+     "xg": null,
+     "cn": null,
+     "cd": null
     },
     "Man Utd": {
      "o": [
@@ -403,10 +177,30 @@
       8
      ],
      "f": "DDLLD",
-     "xg": [
-      1.74,
-      1.78
-     ]
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Newcastle": {
+     "o": [
+      10,
+      13,
+      16
+     ],
+     "h": [
+      5,
+      6,
+      7
+     ],
+     "a": [
+      5,
+      7,
+      9
+     ],
+     "f": "LLWLD",
+     "xg": null,
+     "cn": null,
+     "cd": null
     },
     "Sunderland": {
      "o": [
@@ -425,10 +219,114 @@
       13
      ],
      "f": "LLDLW",
-     "xg": [
-      1.56,
-      1.64
-     ]
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Tottenham": {
+     "o": [
+      10,
+      10,
+      11
+     ],
+     "h": [
+      5,
+      7,
+      6
+     ],
+     "a": [
+      5,
+      3,
+      5
+     ],
+     "f": "DWWWL",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Hull City": {
+     "o": [
+      10,
+      11,
+      11
+     ],
+     "h": [
+      5,
+      7,
+      5
+     ],
+     "a": [
+      5,
+      4,
+      6
+     ],
+     "f": "DLDDL",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Leeds United": {
+     "o": [
+      10,
+      10,
+      8
+     ],
+     "h": [
+      5,
+      7,
+      3
+     ],
+     "a": [
+      5,
+      3,
+      5
+     ],
+     "f": "LDDLW",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Ipswich Town": {
+     "o": [
+      10,
+      15,
+      20
+     ],
+     "h": [
+      5,
+      6,
+      7
+     ],
+     "a": [
+      5,
+      9,
+      13
+     ],
+     "f": "WLDDL",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Nott'm Forest": {
+     "o": [
+      10,
+      9,
+      13
+     ],
+     "h": [
+      5,
+      3,
+      4
+     ],
+     "a": [
+      5,
+      6,
+      9
+     ],
+     "f": "LLDLW",
+     "xg": null,
+     "cn": null,
+     "cd": null
     },
     "Crystal Palace": {
      "o": [
@@ -447,96 +345,164 @@
       11
      ],
      "f": "WLLLL",
-     "xg": [
-      1.38,
-      2.19
-     ]
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Brighton": {
+     "o": [
+      10,
+      26,
+      7
+     ],
+     "h": [
+      5,
+      15,
+      1
+     ],
+     "a": [
+      5,
+      11,
+      6
+     ],
+     "f": "WWLWW",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Brentford": {
+     "o": [
+      10,
+      16,
+      11
+     ],
+     "h": [
+      5,
+      10,
+      3
+     ],
+     "a": [
+      5,
+      6,
+      8
+     ],
+     "f": "DLDWL",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Bournemouth": {
+     "o": [
+      10,
+      16,
+      14
+     ],
+     "h": [
+      5,
+      7,
+      4
+     ],
+     "a": [
+      5,
+      9,
+      10
+     ],
+     "f": "LWWWW",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Coventry City": {
+     "o": [
+      10,
+      10,
+      19
+     ],
+     "h": [
+      5,
+      7,
+      9
+     ],
+     "a": [
+      5,
+      3,
+      10
+     ],
+     "f": "WLLWL",
+     "xg": null,
+     "cn": null,
+     "cd": null
     }
    },
    "players": {
     "Man City": [
      {
-      "name": "Haaland",
+      "id": 38101,
+      "name": "Erling Haaland",
       "g": 9,
       "a": 0,
       "apps": 10
      },
      {
-      "name": "Cherki",
+      "id": 133242,
+      "name": "Rayan Cherki",
       "g": 5,
       "a": 2,
-      "apps": 9
-     },
-     {
-      "name": "Semenyo",
-      "g": 2,
-      "a": 3,
-      "apps": 7
-     },
-     {
-      "name": "Gvardiol",
-      "g": 1,
-      "a": 4,
       "apps": 10
      }
     ],
     "Liverpool": [
      {
-      "name": "Isak",
+      "id": 6486,
+      "name": "Alexander Isak",
       "g": 7,
       "a": 0,
       "apps": 9
      },
      {
-      "name": "Wirtz",
-      "g": 1,
-      "a": 3,
-      "apps": 10
-     },
-     {
-      "name": "Gakpo",
-      "g": 1,
-      "a": 3,
-      "apps": 8
+      "id": 273423,
+      "name": "Víctor Muñoz",
+      "g": 2,
+      "a": 0,
+      "apps": 9
      }
     ],
     "Everton": [
      {
-      "name": "Barry",
+      "id": 171995,
+      "name": "Thierno Barry",
       "g": 6,
+      "a": 1,
+      "apps": 10
+     },
+     {
+      "id": 140194,
+      "name": "Kiernan Dewsbury Hall",
+      "g": 3,
       "a": 1,
       "apps": 10
      }
     ],
     "Aston Villa": [
      {
-      "name": "N. Jackson",
+      "id": 152515,
+      "name": "Nicolas Jackson",
       "g": 6,
       "a": 1,
       "apps": 9
-     },
-     {
-      "name": "McGinn",
-      "g": 2,
-      "a": 4,
-      "apps": 10
-     },
-     {
-      "name": "Manzambi",
-      "g": 2,
-      "a": 3,
-      "apps": 7
      }
     ],
     "Bournemouth": [
      {
+      "id": 131260,
       "name": "Evanilson",
       "g": 5,
       "a": 4,
       "apps": 10
      },
      {
-      "name": "Tavernier",
+      "id": 6396,
+      "name": "Marcus Tavernier",
       "g": 5,
       "a": 0,
       "apps": 10
@@ -544,315 +510,4741 @@
     ],
     "Chelsea": [
      {
+      "id": 103125,
       "name": "João Pedro",
       "g": 5,
       "a": 3,
       "apps": 6
      },
      {
-      "name": "Rogers",
+      "id": 82140,
+      "name": "Morgan Rogers",
       "g": 5,
       "a": 1,
       "apps": 10
      },
      {
-      "name": "Palmer",
+      "id": 144892,
+      "name": "Cole Palmer",
       "g": 3,
       "a": 3,
+      "apps": 10
+     },
+     {
+      "id": 2074,
+      "name": "Pedro Neto",
+      "g": 3,
+      "a": 1,
       "apps": 10
      }
     ],
     "Brighton": [
      {
-      "name": "Groß",
+      "id": 8273,
+      "name": "Pascal Groß",
       "g": 4,
       "a": 4,
       "apps": 10
      },
      {
-      "name": "De Cuyper",
+      "id": 264300,
+      "name": "Charalampos Kostoulas",
+      "g": 3,
+      "a": 2,
+      "apps": 10
+     },
+     {
+      "id": 142075,
+      "name": "Maxim De Cuyper",
       "g": 2,
       "a": 3,
       "apps": 10
+     },
+     {
+      "id": 145613,
+      "name": "Yasin Ayari",
+      "g": 3,
+      "a": 1,
+      "apps": 9
      }
     ],
     "Man Utd": [
      {
-      "name": "B. Fernandes",
+      "id": 3257,
+      "name": "Bruno Fernandes",
       "g": 4,
       "a": 2,
-      "apps": 9
+      "apps": 10
      },
      {
-      "name": "Mbeumo",
+      "id": 8626,
+      "name": "Bryan Mbeumo",
       "g": 4,
       "a": 0,
       "apps": 10
      }
     ],
-    "Leeds": [
+    "Arsenal": [
      {
-      "name": "Calvert-Lewin",
-      "g": 4,
+      "id": 171,
+      "name": "Kai Havertz",
+      "g": 3,
+      "a": 0,
+      "apps": 10
+     },
+     {
+      "id": 99813,
+      "name": "Bukayo Saka",
+      "g": 3,
+      "a": 0,
+      "apps": 7
+     },
+     {
+      "id": 7427,
+      "name": "Martin Ødegaard",
+      "g": 3,
+      "a": 0,
+      "apps": 10
+     }
+    ],
+    "Brentford": [
+     {
+      "id": 123286,
+      "name": "Kevin Schade",
+      "g": 3,
+      "a": 0,
+      "apps": 10
+     },
+     {
+      "id": 101910,
+      "name": "Keane Lewis-Potter",
+      "g": 2,
+      "a": 1,
+      "apps": 10
+     },
+     {
+      "id": 10000,
+      "name": "Vitaly Janelt",
+      "g": 2,
+      "a": 0,
+      "apps": 9
+     }
+    ],
+    "Leeds United": [
+     {
+      "id": 7839,
+      "name": "Dominic Calvert-Lewin",
+      "g": 3,
       "a": 1,
       "apps": 10
      }
     ],
-    "Hull": [
+    "Sunderland": [
      {
-      "name": "Belloumi",
+      "id": 99664,
+      "name": "Enzo Le Fée",
+      "g": 3,
+      "a": 1,
+      "apps": 10
+     },
+     {
+      "id": 97535,
+      "name": "Brian Brobbey",
+      "g": 3,
+      "a": 0,
+      "apps": 8
+     }
+    ],
+    "Nott'm Forest": [
+     {
+      "id": 151095,
+      "name": "Liam Delap",
+      "g": 3,
+      "a": 0,
+      "apps": 9
+     },
+     {
+      "id": 77641,
+      "name": "Dan Ndoye",
+      "g": 2,
+      "a": 0,
+      "apps": 10
+     }
+    ],
+    "Hull City": [
+     {
+      "id": 213072,
+      "name": "Mohamed Belloumi",
       "g": 3,
       "a": 2,
       "apps": 9
      }
     ],
-    "Arsenal": [
+    "Coventry City": [
      {
-      "name": "Rice",
-      "g": 0,
-      "a": 5,
+      "id": 114123,
+      "name": "Jack Rudoni",
+      "g": 3,
+      "a": 0,
+      "apps": 10
+     }
+    ],
+    "Ipswich Town": [
+     {
+      "id": 176628,
+      "name": "Emersonn",
+      "g": 2,
+      "a": 1,
       "apps": 10
      },
      {
-      "name": "B. White",
-      "g": 0,
-      "a": 3,
-      "apps": 7
+      "id": 4158,
+      "name": "Jack Clarke",
+      "g": 2,
+      "a": 1,
+      "apps": 10
+     },
+     {
+      "id": 99120,
+      "name": "Leif Davis",
+      "g": 2,
+      "a": 1,
+      "apps": 10
      }
     ],
-    "Nott'm Forest": [
+    "Newcastle": [
      {
-      "name": "Gibbs-White",
-      "g": 1,
-      "a": 3,
-      "apps": 9
+      "id": 166376,
+      "name": "Anthony Elanga",
+      "g": 2,
+      "a": 0,
+      "apps": 6
+     },
+     {
+      "id": 7798,
+      "name": "Joe Willock",
+      "g": 2,
+      "a": 0,
+      "apps": 10
      }
     ],
-    "Crystal Palace": [
+    "Fulham": [
      {
-      "name": "Kamada",
-      "g": 1,
-      "a": 3,
+      "id": 246418,
+      "name": "Joshua King",
+      "g": 2,
+      "a": 1,
       "apps": 10
      }
     ]
    },
    "matches": [
     {
-     "id": 1,
+     "id": 560643,
      "date": "2026-11-21T12:30:00Z",
      "d": "Sat 21 Nov",
      "k": "12:30",
      "h": "Man City",
      "a": "Fulham",
      "v": "Etihad Stadium",
-     "w": "light",
-     "wx": null,
+     "w": "dry",
+     "wx": {
+      "temp": 5,
+      "precip": 0,
+      "snow": 0,
+      "wind": 7
+     },
+     "odds": {
+      "1": {
+       "b": 1.43,
+       "k": "Smarkets",
+       "a": 1.384,
+       "n": 21
+      },
+      "2": {
+       "b": 8.2,
+       "k": "Smarkets",
+       "a": 6.95,
+       "n": 21
+      },
+      "X": {
+       "b": 5.4,
+       "k": "Smarkets",
+       "a": 5.005,
+       "n": 21
+      },
+      "O25": {
+       "b": 1.44,
+       "k": "William Hill",
+       "a": 1.44,
+       "n": 1
+      },
+      "U25": {
+       "b": 2.5,
+       "k": "William Hill",
+       "a": 2.5,
+       "n": 1
+      },
+      "O35": {
+       "b": 2.32,
+       "k": "Matchbook",
+       "a": 2.22,
+       "n": 3
+      },
+      "U35": {
+       "b": 1.71,
+       "k": "Matchbook",
+       "a": 1.677,
+       "n": 3
+      }
+     },
      "inj": {
       "h": {
        "players": [],
-       "others": 0
+       "others": 0,
+       "all": []
       },
       "a": {
        "players": [],
-       "others": 0
+       "others": 0,
+       "all": []
       }
      }
     },
     {
-     "id": 2,
+     "id": 560642,
      "date": "2026-11-21T15:00:00Z",
      "d": "Sat 21 Nov",
      "k": "15:00",
-     "h": "Bournemouth",
-     "a": "Nott'm Forest",
-     "v": "Vitality Stadium",
-     "w": "light",
-     "wx": null,
+     "h": "Chelsea",
+     "a": "Leeds United",
+     "v": "Stamford Bridge",
+     "w": "dry",
+     "wx": {
+      "temp": 7,
+      "precip": 0,
+      "snow": 0,
+      "wind": 8
+     },
+     "odds": {
+      "1": {
+       "b": 1.95,
+       "k": "Smarkets",
+       "a": 1.839,
+       "n": 21
+      },
+      "2": {
+       "b": 4.2,
+       "k": "Smarkets",
+       "a": 3.912,
+       "n": 21
+      },
+      "X": {
+       "b": 3.95,
+       "k": "Smarkets",
+       "a": 3.743,
+       "n": 21
+      },
+      "O25": {
+       "b": 1.81,
+       "k": "Matchbook",
+       "a": 1.737,
+       "n": 4
+      },
+      "U25": {
+       "b": 2.16,
+       "k": "Matchbook",
+       "a": 2.103,
+       "n": 4
+      }
+     },
      "inj": {
       "h": {
        "players": [],
-       "others": 0
+       "others": 0,
+       "all": []
       },
       "a": {
        "players": [],
-       "others": 0
+       "others": 0,
+       "all": []
       }
      }
     },
     {
-     "id": 3,
+     "id": 560644,
      "date": "2026-11-21T15:00:00Z",
      "d": "Sat 21 Nov",
      "k": "15:00",
      "h": "Aston Villa",
      "a": "Sunderland",
      "v": "Villa Park",
-     "w": "light",
-     "wx": null,
+     "w": "dry",
+     "wx": {
+      "temp": 5,
+      "precip": 0,
+      "snow": 0,
+      "wind": 10
+     },
+     "odds": {
+      "1": {
+       "b": 1.9,
+       "k": "Betfair",
+       "a": 1.791,
+       "n": 21
+      },
+      "2": {
+       "b": 4.6,
+       "k": "Smarkets",
+       "a": 4.194,
+       "n": 21
+      },
+      "X": {
+       "b": 3.85,
+       "k": "Smarkets",
+       "a": 3.707,
+       "n": 21
+      },
+      "O25": {
+       "b": 1.82,
+       "k": "Matchbook",
+       "a": 1.78,
+       "n": 4
+      },
+      "U25": {
+       "b": 2.16,
+       "k": "Matchbook",
+       "a": 2.032,
+       "n": 4
+      }
+     },
      "inj": {
       "h": {
        "players": [],
-       "others": 0
+       "others": 0,
+       "all": []
       },
       "a": {
        "players": [],
-       "others": 0
+       "others": 0,
+       "all": []
       }
      }
     },
     {
-     "id": 4,
+     "id": 560647,
      "date": "2026-11-21T15:00:00Z",
      "d": "Sat 21 Nov",
      "k": "15:00",
-     "h": "Chelsea",
-     "a": "Leeds",
-     "v": "Stamford Bridge",
-     "w": "light",
-     "wx": null,
+     "h": "Bournemouth",
+     "a": "Nott'm Forest",
+     "v": "Vitality Stadium",
+     "w": "dry",
+     "wx": {
+      "temp": 9,
+      "precip": 0,
+      "snow": 0,
+      "wind": 16
+     },
+     "odds": {
+      "1": {
+       "b": 2.02,
+       "k": "Betfair",
+       "a": 1.929,
+       "n": 21
+      },
+      "2": {
+       "b": 4.1,
+       "k": "Smarkets",
+       "a": 3.757,
+       "n": 21
+      },
+      "X": {
+       "b": 3.7,
+       "k": "Smarkets",
+       "a": 3.538,
+       "n": 21
+      },
+      "O25": {
+       "b": 1.93,
+       "k": "Matchbook",
+       "a": 1.824,
+       "n": 5
+      },
+      "U25": {
+       "b": 2.04,
+       "k": "Matchbook",
+       "a": 1.954,
+       "n": 5
+      }
+     },
      "inj": {
       "h": {
        "players": [],
-       "others": 0
+       "others": 0,
+       "all": []
       },
       "a": {
        "players": [],
-       "others": 0
+       "others": 0,
+       "all": []
       }
      }
     },
     {
-     "id": 5,
-     "date": "2026-11-21T15:00:00Z",
-     "d": "Sat 21 Nov",
-     "k": "15:00",
-     "h": "Coventry",
-     "a": "Crystal Palace",
-     "v": "CBS Arena",
-     "w": "light",
-     "wx": null,
-     "inj": {
-      "h": {
-       "players": [],
-       "others": 0
-      },
-      "a": {
-       "players": [],
-       "others": 0
-      }
-     }
-    },
-    {
-     "id": 6,
+     "id": 560648,
      "date": "2026-11-21T15:00:00Z",
      "d": "Sat 21 Nov",
      "k": "15:00",
      "h": "Tottenham",
-     "a": "Ipswich",
+     "a": "Ipswich Town",
      "v": "Tottenham Hotspur Stadium",
-     "w": "light",
-     "wx": null,
+     "w": "dry",
+     "wx": {
+      "temp": 7,
+      "precip": 0,
+      "snow": 0,
+      "wind": 8
+     },
+     "odds": {
+      "1": {
+       "b": 1.59,
+       "k": "Betfair",
+       "a": 1.526,
+       "n": 21
+      },
+      "2": {
+       "b": 6.2,
+       "k": "Smarkets",
+       "a": 5.462,
+       "n": 21
+      },
+      "X": {
+       "b": 4.7,
+       "k": "Smarkets",
+       "a": 4.379,
+       "n": 21
+      },
+      "O25": {
+       "b": 1.62,
+       "k": "Matchbook",
+       "a": 1.583,
+       "n": 4
+      },
+      "U25": {
+       "b": 2.5,
+       "k": "Matchbook",
+       "a": 2.37,
+       "n": 4
+      }
+     },
      "inj": {
       "h": {
        "players": [],
-       "others": 0
+       "others": 0,
+       "all": []
       },
       "a": {
        "players": [],
-       "others": 0
+       "others": 0,
+       "all": []
       }
      }
     },
     {
-     "id": 7,
+     "id": 560650,
+     "date": "2026-11-21T15:00:00Z",
+     "d": "Sat 21 Nov",
+     "k": "15:00",
+     "h": "Coventry City",
+     "a": "Crystal Palace",
+     "v": "Coventry Building Society Arena",
+     "w": "dry",
+     "wx": {
+      "temp": 6,
+      "precip": 0,
+      "snow": 0,
+      "wind": 10
+     },
+     "odds": {
+      "1": {
+       "b": 2.54,
+       "k": "Smarkets",
+       "a": 2.37,
+       "n": 21
+      },
+      "2": {
+       "b": 2.96,
+       "k": "Smarkets",
+       "a": 2.751,
+       "n": 21
+      },
+      "X": {
+       "b": 3.7,
+       "k": "Coral",
+       "a": 3.538,
+       "n": 21
+      },
+      "O25": {
+       "b": 1.77,
+       "k": "Matchbook",
+       "a": 1.69,
+       "n": 4
+      },
+      "U25": {
+       "b": 2.26,
+       "k": "Matchbook",
+       "a": 2.185,
+       "n": 4
+      }
+     },
+     "inj": {
+      "h": {
+       "players": [],
+       "others": 0,
+       "all": []
+      },
+      "a": {
+       "players": [],
+       "others": 0,
+       "all": []
+      }
+     }
+    },
+    {
+     "id": 560651,
      "date": "2026-11-21T17:30:00Z",
      "d": "Sat 21 Nov",
      "k": "17:30",
      "h": "Newcastle",
      "a": "Arsenal",
-     "v": "St James' Park",
-     "w": "light",
-     "wx": null,
+     "v": "St. James' Park",
+     "w": "dry",
+     "wx": {
+      "temp": 10,
+      "precip": 0,
+      "snow": 0,
+      "wind": 28
+     },
+     "odds": {
+      "1": {
+       "b": 6.2,
+       "k": "Smarkets",
+       "a": 5.424,
+       "n": 21
+      },
+      "2": {
+       "b": 1.61,
+       "k": "Smarkets",
+       "a": 1.556,
+       "n": 21
+      },
+      "X": {
+       "b": 4.4,
+       "k": "Smarkets",
+       "a": 4.145,
+       "n": 21
+      },
+      "O25": {
+       "b": 1.78,
+       "k": "Matchbook",
+       "a": 1.695,
+       "n": 4
+      },
+      "U25": {
+       "b": 2.24,
+       "k": "Matchbook",
+       "a": 2.173,
+       "n": 4
+      }
+     },
      "inj": {
       "h": {
        "players": [],
-       "others": 0
+       "others": 0,
+       "all": []
       },
       "a": {
        "players": [],
-       "others": 0
+       "others": 0,
+       "all": []
       }
      }
     },
     {
-     "id": 8,
+     "id": 560646,
      "date": "2026-11-22T14:00:00Z",
      "d": "Sun 22 Nov",
      "k": "14:00",
-     "h": "Hull",
+     "h": "Hull City",
      "a": "Brighton",
-     "v": "MKM Stadium",
-     "w": "rain",
-     "wx": null,
+     "v": "Kingston Communications Stadium",
+     "w": "dry",
+     "wx": {
+      "temp": 9,
+      "precip": 0,
+      "snow": 0,
+      "wind": 13
+     },
+     "odds": {
+      "1": {
+       "b": 6.8,
+       "k": "Betfair",
+       "a": 6.052,
+       "n": 21
+      },
+      "2": {
+       "b": 1.54,
+       "k": "Unibet (UK)",
+       "a": 1.495,
+       "n": 21
+      },
+      "X": {
+       "b": 4.6,
+       "k": "Betfair",
+       "a": 4.358,
+       "n": 21
+      },
+      "O25": {
+       "b": 1.71,
+       "k": "Matchbook",
+       "a": 1.657,
+       "n": 4
+      },
+      "U25": {
+       "b": 2.3,
+       "k": "Matchbook",
+       "a": 2.228,
+       "n": 4
+      }
+     },
      "inj": {
       "h": {
        "players": [],
-       "others": 0
+       "others": 0,
+       "all": []
       },
       "a": {
        "players": [],
-       "others": 0
+       "others": 0,
+       "all": []
       }
      }
     },
     {
-     "id": 9,
+     "id": 560645,
      "date": "2026-11-22T16:30:00Z",
      "d": "Sun 22 Nov",
      "k": "16:30",
      "h": "Liverpool",
      "a": "Man Utd",
      "v": "Anfield",
-     "w": "rain",
-     "wx": null,
+     "w": "dry",
+     "wx": {
+      "temp": 6,
+      "precip": 0,
+      "snow": 0,
+      "wind": 9
+     },
+     "odds": {
+      "1": {
+       "b": 1.81,
+       "k": "Betfair",
+       "a": 1.735,
+       "n": 21
+      },
+      "2": {
+       "b": 4.4,
+       "k": "Betfair",
+       "a": 4.021,
+       "n": 21
+      },
+      "X": {
+       "b": 4.3,
+       "k": "Betfair",
+       "a": 4.069,
+       "n": 21
+      },
+      "O35": {
+       "b": 2.3,
+       "k": "Grosvenor",
+       "a": 2.223,
+       "n": 3
+      },
+      "U35": {
+       "b": 1.71,
+       "k": "Matchbook",
+       "a": 1.663,
+       "n": 3
+      },
+      "O25": {
+       "b": 1.44,
+       "k": "William Hill",
+       "a": 1.44,
+       "n": 1
+      },
+      "U25": {
+       "b": 2.5,
+       "k": "William Hill",
+       "a": 2.5,
+       "n": 1
+      }
+     },
      "inj": {
       "h": {
        "players": [],
-       "others": 0
+       "others": 0,
+       "all": []
       },
       "a": {
        "players": [],
-       "others": 0
+       "others": 0,
+       "all": []
       }
      }
     },
     {
-     "id": 10,
+     "id": 560649,
      "date": "2026-11-23T20:00:00Z",
      "d": "Mon 23 Nov",
      "k": "20:00",
      "h": "Brentford",
      "a": "Everton",
-     "v": "Gtech Community Stadium",
+     "v": "Griffin Park",
      "w": "light",
-     "wx": null,
+     "wx": {
+      "temp": 11,
+      "precip": 0.3,
+      "snow": 0,
+      "wind": 20
+     },
+     "odds": {
+      "1": {
+       "b": 2.18,
+       "k": "Betfair",
+       "a": 2.045,
+       "n": 20
+      },
+      "2": {
+       "b": 3.55,
+       "k": "Betfair",
+       "a": 3.32,
+       "n": 20
+      },
+      "X": {
+       "b": 3.7,
+       "k": "Betfair",
+       "a": 3.575,
+       "n": 20
+      },
+      "O25": {
+       "b": 1.8,
+       "k": "Matchbook",
+       "a": 1.735,
+       "n": 4
+      },
+      "U25": {
+       "b": 2.14,
+       "k": "Matchbook",
+       "a": 2.09,
+       "n": 4
+      }
+     },
      "inj": {
       "h": {
        "players": [],
-       "others": 0
+       "others": 0,
+       "all": []
       },
       "a": {
        "players": [],
-       "others": 0
+       "others": 0,
+       "all": []
       }
      }
     }
-   ],
-   "stats": {
-    "xg": 20,
-    "corners": 0
-   }
+   ]
+  },
+  {
+   "code": "PD",
+   "name": "La Liga",
+   "round": "Matchday 13",
+   "teams": {
+    "Athletic": {
+     "o": [
+      11,
+      15,
+      11
+     ],
+     "h": [
+      6,
+      11,
+      5
+     ],
+     "a": [
+      5,
+      4,
+      6
+     ],
+     "f": "DLWWD",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Atlético": {
+     "o": [
+      12,
+      23,
+      10
+     ],
+     "h": [
+      6,
+      12,
+      5
+     ],
+     "a": [
+      6,
+      11,
+      5
+     ],
+     "f": "WWWWL",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Osasuna": {
+     "o": [
+      12,
+      12,
+      23
+     ],
+     "h": [
+      6,
+      5,
+      4
+     ],
+     "a": [
+      6,
+      7,
+      19
+     ],
+     "f": "LWLLD",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Espanyol": {
+     "o": [
+      12,
+      13,
+      14
+     ],
+     "h": [
+      6,
+      6,
+      7
+     ],
+     "a": [
+      6,
+      7,
+      7
+     ],
+     "f": "DLLWD",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Barça": {
+     "o": [
+      12,
+      48,
+      13
+     ],
+     "h": [
+      6,
+      24,
+      7
+     ],
+     "a": [
+      6,
+      24,
+      6
+     ],
+     "f": "WWLWW",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Getafe": {
+     "o": [
+      12,
+      8,
+      18
+     ],
+     "h": [
+      6,
+      8,
+      4
+     ],
+     "a": [
+      6,
+      0,
+      14
+     ],
+     "f": "LDLWL",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Málaga": {
+     "o": [
+      12,
+      9,
+      23
+     ],
+     "h": [
+      6,
+      6,
+      12
+     ],
+     "a": [
+      6,
+      3,
+      11
+     ],
+     "f": "DLDLL",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Real Madrid": {
+     "o": [
+      12,
+      31,
+      10
+     ],
+     "h": [
+      5,
+      17,
+      3
+     ],
+     "a": [
+      7,
+      14,
+      7
+     ],
+     "f": "WWWWW",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Rayo Vallecano": {
+     "o": [
+      11,
+      15,
+      21
+     ],
+     "h": [
+      5,
+      9,
+      7
+     ],
+     "a": [
+      6,
+      6,
+      14
+     ],
+     "f": "DDLWL",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Levante": {
+     "o": [
+      12,
+      16,
+      21
+     ],
+     "h": [
+      5,
+      13,
+      12
+     ],
+     "a": [
+      7,
+      3,
+      9
+     ],
+     "f": "DWLLD",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Real Betis": {
+     "o": [
+      12,
+      20,
+      15
+     ],
+     "h": [
+      6,
+      12,
+      8
+     ],
+     "a": [
+      6,
+      8,
+      7
+     ],
+     "f": "WLDWW",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Real Sociedad": {
+     "o": [
+      12,
+      21,
+      20
+     ],
+     "h": [
+      6,
+      8,
+      7
+     ],
+     "a": [
+      6,
+      13,
+      13
+     ],
+     "f": "WWWLW",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Villarreal": {
+     "o": [
+      12,
+      17,
+      15
+     ],
+     "h": [
+      6,
+      8,
+      7
+     ],
+     "a": [
+      6,
+      9,
+      8
+     ],
+     "f": "LDWLW",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Valencia": {
+     "o": [
+      12,
+      8,
+      20
+     ],
+     "h": [
+      7,
+      3,
+      14
+     ],
+     "a": [
+      5,
+      5,
+      6
+     ],
+     "f": "DDLWL",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Alavés": {
+     "o": [
+      12,
+      15,
+      17
+     ],
+     "h": [
+      6,
+      11,
+      6
+     ],
+     "a": [
+      6,
+      4,
+      11
+     ],
+     "f": "LLDLD",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Elche": {
+     "o": [
+      12,
+      14,
+      20
+     ],
+     "h": [
+      6,
+      4,
+      14
+     ],
+     "a": [
+      6,
+      10,
+      6
+     ],
+     "f": "DDWLL",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Celta": {
+     "o": [
+      12,
+      10,
+      10
+     ],
+     "h": [
+      7,
+      9,
+      6
+     ],
+     "a": [
+      5,
+      1,
+      4
+     ],
+     "f": "DWDLD",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Sevilla FC": {
+     "o": [
+      12,
+      17,
+      19
+     ],
+     "h": [
+      6,
+      7,
+      7
+     ],
+     "a": [
+      6,
+      10,
+      12
+     ],
+     "f": "DLWLD",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Deportivo": {
+     "o": [
+      12,
+      15,
+      14
+     ],
+     "h": [
+      6,
+      8,
+      6
+     ],
+     "a": [
+      6,
+      7,
+      8
+     ],
+     "f": "LDLWD",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Santander": {
+     "o": [
+      12,
+      17,
+      30
+     ],
+     "h": [
+      6,
+      11,
+      11
+     ],
+     "a": [
+      6,
+      6,
+      19
+     ],
+     "f": "DLWLW",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    }
+   },
+   "players": {
+    "Barça": [
+     {
+      "id": 202283,
+      "name": "Lamine Yamal",
+      "g": 10,
+      "a": 8,
+      "apps": 12
+     },
+     {
+      "id": 37428,
+      "name": "Raphinha",
+      "g": 15,
+      "a": 2,
+      "apps": 11
+     },
+     {
+      "id": 214533,
+      "name": "Fermín López",
+      "g": 7,
+      "a": 5,
+      "apps": 12
+     },
+     {
+      "id": 3236,
+      "name": "Gabriel Jesus",
+      "g": 3,
+      "a": 1,
+      "apps": 9
+     }
+    ],
+    "Real Madrid": [
+     {
+      "id": 3374,
+      "name": "Kylian Mbappé",
+      "g": 13,
+      "a": 2,
+      "apps": 12
+     },
+     {
+      "id": 125010,
+      "name": "Jude Bellingham",
+      "g": 4,
+      "a": 3,
+      "apps": 12
+     },
+     {
+      "id": 169162,
+      "name": "Arda Guler",
+      "g": 3,
+      "a": 4,
+      "apps": 12
+     },
+     {
+      "id": 277484,
+      "name": "Yan Diomandé",
+      "g": 3,
+      "a": 2,
+      "apps": 12
+     }
+    ],
+    "Santander": [
+     {
+      "id": 265516,
+      "name": "Yassir Zabiri",
+      "g": 9,
+      "a": 0,
+      "apps": 12
+     }
+    ],
+    "Osasuna": [
+     {
+      "id": 2237,
+      "name": "Ante Budimir",
+      "g": 8,
+      "a": 0,
+      "apps": 12
+     }
+    ],
+    "Rayo Vallecano": [
+     {
+      "id": 115175,
+      "name": "Sergio Camello",
+      "g": 7,
+      "a": 2,
+      "apps": 12
+     },
+     {
+      "id": 32312,
+      "name": "Álvaro García",
+      "g": 3,
+      "a": 2,
+      "apps": 11
+     }
+    ],
+    "Espanyol": [
+     {
+      "id": 180218,
+      "name": "Roberto Fernández",
+      "g": 6,
+      "a": 0,
+      "apps": 12
+     }
+    ],
+    "Elche": [
+     {
+      "id": 214497,
+      "name": "Fer Niño",
+      "g": 6,
+      "a": 0,
+      "apps": 12
+     }
+    ],
+    "Deportivo": [
+     {
+      "id": 7801,
+      "name": "Pierre-Emerick Aubameyang",
+      "g": 5,
+      "a": 2,
+      "apps": 9
+     }
+    ],
+    "Atlético": [
+     {
+      "id": 213278,
+      "name": "Álex Baena",
+      "g": 5,
+      "a": 3,
+      "apps": 12
+     },
+     {
+      "id": 171964,
+      "name": "Giuliano Simeone",
+      "g": 4,
+      "a": 2,
+      "apps": 12
+     },
+     {
+      "id": 16739,
+      "name": "Alejandro Grimaldo",
+      "g": 4,
+      "a": 2,
+      "apps": 12
+     },
+     {
+      "id": 8924,
+      "name": "Jonathan David",
+      "g": 3,
+      "a": 2,
+      "apps": 9
+     }
+    ],
+    "Alavés": [
+     {
+      "id": 8474,
+      "name": "Mariano Díaz",
+      "g": 4,
+      "a": 4,
+      "apps": 12
+     },
+     {
+      "id": 11113,
+      "name": "Lucas Boyé",
+      "g": 5,
+      "a": 0,
+      "apps": 11
+     }
+    ],
+    "Levante": [
+     {
+      "id": 180282,
+      "name": "Brugui",
+      "g": 5,
+      "a": 1,
+      "apps": 11
+     },
+     {
+      "id": 156746,
+      "name": "Iván Romero",
+      "g": 3,
+      "a": 0,
+      "apps": 12
+     }
+    ],
+    "Málaga": [
+     {
+      "id": 221308,
+      "name": "Adrián",
+      "g": 5,
+      "a": 1,
+      "apps": 8
+     }
+    ],
+    "Real Sociedad": [
+     {
+      "id": 82516,
+      "name": "Luka Sučić",
+      "g": 4,
+      "a": 0,
+      "apps": 12
+     },
+     {
+      "id": 182319,
+      "name": "Orri Oskarsson",
+      "g": 4,
+      "a": 0,
+      "apps": 11
+     }
+    ],
+    "Athletic": [
+     {
+      "id": 2294,
+      "name": "Álex Berenguer",
+      "g": 4,
+      "a": 4,
+      "apps": 12
+     },
+     {
+      "id": 32629,
+      "name": "Iñaki Williams",
+      "g": 3,
+      "a": 2,
+      "apps": 12
+     },
+     {
+      "id": 151439,
+      "name": "Aitor Paredes Casamichana",
+      "g": 2,
+      "a": 0,
+      "apps": 11
+     }
+    ],
+    "Villarreal": [
+     {
+      "id": 136646,
+      "name": "Georges Mikautadze",
+      "g": 3,
+      "a": 1,
+      "apps": 12
+     },
+     {
+      "id": 633,
+      "name": "Pape Gueye",
+      "g": 3,
+      "a": 0,
+      "apps": 11
+     },
+     {
+      "id": 8412,
+      "name": "Nicolas Pépé",
+      "g": 2,
+      "a": 1,
+      "apps": 9
+     },
+     {
+      "id": 32719,
+      "name": "Gerard Moreno",
+      "g": 2,
+      "a": 0,
+      "apps": 11
+     }
+    ],
+    "Real Betis": [
+     {
+      "id": 128731,
+      "name": "Rodrigo Riquelme",
+      "g": 3,
+      "a": 0,
+      "apps": 12
+     },
+     {
+      "id": 33038,
+      "name": "Bartra",
+      "g": 3,
+      "a": 0,
+      "apps": 12
+     },
+     {
+      "id": 175941,
+      "name": "Abdessamad Ezzalzouli",
+      "g": 3,
+      "a": 0,
+      "apps": 9
+     }
+    ],
+    "Sevilla FC": [
+     {
+      "id": 213043,
+      "name": "Isaac",
+      "g": 3,
+      "a": 1,
+      "apps": 11
+     }
+    ],
+    "Getafe": [
+     {
+      "id": 152458,
+      "name": "Martin Satriano",
+      "g": 3,
+      "a": 2,
+      "apps": 12
+     }
+    ]
+   },
+   "matches": [
+    {
+     "id": 564748,
+     "date": "2026-11-20T20:00:00Z",
+     "d": "Fri 20 Nov",
+     "k": "20:00",
+     "h": "Athletic",
+     "a": "Espanyol",
+     "v": "San Mamés",
+     "w": "light",
+     "wx": null,
+     "odds": {
+      "1": {
+       "b": 1.5,
+       "k": "Smarkets",
+       "a": 1.459,
+       "n": 20
+      },
+      "2": {
+       "b": 7.8,
+       "k": "Smarkets",
+       "a": 6.678,
+       "n": 20
+      },
+      "X": {
+       "b": 4.7,
+       "k": "Smarkets",
+       "a": 4.356,
+       "n": 20
+      },
+      "O25": {
+       "b": 1.83,
+       "k": "Matchbook",
+       "a": 1.782,
+       "n": 4
+      },
+      "U25": {
+       "b": 2.14,
+       "k": "Matchbook",
+       "a": 2.022,
+       "n": 4
+      }
+     },
+     "inj": {
+      "h": {
+       "players": [],
+       "others": 0,
+       "all": []
+      },
+      "a": {
+       "players": [],
+       "others": 0,
+       "all": []
+      }
+     }
+    },
+    {
+     "id": 564755,
+     "date": "2026-11-21T13:00:00Z",
+     "d": "Sat 21 Nov",
+     "k": "13:00",
+     "h": "Alavés",
+     "a": "Deportivo",
+     "v": "Estadio de Mendizorroza",
+     "w": "dry",
+     "wx": {
+      "temp": 12,
+      "precip": 0,
+      "snow": 0,
+      "wind": 22
+     },
+     "odds": {
+      "1": {
+       "b": 2.28,
+       "k": "Smarkets",
+       "a": 2.148,
+       "n": 19
+      },
+      "2": {
+       "b": 3.55,
+       "k": "Betfair",
+       "a": 3.358,
+       "n": 19
+      },
+      "X": {
+       "b": 3.4,
+       "k": "Betfair",
+       "a": 3.252,
+       "n": 19
+      },
+      "O25": {
+       "b": 2.28,
+       "k": "Grosvenor",
+       "a": 2.207,
+       "n": 4
+      },
+      "U25": {
+       "b": 1.75,
+       "k": "Matchbook",
+       "a": 1.672,
+       "n": 4
+      }
+     },
+     "inj": {
+      "h": {
+       "players": [],
+       "others": 0,
+       "all": []
+      },
+      "a": {
+       "players": [],
+       "others": 0,
+       "all": []
+      }
+     }
+    },
+    {
+     "id": 564751,
+     "date": "2026-11-21T15:15:00Z",
+     "d": "Sat 21 Nov",
+     "k": "15:15",
+     "h": "Rayo Vallecano",
+     "a": "Valencia",
+     "v": "Estadio del Rayo Vallecano",
+     "w": "dry",
+     "wx": {
+      "temp": 14,
+      "precip": 0,
+      "snow": 0,
+      "wind": 6
+     },
+     "odds": {
+      "1": {
+       "b": 1.96,
+       "k": "Smarkets",
+       "a": 1.903,
+       "n": 20
+      },
+      "2": {
+       "b": 4.3,
+       "k": "Smarkets",
+       "a": 3.938,
+       "n": 20
+      },
+      "X": {
+       "b": 3.65,
+       "k": "Smarkets",
+       "a": 3.425,
+       "n": 20
+      },
+      "O25": {
+       "b": 2.06,
+       "k": "Matchbook",
+       "a": 2.038,
+       "n": 4
+      },
+      "U25": {
+       "b": 1.87,
+       "k": "Matchbook",
+       "a": 1.778,
+       "n": 4
+      }
+     },
+     "inj": {
+      "h": {
+       "players": [],
+       "others": 0,
+       "all": []
+      },
+      "a": {
+       "players": [],
+       "others": 0,
+       "all": []
+      }
+     }
+    },
+    {
+     "id": 564756,
+     "date": "2026-11-21T17:30:00Z",
+     "d": "Sat 21 Nov",
+     "k": "17:30",
+     "h": "Sevilla FC",
+     "a": "Real Betis",
+     "v": "Estadio Ramón Sánchez Pizjuán",
+     "w": "dry",
+     "wx": {
+      "temp": 20,
+      "precip": 0,
+      "snow": 0,
+      "wind": 11
+     },
+     "odds": {
+      "1": {
+       "b": 3.1,
+       "k": "Smarkets",
+       "a": 2.913,
+       "n": 20
+      },
+      "2": {
+       "b": 2.44,
+       "k": "Betfair",
+       "a": 2.268,
+       "n": 20
+      },
+      "X": {
+       "b": 3.6,
+       "k": "Smarkets",
+       "a": 3.472,
+       "n": 20
+      },
+      "O25": {
+       "b": 1.83,
+       "k": "Matchbook",
+       "a": 1.748,
+       "n": 4
+      },
+      "U25": {
+       "b": 2.1,
+       "k": "William Hill",
+       "a": 2.075,
+       "n": 4
+      }
+     },
+     "inj": {
+      "h": {
+       "players": [],
+       "others": 0,
+       "all": []
+      },
+      "a": {
+       "players": [],
+       "others": 0,
+       "all": []
+      }
+     }
+    },
+    {
+     "id": 564754,
+     "date": "2026-11-21T20:00:00Z",
+     "d": "Sat 21 Nov",
+     "k": "20:00",
+     "h": "Real Madrid",
+     "a": "Celta",
+     "v": "Estadio Santiago Bernabéu",
+     "w": "dry",
+     "wx": {
+      "temp": 12,
+      "precip": 0,
+      "snow": 0,
+      "wind": 3
+     },
+     "odds": {
+      "1": {
+       "b": 1.2,
+       "k": "Betfred (UK)",
+       "a": 1.175,
+       "n": 20
+      },
+      "2": {
+       "b": 18,
+       "k": "Betfair",
+       "a": 13.375,
+       "n": 20
+      },
+      "X": {
+       "b": 9,
+       "k": "Matchbook",
+       "a": 7.3,
+       "n": 20
+      },
+      "O25": {
+       "b": 1.4,
+       "k": "William Hill",
+       "a": 1.4,
+       "n": 1
+      },
+      "U25": {
+       "b": 2.9,
+       "k": "William Hill",
+       "a": 2.9,
+       "n": 1
+      },
+      "O35": {
+       "b": 2,
+       "k": "Matchbook",
+       "a": 1.948,
+       "n": 4
+      },
+      "U35": {
+       "b": 1.85,
+       "k": "Matchbook",
+       "a": 1.808,
+       "n": 4
+      }
+     },
+     "inj": {
+      "h": {
+       "players": [],
+       "others": 0,
+       "all": []
+      },
+      "a": {
+       "players": [],
+       "others": 0,
+       "all": []
+      }
+     }
+    },
+    {
+     "id": 564749,
+     "date": "2026-11-22T13:00:00Z",
+     "d": "Sun 22 Nov",
+     "k": "13:00",
+     "h": "Barça",
+     "a": "Villarreal",
+     "v": "Camp Nou",
+     "w": "dry",
+     "wx": {
+      "temp": 20,
+      "precip": 0,
+      "snow": 0,
+      "wind": 14
+     },
+     "odds": {
+      "1": {
+       "b": 1.22,
+       "k": "Ladbrokes",
+       "a": 1.187,
+       "n": 20
+      },
+      "2": {
+       "b": 14.49,
+       "k": "Smarkets",
+       "a": 10.95,
+       "n": 20
+      },
+      "X": {
+       "b": 9,
+       "k": "Smarkets",
+       "a": 7.505,
+       "n": 20
+      },
+      "O25": {
+       "b": 1.18,
+       "k": "William Hill",
+       "a": 1.18,
+       "n": 1
+      },
+      "U25": {
+       "b": 4.8,
+       "k": "William Hill",
+       "a": 4.8,
+       "n": 1
+      }
+     },
+     "inj": {
+      "h": {
+       "players": [],
+       "others": 0,
+       "all": []
+      },
+      "a": {
+       "players": [],
+       "others": 0,
+       "all": []
+      }
+     }
+    },
+    {
+     "id": 564750,
+     "date": "2026-11-22T15:15:00Z",
+     "d": "Sun 22 Nov",
+     "k": "15:15",
+     "h": "Santander",
+     "a": "Real Sociedad",
+     "v": "Campos de Sport de El Sardinero",
+     "w": "dry",
+     "wx": {
+      "temp": 15,
+      "precip": 0,
+      "snow": 0,
+      "wind": 26
+     },
+     "odds": {
+      "1": {
+       "b": 3.4,
+       "k": "Smarkets",
+       "a": 3.093,
+       "n": 20
+      },
+      "2": {
+       "b": 2.1,
+       "k": "Betfred (UK)",
+       "a": 2.013,
+       "n": 20
+      },
+      "X": {
+       "b": 4.2,
+       "k": "Smarkets",
+       "a": 3.902,
+       "n": 20
+      },
+      "O35": {
+       "b": 2.05,
+       "k": "Grosvenor",
+       "a": 2.03,
+       "n": 3
+      },
+      "U35": {
+       "b": 1.81,
+       "k": "Matchbook",
+       "a": 1.767,
+       "n": 3
+      },
+      "O25": {
+       "b": 1.4,
+       "k": "William Hill",
+       "a": 1.4,
+       "n": 1
+      },
+      "U25": {
+       "b": 2.75,
+       "k": "William Hill",
+       "a": 2.75,
+       "n": 1
+      }
+     },
+     "inj": {
+      "h": {
+       "players": [],
+       "others": 0,
+       "all": []
+      },
+      "a": {
+       "players": [],
+       "others": 0,
+       "all": []
+      }
+     }
+    },
+    {
+     "id": 564752,
+     "date": "2026-11-22T17:30:00Z",
+     "d": "Sun 22 Nov",
+     "k": "17:30",
+     "h": "Osasuna",
+     "a": "Málaga",
+     "v": "Estadio El Sadar",
+     "w": "dry",
+     "wx": {
+      "temp": 9,
+      "precip": 0,
+      "snow": 0,
+      "wind": 9
+     },
+     "odds": {
+      "1": {
+       "b": 1.82,
+       "k": "Smarkets",
+       "a": 1.743,
+       "n": 20
+      },
+      "2": {
+       "b": 4.9,
+       "k": "Smarkets",
+       "a": 4.458,
+       "n": 20
+      },
+      "X": {
+       "b": 3.8,
+       "k": "Smarkets",
+       "a": 3.608,
+       "n": 20
+      },
+      "O25": {
+       "b": 2.04,
+       "k": "Matchbook",
+       "a": 1.932,
+       "n": 5
+      },
+      "U25": {
+       "b": 1.87,
+       "k": "Matchbook",
+       "a": 1.83,
+       "n": 5
+      }
+     },
+     "inj": {
+      "h": {
+       "players": [],
+       "others": 0,
+       "all": []
+      },
+      "a": {
+       "players": [],
+       "others": 0,
+       "all": []
+      }
+     }
+    },
+    {
+     "id": 564753,
+     "date": "2026-11-22T20:00:00Z",
+     "d": "Sun 22 Nov",
+     "k": "20:00",
+     "h": "Getafe",
+     "a": "Atlético",
+     "v": "Coliseum Alfonso Pérez",
+     "w": "dry",
+     "wx": {
+      "temp": 9,
+      "precip": 0,
+      "snow": 0,
+      "wind": 4
+     },
+     "odds": {
+      "1": {
+       "b": 6.4,
+       "k": "Smarkets",
+       "a": 5.585,
+       "n": 20
+      },
+      "2": {
+       "b": 1.65,
+       "k": "William Hill",
+       "a": 1.602,
+       "n": 20
+      },
+      "X": {
+       "b": 4.1,
+       "k": "Smarkets",
+       "a": 3.777,
+       "n": 20
+      },
+      "O25": {
+       "b": 2.1,
+       "k": "Grosvenor",
+       "a": 2.016,
+       "n": 5
+      },
+      "U25": {
+       "b": 1.86,
+       "k": "Matchbook",
+       "a": 1.774,
+       "n": 5
+      }
+     },
+     "inj": {
+      "h": {
+       "players": [],
+       "others": 0,
+       "all": []
+      },
+      "a": {
+       "players": [],
+       "others": 0,
+       "all": []
+      }
+     }
+    },
+    {
+     "id": 564757,
+     "date": "2026-11-23T20:00:00Z",
+     "d": "Mon 23 Nov",
+     "k": "20:00",
+     "h": "Levante",
+     "a": "Elche",
+     "v": "Estadio Ciudad de Valencia",
+     "w": "dry",
+     "wx": {
+      "temp": 13,
+      "precip": 0,
+      "snow": 0,
+      "wind": 5
+     },
+     "odds": {
+      "1": {
+       "b": 2.22,
+       "k": "Betfair",
+       "a": 2.12,
+       "n": 19
+      },
+      "2": {
+       "b": 3.35,
+       "k": "Matchbook",
+       "a": 3.075,
+       "n": 19
+      },
+      "X": {
+       "b": 3.7,
+       "k": "Smarkets",
+       "a": 3.566,
+       "n": 19
+      },
+      "O25": {
+       "b": 1.75,
+       "k": "Matchbook",
+       "a": 1.677,
+       "n": 4
+      },
+      "U25": {
+       "b": 2.24,
+       "k": "Matchbook",
+       "a": 2.185,
+       "n": 4
+      }
+     },
+     "inj": {
+      "h": {
+       "players": [],
+       "others": 0,
+       "all": []
+      },
+      "a": {
+       "players": [],
+       "others": 0,
+       "all": []
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "BL1",
+   "name": "Bundesliga",
+   "round": "Matchday 10",
+   "teams": {
+    "1. FC Köln": {
+     "o": [
+      9,
+      10,
+      14
+     ],
+     "h": [
+      5,
+      7,
+      6
+     ],
+     "a": [
+      4,
+      3,
+      8
+     ],
+     "f": "WLDDL",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Hoffenheim": {
+     "o": [
+      9,
+      16,
+      17
+     ],
+     "h": [
+      5,
+      11,
+      8
+     ],
+     "a": [
+      4,
+      5,
+      9
+     ],
+     "f": "LWWLW",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Leverkusen": {
+     "o": [
+      9,
+      20,
+      17
+     ],
+     "h": [
+      4,
+      10,
+      5
+     ],
+     "a": [
+      5,
+      10,
+      12
+     ],
+     "f": "WWLLW",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Dortmund": {
+     "o": [
+      9,
+      16,
+      7
+     ],
+     "h": [
+      5,
+      10,
+      3
+     ],
+     "a": [
+      4,
+      6,
+      4
+     ],
+     "f": "DDWDW",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Bayern": {
+     "o": [
+      9,
+      29,
+      9
+     ],
+     "h": [
+      4,
+      20,
+      4
+     ],
+     "a": [
+      5,
+      9,
+      5
+     ],
+     "f": "DWWDW",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Schalke": {
+     "o": [
+      9,
+      5,
+      11
+     ],
+     "h": [
+      4,
+      0,
+      3
+     ],
+     "a": [
+      5,
+      5,
+      8
+     ],
+     "f": "LLDLL",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "HSV": {
+     "o": [
+      9,
+      10,
+      20
+     ],
+     "h": [
+      4,
+      6,
+      7
+     ],
+     "a": [
+      5,
+      4,
+      13
+     ],
+     "f": "WWLLW",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Stuttgart": {
+     "o": [
+      9,
+      15,
+      15
+     ],
+     "h": [
+      4,
+      7,
+      5
+     ],
+     "a": [
+      5,
+      8,
+      10
+     ],
+     "f": "WLLWW",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Bremen": {
+     "o": [
+      9,
+      17,
+      15
+     ],
+     "h": [
+      4,
+      10,
+      5
+     ],
+     "a": [
+      5,
+      7,
+      10
+     ],
+     "f": "DDWWL",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Mainz": {
+     "o": [
+      9,
+      18,
+      19
+     ],
+     "h": [
+      5,
+      7,
+      12
+     ],
+     "a": [
+      4,
+      11,
+      7
+     ],
+     "f": "LWLLL",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Augsburg": {
+     "o": [
+      9,
+      20,
+      20
+     ],
+     "h": [
+      5,
+      9,
+      7
+     ],
+     "a": [
+      4,
+      11,
+      13
+     ],
+     "f": "DLDLL",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Freiburg": {
+     "o": [
+      9,
+      20,
+      10
+     ],
+     "h": [
+      5,
+      14,
+      5
+     ],
+     "a": [
+      4,
+      6,
+      5
+     ],
+     "f": "WLLWW",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "M'gladbach": {
+     "o": [
+      9,
+      12,
+      25
+     ],
+     "h": [
+      4,
+      7,
+      10
+     ],
+     "a": [
+      5,
+      5,
+      15
+     ],
+     "f": "LLWDL",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Frankfurt": {
+     "o": [
+      9,
+      15,
+      20
+     ],
+     "h": [
+      4,
+      7,
+      7
+     ],
+     "a": [
+      5,
+      8,
+      13
+     ],
+     "f": "LWLWD",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Union Berlin": {
+     "o": [
+      9,
+      7,
+      21
+     ],
+     "h": [
+      5,
+      6,
+      7
+     ],
+     "a": [
+      4,
+      1,
+      14
+     ],
+     "f": "WDDDL",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "SC Paderborn": {
+     "o": [
+      9,
+      8,
+      11
+     ],
+     "h": [
+      5,
+      6,
+      6
+     ],
+     "a": [
+      4,
+      2,
+      5
+     ],
+     "f": "LDWDD",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Elversberg": {
+     "o": [
+      9,
+      17,
+      18
+     ],
+     "h": [
+      4,
+      12,
+      8
+     ],
+     "a": [
+      5,
+      5,
+      10
+     ],
+     "f": "LWLWL",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "RB Leipzig": {
+     "o": [
+      9,
+      27,
+      13
+     ],
+     "h": [
+      5,
+      23,
+      2
+     ],
+     "a": [
+      4,
+      4,
+      11
+     ],
+     "f": "WLWWW",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    }
+   },
+   "players": {
+    "Bremen": [
+     {
+      "id": 304,
+      "name": "Niclas Füllkrug",
+      "g": 9,
+      "a": 0,
+      "apps": 9
+     }
+    ],
+    "Leverkusen": [
+     {
+      "id": 1826,
+      "name": "Patrik Schick",
+      "g": 8,
+      "a": 2,
+      "apps": 9
+     },
+     {
+      "id": 202532,
+      "name": "Ibrahim Maza",
+      "g": 3,
+      "a": 3,
+      "apps": 9
+     },
+     {
+      "id": 274045,
+      "name": "Christian Kofane",
+      "g": 2,
+      "a": 0,
+      "apps": 4
+     }
+    ],
+    "Bayern": [
+     {
+      "id": 8004,
+      "name": "Harry Kane",
+      "g": 4,
+      "a": 7,
+      "apps": 9
+     },
+     {
+      "id": 113765,
+      "name": "Michael Olise",
+      "g": 6,
+      "a": 3,
+      "apps": 9
+     },
+     {
+      "id": 22396,
+      "name": "Luis Díaz",
+      "g": 4,
+      "a": 1,
+      "apps": 6
+     },
+     {
+      "id": 9541,
+      "name": "Dayot Upamecano",
+      "g": 3,
+      "a": 0,
+      "apps": 9
+     }
+    ],
+    "Frankfurt": [
+     {
+      "id": 192207,
+      "name": "Younes Ebnoutalib",
+      "g": 6,
+      "a": 1,
+      "apps": 9
+     },
+     {
+      "id": 82404,
+      "name": "Jonathan Burkardt",
+      "g": 5,
+      "a": 1,
+      "apps": 9
+     }
+    ],
+    "Mainz": [
+     {
+      "id": 45593,
+      "name": "Phillip Tietz",
+      "g": 6,
+      "a": 0,
+      "apps": 9
+     },
+     {
+      "id": 8785,
+      "name": "Anthony Caci",
+      "g": 3,
+      "a": 3,
+      "apps": 9
+     }
+    ],
+    "Freiburg": [
+     {
+      "id": 145293,
+      "name": "Yuito Suzuki",
+      "g": 5,
+      "a": 0,
+      "apps": 8
+     },
+     {
+      "id": 156629,
+      "name": "Igor Matanovic",
+      "g": 4,
+      "a": 1,
+      "apps": 9
+     },
+     {
+      "id": 9452,
+      "name": "Maximilian Eggestein",
+      "g": 3,
+      "a": 0,
+      "apps": 9
+     }
+    ],
+    "Augsburg": [
+     {
+      "id": 6661,
+      "name": "Michael Gregoritsch",
+      "g": 5,
+      "a": 0,
+      "apps": 9
+     },
+     {
+      "id": 65692,
+      "name": "Robin Fellhauer",
+      "g": 3,
+      "a": 0,
+      "apps": 9
+     },
+     {
+      "id": 175963,
+      "name": "Anton Kade",
+      "g": 2,
+      "a": 1,
+      "apps": 6
+     },
+     {
+      "id": 178772,
+      "name": "Rodrigo Ribeiro",
+      "g": 2,
+      "a": 0,
+      "apps": 9
+     }
+    ],
+    "Stuttgart": [
+     {
+      "id": 33242,
+      "name": "Ermedin Demirovic",
+      "g": 5,
+      "a": 0,
+      "apps": 9
+     },
+     {
+      "id": 6523,
+      "name": "Josha Vagnoman",
+      "g": 2,
+      "a": 1,
+      "apps": 6
+     }
+    ],
+    "RB Leipzig": [
+     {
+      "id": 169295,
+      "name": "Antonio Nusa",
+      "g": 4,
+      "a": 7,
+      "apps": 9
+     },
+     {
+      "id": 8484,
+      "name": "Christopher Nkunku",
+      "g": 5,
+      "a": 2,
+      "apps": 8
+     },
+     {
+      "id": 178783,
+      "name": "Romulo Cruz",
+      "g": 5,
+      "a": 0,
+      "apps": 7
+     },
+     {
+      "id": 211796,
+      "name": "Tidiam Gomis",
+      "g": 3,
+      "a": 2,
+      "apps": 9
+     }
+    ],
+    "M'gladbach": [
+     {
+      "id": 82442,
+      "name": "Joseph Scally",
+      "g": 4,
+      "a": 1,
+      "apps": 9
+     }
+    ],
+    "Elversberg": [
+     {
+      "id": 183780,
+      "name": "Maurice Krattenmacher",
+      "g": 4,
+      "a": 1,
+      "apps": 9
+     },
+     {
+      "id": 98330,
+      "name": "Lukas Petkov",
+      "g": 2,
+      "a": 2,
+      "apps": 9
+     },
+     {
+      "id": 213737,
+      "name": "David Mokwa Ntusu",
+      "g": 2,
+      "a": 1,
+      "apps": 9
+     },
+     {
+      "id": 265182,
+      "name": "Cole Campbell",
+      "g": 2,
+      "a": 0,
+      "apps": 8
+     }
+    ],
+    "Dortmund": [
+     {
+      "id": 211,
+      "name": "Sehrou Guirassy",
+      "g": 3,
+      "a": 2,
+      "apps": 8
+     },
+     {
+      "id": 125151,
+      "name": "Fábio Silva",
+      "g": 3,
+      "a": 2,
+      "apps": 9
+     },
+     {
+      "id": 101074,
+      "name": "Felix Kalu Nmecha",
+      "g": 4,
+      "a": 0,
+      "apps": 9
+     }
+    ],
+    "1. FC Köln": [
+     {
+      "id": 247659,
+      "name": "Said El Mala",
+      "g": 3,
+      "a": 0,
+      "apps": 8
+     },
+     {
+      "id": 9848,
+      "name": "Thijs Dallinga",
+      "g": 2,
+      "a": 0,
+      "apps": 3
+     }
+    ],
+    "HSV": [
+     {
+      "id": 50215,
+      "name": "Miro Muheim",
+      "g": 3,
+      "a": 1,
+      "apps": 5
+     }
+    ],
+    "Union Berlin": [
+     {
+      "id": 7029,
+      "name": "Tim Skarke",
+      "g": 2,
+      "a": 1,
+      "apps": 9
+     }
+    ],
+    "Hoffenheim": [
+     {
+      "id": 182004,
+      "name": "Adam Daghim",
+      "g": 2,
+      "a": 2,
+      "apps": 9
+     }
+    ]
+   },
+   "matches": [
+    {
+     "id": 565859,
+     "date": "2026-11-20T19:30:00Z",
+     "d": "Fri 20 Nov",
+     "k": "19:30",
+     "h": "Bayern",
+     "a": "1. FC Köln",
+     "v": "Allianz Arena",
+     "w": "light",
+     "wx": null,
+     "odds": {
+      "1": {
+       "b": 1.1,
+       "k": "Ladbrokes",
+       "a": 1.077,
+       "n": 21
+      },
+      "2": {
+       "b": 32,
+       "k": "Matchbook",
+       "a": 21.285,
+       "n": 21
+      },
+      "X": {
+       "b": 16.5,
+       "k": "Betfair",
+       "a": 12.19,
+       "n": 21
+      },
+      "O25": {
+       "b": 1.15,
+       "k": "William Hill",
+       "a": 1.15,
+       "n": 1
+      },
+      "U25": {
+       "b": 5,
+       "k": "William Hill",
+       "a": 5,
+       "n": 1
+      }
+     },
+     "inj": {
+      "h": {
+       "players": [],
+       "others": 0,
+       "all": []
+      },
+      "a": {
+       "players": [],
+       "others": 0,
+       "all": []
+      }
+     }
+    },
+    {
+     "id": 565857,
+     "date": "2026-11-21T14:30:00Z",
+     "d": "Sat 21 Nov",
+     "k": "14:30",
+     "h": "Leverkusen",
+     "a": "SC Paderborn",
+     "v": "BayArena",
+     "w": "light",
+     "wx": null,
+     "odds": {
+      "1": {
+       "b": 1.3,
+       "k": "Betfair",
+       "a": 1.262,
+       "n": 21
+      },
+      "2": {
+       "b": 10,
+       "k": "Smarkets",
+       "a": 8.619,
+       "n": 21
+      },
+      "X": {
+       "b": 7.2,
+       "k": "Smarkets",
+       "a": 6.2,
+       "n": 21
+      },
+      "O35": {
+       "b": 1.88,
+       "k": "Matchbook",
+       "a": 1.833,
+       "n": 4
+      },
+      "U35": {
+       "b": 1.94,
+       "k": "Grosvenor",
+       "a": 1.9,
+       "n": 4
+      },
+      "O25": {
+       "b": 1.3,
+       "k": "William Hill",
+       "a": 1.3,
+       "n": 1
+      },
+      "U25": {
+       "b": 3.3,
+       "k": "William Hill",
+       "a": 3.3,
+       "n": 1
+      }
+     },
+     "inj": {
+      "h": {
+       "players": [],
+       "others": 0,
+       "all": []
+      },
+      "a": {
+       "players": [],
+       "others": 0,
+       "all": []
+      }
+     }
+    },
+    {
+     "id": 565858,
+     "date": "2026-11-21T14:30:00Z",
+     "d": "Sat 21 Nov",
+     "k": "14:30",
+     "h": "Union Berlin",
+     "a": "RB Leipzig",
+     "v": "Stadion An der Alten Försterei",
+     "w": "light",
+     "wx": null,
+     "odds": {
+      "1": {
+       "b": 5.9,
+       "k": "Smarkets",
+       "a": 5.091,
+       "n": 21
+      },
+      "2": {
+       "b": 1.6,
+       "k": "Coral",
+       "a": 1.539,
+       "n": 21
+      },
+      "X": {
+       "b": 4.7,
+       "k": "Smarkets",
+       "a": 4.394,
+       "n": 21
+      },
+      "O35": {
+       "b": 2.12,
+       "k": "Grosvenor",
+       "a": 2.107,
+       "n": 3
+      },
+      "U35": {
+       "b": 1.7,
+       "k": "LeoVegas",
+       "a": 1.693,
+       "n": 3
+      },
+      "O25": {
+       "b": 1.4,
+       "k": "William Hill",
+       "a": 1.4,
+       "n": 1
+      },
+      "U25": {
+       "b": 2.75,
+       "k": "William Hill",
+       "a": 2.75,
+       "n": 1
+      }
+     },
+     "inj": {
+      "h": {
+       "players": [],
+       "others": 0,
+       "all": []
+      },
+      "a": {
+       "players": [],
+       "others": 0,
+       "all": []
+      }
+     }
+    },
+    {
+     "id": 565860,
+     "date": "2026-11-21T14:30:00Z",
+     "d": "Sat 21 Nov",
+     "k": "14:30",
+     "h": "Elversberg",
+     "a": "Freiburg",
+     "v": "Ursapharm-Arena an der Kaiserlinde",
+     "w": "dry",
+     "wx": {
+      "temp": 7,
+      "precip": 0,
+      "snow": 0,
+      "wind": 2
+     },
+     "odds": {
+      "1": {
+       "b": 3.65,
+       "k": "Smarkets",
+       "a": 3.326,
+       "n": 21
+      },
+      "2": {
+       "b": 2.08,
+       "k": "Smarkets",
+       "a": 1.976,
+       "n": 21
+      },
+      "X": {
+       "b": 3.95,
+       "k": "Smarkets",
+       "a": 3.724,
+       "n": 21
+      },
+      "O25": {
+       "b": 1.63,
+       "k": "Matchbook",
+       "a": 1.563,
+       "n": 4
+      },
+      "U25": {
+       "b": 2.5,
+       "k": "Matchbook",
+       "a": 2.413,
+       "n": 4
+      }
+     },
+     "inj": {
+      "h": {
+       "players": [],
+       "others": 0,
+       "all": []
+      },
+      "a": {
+       "players": [],
+       "others": 0,
+       "all": []
+      }
+     }
+    },
+    {
+     "id": 565862,
+     "date": "2026-11-21T14:30:00Z",
+     "d": "Sat 21 Nov",
+     "k": "14:30",
+     "h": "M'gladbach",
+     "a": "Dortmund",
+     "v": "Stadion im Borussia-Park",
+     "w": "dry",
+     "wx": {
+      "temp": 8,
+      "precip": 0,
+      "snow": 0,
+      "wind": 10
+     },
+     "odds": {
+      "1": {
+       "b": 5.5,
+       "k": "Smarkets",
+       "a": 4.75,
+       "n": 21
+      },
+      "2": {
+       "b": 1.65,
+       "k": "Ladbrokes",
+       "a": 1.59,
+       "n": 21
+      },
+      "X": {
+       "b": 4.8,
+       "k": "Matchbook",
+       "a": 4.305,
+       "n": 21
+      },
+      "O35": {
+       "b": 2.2,
+       "k": "Grosvenor",
+       "a": 2.183,
+       "n": 3
+      },
+      "U35": {
+       "b": 1.65,
+       "k": "Matchbook",
+       "a": 1.643,
+       "n": 3
+      },
+      "O25": {
+       "b": 1.44,
+       "k": "William Hill",
+       "a": 1.44,
+       "n": 1
+      },
+      "U25": {
+       "b": 2.62,
+       "k": "William Hill",
+       "a": 2.62,
+       "n": 1
+      }
+     },
+     "inj": {
+      "h": {
+       "players": [],
+       "others": 0,
+       "all": []
+      },
+      "a": {
+       "players": [],
+       "others": 0,
+       "all": []
+      }
+     }
+    },
+    {
+     "id": 565865,
+     "date": "2026-11-21T14:30:00Z",
+     "d": "Sat 21 Nov",
+     "k": "14:30",
+     "h": "Frankfurt",
+     "a": "Hoffenheim",
+     "v": "Deutsche Bank Park",
+     "w": "dry",
+     "wx": {
+      "temp": 8,
+      "precip": 0,
+      "snow": 0,
+      "wind": 4
+     },
+     "odds": {
+      "1": {
+       "b": 2.42,
+       "k": "Smarkets",
+       "a": 2.276,
+       "n": 21
+      },
+      "2": {
+       "b": 2.8,
+       "k": "Matchbook",
+       "a": 2.623,
+       "n": 21
+      },
+      "X": {
+       "b": 4.1,
+       "k": "Smarkets",
+       "a": 3.869,
+       "n": 21
+      },
+      "O35": {
+       "b": 1.88,
+       "k": "Grosvenor",
+       "a": 1.853,
+       "n": 4
+      },
+      "U35": {
+       "b": 1.93,
+       "k": "Matchbook",
+       "a": 1.887,
+       "n": 4
+      },
+      "O25": {
+       "b": 1.33,
+       "k": "William Hill",
+       "a": 1.33,
+       "n": 1
+      },
+      "U25": {
+       "b": 3.2,
+       "k": "William Hill",
+       "a": 3.2,
+       "n": 1
+      }
+     },
+     "inj": {
+      "h": {
+       "players": [],
+       "others": 0,
+       "all": []
+      },
+      "a": {
+       "players": [],
+       "others": 0,
+       "all": []
+      }
+     }
+    },
+    {
+     "id": 565861,
+     "date": "2026-11-21T17:30:00Z",
+     "d": "Sat 21 Nov",
+     "k": "17:30",
+     "h": "Schalke",
+     "a": "Stuttgart",
+     "v": "Veltins-Arena",
+     "w": "dry",
+     "wx": {
+      "temp": 5,
+      "precip": 0,
+      "snow": 0,
+      "wind": 9
+     },
+     "odds": {
+      "1": {
+       "b": 4.1,
+       "k": "Smarkets",
+       "a": 3.79,
+       "n": 21
+      },
+      "2": {
+       "b": 1.85,
+       "k": "Smarkets",
+       "a": 1.776,
+       "n": 21
+      },
+      "X": {
+       "b": 4.2,
+       "k": "Betfred (UK)",
+       "a": 4,
+       "n": 21
+      },
+      "O35": {
+       "b": 2.14,
+       "k": "Matchbook",
+       "a": 2.12,
+       "n": 3
+      },
+      "U35": {
+       "b": 1.68,
+       "k": "LeoVegas",
+       "a": 1.68,
+       "n": 3
+      },
+      "O25": {
+       "b": 1.44,
+       "k": "William Hill",
+       "a": 1.44,
+       "n": 1
+      },
+      "U25": {
+       "b": 2.62,
+       "k": "William Hill",
+       "a": 2.62,
+       "n": 1
+      }
+     },
+     "inj": {
+      "h": {
+       "players": [],
+       "others": 0,
+       "all": []
+      },
+      "a": {
+       "players": [],
+       "others": 0,
+       "all": []
+      }
+     }
+    },
+    {
+     "id": 565864,
+     "date": "2026-11-22T14:30:00Z",
+     "d": "Sun 22 Nov",
+     "k": "14:30",
+     "h": "Augsburg",
+     "a": "Mainz",
+     "v": "WWK Arena",
+     "w": "cold",
+     "wx": {
+      "temp": 1,
+      "precip": 0.7,
+      "snow": 0.07,
+      "wind": 5
+     },
+     "odds": {
+      "1": {
+       "b": 2.8,
+       "k": "Smarkets",
+       "a": 2.619,
+       "n": 21
+      },
+      "2": {
+       "b": 2.46,
+       "k": "Smarkets",
+       "a": 2.315,
+       "n": 21
+      },
+      "X": {
+       "b": 4,
+       "k": "Smarkets",
+       "a": 3.795,
+       "n": 21
+      },
+      "O35": {
+       "b": 2.14,
+       "k": "Grosvenor",
+       "a": 2.053,
+       "n": 3
+      },
+      "U35": {
+       "b": 1.77,
+       "k": "Matchbook",
+       "a": 1.733,
+       "n": 3
+      },
+      "O25": {
+       "b": 1.4,
+       "k": "William Hill",
+       "a": 1.4,
+       "n": 1
+      },
+      "U25": {
+       "b": 2.8,
+       "k": "William Hill",
+       "a": 2.8,
+       "n": 1
+      }
+     },
+     "inj": {
+      "h": {
+       "players": [],
+       "others": 0,
+       "all": []
+      },
+      "a": {
+       "players": [],
+       "others": 0,
+       "all": []
+      }
+     }
+    },
+    {
+     "id": 565863,
+     "date": "2026-11-22T16:30:00Z",
+     "d": "Sun 22 Nov",
+     "k": "16:30",
+     "h": "Bremen",
+     "a": "HSV",
+     "v": "Weserstadion",
+     "w": "dry",
+     "wx": {
+      "temp": 3,
+      "precip": 0,
+      "snow": 0,
+      "wind": 8
+     },
+     "odds": {
+      "1": {
+       "b": 1.73,
+       "k": "Coral",
+       "a": 1.656,
+       "n": 21
+      },
+      "2": {
+       "b": 4.9,
+       "k": "Matchbook",
+       "a": 4.398,
+       "n": 21
+      },
+      "X": {
+       "b": 4.4,
+       "k": "Smarkets",
+       "a": 4.129,
+       "n": 21
+      },
+      "O35": {
+       "b": 2.32,
+       "k": "Grosvenor",
+       "a": 2.29,
+       "n": 3
+      },
+      "U35": {
+       "b": 1.61,
+       "k": "Matchbook",
+       "a": 1.587,
+       "n": 3
+      },
+      "O25": {
+       "b": 1.5,
+       "k": "William Hill",
+       "a": 1.5,
+       "n": 1
+      },
+      "U25": {
+       "b": 2.5,
+       "k": "William Hill",
+       "a": 2.5,
+       "n": 1
+      }
+     },
+     "inj": {
+      "h": {
+       "players": [],
+       "others": 0,
+       "all": []
+      },
+      "a": {
+       "players": [],
+       "others": 0,
+       "all": []
+      }
+     }
+    }
+   ]
+  },
+  {
+   "code": "FL1",
+   "name": "Ligue 1",
+   "round": "Matchday 11",
+   "teams": {
+    "Toulouse": {
+     "o": [
+      10,
+      15,
+      14
+     ],
+     "h": [
+      5,
+      6,
+      6
+     ],
+     "a": [
+      5,
+      9,
+      8
+     ],
+     "f": "DWDLW",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Brest": {
+     "o": [
+      10,
+      18,
+      12
+     ],
+     "h": [
+      5,
+      10,
+      6
+     ],
+     "a": [
+      5,
+      8,
+      6
+     ],
+     "f": "WDLWW",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Marseille": {
+     "o": [
+      10,
+      22,
+      14
+     ],
+     "h": [
+      5,
+      13,
+      8
+     ],
+     "a": [
+      5,
+      9,
+      6
+     ],
+     "f": "WWWWW",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Auxerre": {
+     "o": [
+      10,
+      13,
+      24
+     ],
+     "h": [
+      5,
+      5,
+      6
+     ],
+     "a": [
+      5,
+      8,
+      18
+     ],
+     "f": "LWDLL",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Lille": {
+     "o": [
+      10,
+      14,
+      7
+     ],
+     "h": [
+      5,
+      7,
+      3
+     ],
+     "a": [
+      5,
+      7,
+      4
+     ],
+     "f": "WDDWW",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Nice": {
+     "o": [
+      10,
+      15,
+      12
+     ],
+     "h": [
+      5,
+      10,
+      5
+     ],
+     "a": [
+      5,
+      5,
+      7
+     ],
+     "f": "WLWWW",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Olympique Lyon": {
+     "o": [
+      10,
+      15,
+      9
+     ],
+     "h": [
+      5,
+      12,
+      3
+     ],
+     "a": [
+      5,
+      3,
+      6
+     ],
+     "f": "LWLWL",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "PSG": {
+     "o": [
+      10,
+      22,
+      10
+     ],
+     "h": [
+      4,
+      7,
+      3
+     ],
+     "a": [
+      6,
+      15,
+      7
+     ],
+     "f": "WWWWW",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Lorient": {
+     "o": [
+      10,
+      9,
+      8
+     ],
+     "h": [
+      5,
+      5,
+      6
+     ],
+     "a": [
+      5,
+      4,
+      2
+     ],
+     "f": "WWDLW",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Stade Rennais": {
+     "o": [
+      10,
+      21,
+      21
+     ],
+     "h": [
+      6,
+      14,
+      7
+     ],
+     "a": [
+      4,
+      7,
+      14
+     ],
+     "f": "WLWLL",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Troyes": {
+     "o": [
+      10,
+      7,
+      17
+     ],
+     "h": [
+      5,
+      5,
+      11
+     ],
+     "a": [
+      5,
+      2,
+      6
+     ],
+     "f": "LLDWL",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Angers SCO": {
+     "o": [
+      10,
+      9,
+      19
+     ],
+     "h": [
+      6,
+      5,
+      11
+     ],
+     "a": [
+      4,
+      4,
+      8
+     ],
+     "f": "LLDLL",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Le Havre": {
+     "o": [
+      10,
+      9,
+      22
+     ],
+     "h": [
+      6,
+      3,
+      13
+     ],
+     "a": [
+      4,
+      6,
+      9
+     ],
+     "f": "LLLLL",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Le Mans": {
+     "o": [
+      10,
+      12,
+      19
+     ],
+     "h": [
+      5,
+      7,
+      9
+     ],
+     "a": [
+      5,
+      5,
+      10
+     ],
+     "f": "LLDLD",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "RC Lens": {
+     "o": [
+      10,
+      17,
+      15
+     ],
+     "h": [
+      5,
+      10,
+      7
+     ],
+     "a": [
+      5,
+      7,
+      8
+     ],
+     "f": "WWWLL",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Monaco": {
+     "o": [
+      10,
+      13,
+      11
+     ],
+     "h": [
+      4,
+      7,
+      4
+     ],
+     "a": [
+      6,
+      6,
+      7
+     ],
+     "f": "DLDLD",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Strasbourg": {
+     "o": [
+      10,
+      18,
+      22
+     ],
+     "h": [
+      4,
+      9,
+      6
+     ],
+     "a": [
+      6,
+      9,
+      16
+     ],
+     "f": "LLLWL",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    },
+    "Paris FC": {
+     "o": [
+      10,
+      17,
+      10
+     ],
+     "h": [
+      5,
+      12,
+      5
+     ],
+     "a": [
+      5,
+      5,
+      5
+     ],
+     "f": "LWLWW",
+     "xg": null,
+     "cn": null,
+     "cd": null
+    }
+   },
+   "players": {
+    "Paris FC": [
+     {
+      "id": 552,
+      "name": "Lassine Sinayoko",
+      "g": 9,
+      "a": 5,
+      "apps": 10
+     }
+    ],
+    "Marseille": [
+     {
+      "id": 8476,
+      "name": "Amine Gouiri",
+      "g": 7,
+      "a": 3,
+      "apps": 10
+     },
+     {
+      "id": 3714,
+      "name": "Amine Harit",
+      "g": 3,
+      "a": 1,
+      "apps": 10
+     },
+     {
+      "id": 80754,
+      "name": "Himad Abdelli",
+      "g": 3,
+      "a": 0,
+      "apps": 10
+     },
+     {
+      "id": 250795,
+      "name": "Keyliane Abdallah",
+      "g": 2,
+      "a": 0,
+      "apps": 9
+     }
+    ],
+    "Stade Rennais": [
+     {
+      "id": 149850,
+      "name": "Esteban Lepaul",
+      "g": 7,
+      "a": 0,
+      "apps": 7
+     },
+     {
+      "id": 98299,
+      "name": "Boulaye Dia",
+      "g": 5,
+      "a": 0,
+      "apps": 8
+     },
+     {
+      "id": 10201,
+      "name": "Sebastian Szymański",
+      "g": 4,
+      "a": 1,
+      "apps": 10
+     }
+    ],
+    "Auxerre": [
+     {
+      "id": 128242,
+      "name": "Cameron Archer",
+      "g": 6,
+      "a": 0,
+      "apps": 8
+     },
+     {
+      "id": 4289,
+      "name": "Daniel Namaso",
+      "g": 3,
+      "a": 2,
+      "apps": 10
+     }
+    ],
+    "Nice": [
+     {
+      "id": 156808,
+      "name": "Sepe Elye Wahi",
+      "g": 6,
+      "a": 2,
+      "apps": 9
+     },
+     {
+      "id": 1023,
+      "name": "Jonathan Clauss",
+      "g": 3,
+      "a": 1,
+      "apps": 10
+     }
+    ],
+    "RC Lens": [
+     {
+      "id": 3370,
+      "name": "Florian Thauvin",
+      "g": 5,
+      "a": 8,
+      "apps": 10
+     },
+     {
+      "id": 183643,
+      "name": "Franjo Ivanovic",
+      "g": 2,
+      "a": 0,
+      "apps": 9
+     }
+    ],
+    "Brest": [
+     {
+      "id": 723,
+      "name": "Ludovic Ajorque",
+      "g": 5,
+      "a": 1,
+      "apps": 10
+     },
+     {
+      "id": 175942,
+      "name": "Kamory Doumbia",
+      "g": 4,
+      "a": 2,
+      "apps": 10
+     }
+    ],
+    "Toulouse": [
+     {
+      "id": 129381,
+      "name": "Casper Tengstedt",
+      "g": 5,
+      "a": 1,
+      "apps": 8
+     },
+     {
+      "id": 215679,
+      "name": "Thomas Jørgensen",
+      "g": 3,
+      "a": 1,
+      "apps": 10
+     },
+     {
+      "id": 182406,
+      "name": "Jacen Russell-Rowe",
+      "g": 2,
+      "a": 0,
+      "apps": 10
+     }
+    ],
+    "Le Mans": [
+     {
+      "id": 292172,
+      "name": "Adil Bourabaa",
+      "g": 3,
+      "a": 2,
+      "apps": 5
+     },
+     {
+      "id": 124178,
+      "name": "Louis Mafouta",
+      "g": 4,
+      "a": 0,
+      "apps": 10
+     }
+    ],
+    "PSG": [
+     {
+      "id": 33154,
+      "name": "Ferrán Torres",
+      "g": 4,
+      "a": 1,
+      "apps": 10
+     },
+     {
+      "id": 53,
+      "name": "Achraf Hakimi",
+      "g": 3,
+      "a": 2,
+      "apps": 8
+     },
+     {
+      "id": 3225,
+      "name": "Marquinhos",
+      "g": 3,
+      "a": 0,
+      "apps": 6
+     }
+    ],
+    "Strasbourg": [
+     {
+      "id": 245336,
+      "name": "Gessime Yassine",
+      "g": 4,
+      "a": 3,
+      "apps": 10
+     },
+     {
+      "id": 136733,
+      "name": "Gio Reyna",
+      "g": 3,
+      "a": 0,
+      "apps": 10
+     },
+     {
+      "id": 206744,
+      "name": "Conrad Harder",
+      "g": 2,
+      "a": 1,
+      "apps": 8
+     },
+     {
+      "id": 206809,
+      "name": "Samuel Amo-Ameyaw",
+      "g": 2,
+      "a": 0,
+      "apps": 9
+     }
+    ],
+    "Monaco": [
+     {
+      "id": 244696,
+      "name": "Paris Brunner",
+      "g": 4,
+      "a": 0,
+      "apps": 8
+     }
+    ],
+    "Olympique Lyon": [
+     {
+      "id": 184726,
+      "name": "Ernest Nuamah",
+      "g": 4,
+      "a": 1,
+      "apps": 10
+     },
+     {
+      "id": 256424,
+      "name": "Zachary Athekame",
+      "g": 2,
+      "a": 3,
+      "apps": 10
+     }
+    ],
+    "Le Havre": [
+     {
+      "id": 4072,
+      "name": "Josh Maja",
+      "g": 4,
+      "a": 0,
+      "apps": 10
+     },
+     {
+      "id": 276430,
+      "name": "Rayan Fofana",
+      "g": 2,
+      "a": 1,
+      "apps": 10
+     },
+     {
+      "id": 215579,
+      "name": "Mbwana Samatta",
+      "g": 2,
+      "a": 0,
+      "apps": 10
+     }
+    ],
+    "Lille": [
+     {
+      "id": 3371,
+      "name": "Olivier Giroud",
+      "g": 3,
+      "a": 2,
+      "apps": 10
+     },
+     {
+      "id": 151295,
+      "name": "Dilane Bakwa",
+      "g": 2,
+      "a": 1,
+      "apps": 9
+     },
+     {
+      "id": 188087,
+      "name": "Tiago Santos",
+      "g": 2,
+      "a": 0,
+      "apps": 6
+     },
+     {
+      "id": 119460,
+      "name": "Ayase Ueda",
+      "g": 2,
+      "a": 0,
+      "apps": 4
+     }
+    ],
+    "Lorient": [
+     {
+      "id": 8437,
+      "name": "Jean-Victor Makengo",
+      "g": 2,
+      "a": 1,
+      "apps": 10
+     }
+    ],
+    "Angers SCO": [
+     {
+      "id": 137515,
+      "name": "Amine El Ouazzani",
+      "g": 2,
+      "a": 1,
+      "apps": 8
+     }
+    ]
+   },
+   "matches": [
+    {
+     "id": 559622,
+     "date": "2026-11-20T19:45:00Z",
+     "d": "Fri 20 Nov",
+     "k": "19:45",
+     "h": "Troyes",
+     "a": "Le Havre",
+     "v": "Stade de l'Aube",
+     "w": "light",
+     "wx": null,
+     "odds": {
+      "1": {
+       "b": 2.22,
+       "k": "Smarkets",
+       "a": 2.079,
+       "n": 19
+      },
+      "2": {
+       "b": 3.55,
+       "k": "Betfair",
+       "a": 3.25,
+       "n": 19
+      },
+      "X": {
+       "b": 3.65,
+       "k": "Betfair",
+       "a": 3.429,
+       "n": 19
+      },
+      "O25": {
+       "b": 1.83,
+       "k": "LeoVegas",
+       "a": 1.815,
+       "n": 4
+      },
+      "U25": {
+       "b": 1.96,
+       "k": "Grosvenor",
+       "a": 1.92,
+       "n": 4
+      }
+     },
+     "inj": {
+      "h": {
+       "players": [],
+       "others": 0,
+       "all": []
+      },
+      "a": {
+       "players": [],
+       "others": 0,
+       "all": []
+      }
+     }
+    },
+    {
+     "id": 559628,
+     "date": "2026-11-21T16:15:00Z",
+     "d": "Sat 21 Nov",
+     "k": "16:15",
+     "h": "Nice",
+     "a": "PSG",
+     "v": "Stade de Nice",
+     "w": "light",
+     "wx": null,
+     "odds": {
+      "1": {
+       "b": 6.4,
+       "k": "Betfair",
+       "a": 5.655,
+       "n": 20
+      },
+      "2": {
+       "b": 1.5,
+       "k": "Betfair",
+       "a": 1.435,
+       "n": 20
+      },
+      "X": {
+       "b": 5.4,
+       "k": "Betfair",
+       "a": 4.84,
+       "n": 20
+      },
+      "O35": {
+       "b": 1.96,
+       "k": "Grosvenor",
+       "a": 1.92,
+       "n": 3
+      },
+      "U35": {
+       "b": 1.8,
+       "k": "Grosvenor",
+       "a": 1.8,
+       "n": 3
+      },
+      "O25": {
+       "b": 1.36,
+       "k": "William Hill",
+       "a": 1.36,
+       "n": 1
+      },
+      "U25": {
+       "b": 3,
+       "k": "William Hill",
+       "a": 3,
+       "n": 1
+      }
+     },
+     "inj": {
+      "h": {
+       "players": [],
+       "others": 0,
+       "all": []
+      },
+      "a": {
+       "players": [],
+       "others": 0,
+       "all": []
+      }
+     }
+    },
+    {
+     "id": 559621,
+     "date": "2026-11-21T19:45:00Z",
+     "d": "Sat 21 Nov",
+     "k": "19:45",
+     "h": "Monaco",
+     "a": "Auxerre",
+     "v": "Stade Louis II.",
+     "w": "light",
+     "wx": null,
+     "odds": {
+      "1": {
+       "b": 1.42,
+       "k": "Grosvenor",
+       "a": 1.385,
+       "n": 20
+      },
+      "2": {
+       "b": 7.6,
+       "k": "Smarkets",
+       "a": 6.528,
+       "n": 20
+      },
+      "X": {
+       "b": 5.3,
+       "k": "Betfair",
+       "a": 4.815,
+       "n": 20
+      },
+      "O35": {
+       "b": 2.3,
+       "k": "Grosvenor",
+       "a": 2.24,
+       "n": 2
+      },
+      "U35": {
+       "b": 1.64,
+       "k": "LeoVegas",
+       "a": 1.62,
+       "n": 2
+      },
+      "O25": {
+       "b": 1.53,
+       "k": "William Hill",
+       "a": 1.53,
+       "n": 1
+      },
+      "U25": {
+       "b": 2.45,
+       "k": "William Hill",
+       "a": 2.45,
+       "n": 1
+      }
+     },
+     "inj": {
+      "h": {
+       "players": [],
+       "others": 0,
+       "all": []
+      },
+      "a": {
+       "players": [],
+       "others": 0,
+       "all": []
+      }
+     }
+    },
+    {
+     "id": 559623,
+     "date": "2026-11-21T19:45:00Z",
+     "d": "Sat 21 Nov",
+     "k": "19:45",
+     "h": "RC Lens",
+     "a": "Toulouse",
+     "v": "Stade Bollaert-Delelis",
+     "w": "dry",
+     "wx": {
+      "temp": 4,
+      "precip": 0,
+      "snow": 0,
+      "wind": 9
+     },
+     "odds": {
+      "1": {
+       "b": 1.9,
+       "k": "Betfair",
+       "a": 1.8,
+       "n": 20
+      },
+      "2": {
+       "b": 4.1,
+       "k": "Smarkets",
+       "a": 3.797,
+       "n": 20
+      },
+      "X": {
+       "b": 4,
+       "k": "Smarkets",
+       "a": 3.827,
+       "n": 20
+      },
+      "O25": {
+       "b": 1.62,
+       "k": "William Hill",
+       "a": 1.607,
+       "n": 3
+      },
+      "U25": {
+       "b": 2.28,
+       "k": "Grosvenor",
+       "a": 2.26,
+       "n": 3
+      }
+     },
+     "inj": {
+      "h": {
+       "players": [],
+       "others": 0,
+       "all": []
+      },
+      "a": {
+       "players": [],
+       "others": 0,
+       "all": []
+      }
+     }
+    },
+    {
+     "id": 559624,
+     "date": "2026-11-21T19:45:00Z",
+     "d": "Sat 21 Nov",
+     "k": "19:45",
+     "h": "Lille",
+     "a": "Olympique Lyon",
+     "v": "Stade Pierre-Mauroy",
+     "w": "dry",
+     "wx": {
+      "temp": 6,
+      "precip": 0,
+      "snow": 0,
+      "wind": 7
+     },
+     "odds": {
+      "1": {
+       "b": 2.4,
+       "k": "Betfair",
+       "a": 2.281,
+       "n": 20
+      },
+      "2": {
+       "b": 3.3,
+       "k": "Betfair",
+       "a": 2.996,
+       "n": 20
+      },
+      "X": {
+       "b": 3.35,
+       "k": "Betfair",
+       "a": 3.258,
+       "n": 20
+      },
+      "O25": {
+       "b": 2,
+       "k": "LeoVegas",
+       "a": 1.947,
+       "n": 3
+      },
+      "U25": {
+       "b": 1.85,
+       "k": "Grosvenor",
+       "a": 1.81,
+       "n": 3
+      }
+     },
+     "inj": {
+      "h": {
+       "players": [],
+       "others": 0,
+       "all": []
+      },
+      "a": {
+       "players": [],
+       "others": 0,
+       "all": []
+      }
+     }
+    },
+    {
+     "id": 559627,
+     "date": "2026-11-21T19:45:00Z",
+     "d": "Sat 21 Nov",
+     "k": "19:45",
+     "h": "Strasbourg",
+     "a": "Brest",
+     "v": "Stade de la Meinau",
+     "w": "dry",
+     "wx": {
+      "temp": 6,
+      "precip": 0,
+      "snow": 0,
+      "wind": 2
+     },
+     "odds": {
+      "1": {
+       "b": 2.28,
+       "k": "Betfair",
+       "a": 2.166,
+       "n": 20
+      },
+      "2": {
+       "b": 3.15,
+       "k": "Betfair",
+       "a": 2.91,
+       "n": 20
+      },
+      "X": {
+       "b": 3.8,
+       "k": "Betfair Sportsbook",
+       "a": 3.6,
+       "n": 20
+      },
+      "O25": {
+       "b": 1.64,
+       "k": "Grosvenor",
+       "a": 1.633,
+       "n": 3
+      },
+      "U25": {
+       "b": 2.2,
+       "k": "Grosvenor",
+       "a": 2.193,
+       "n": 3
+      }
+     },
+     "inj": {
+      "h": {
+       "players": [],
+       "others": 0,
+       "all": []
+      },
+      "a": {
+       "players": [],
+       "others": 0,
+       "all": []
+      }
+     }
+    },
+    {
+     "id": 559625,
+     "date": "2026-11-22T14:00:00Z",
+     "d": "Sun 22 Nov",
+     "k": "14:00",
+     "h": "Paris FC",
+     "a": "Angers SCO",
+     "v": "Stade Sébastien Charléty",
+     "w": "light",
+     "wx": {
+      "temp": 7,
+      "precip": 0.6,
+      "snow": 0,
+      "wind": 4
+     },
+     "odds": {
+      "1": {
+       "b": 1.37,
+       "k": "Smarkets",
+       "a": 1.319,
+       "n": 20
+      },
+      "2": {
+       "b": 10,
+       "k": "Betfair",
+       "a": 8.34,
+       "n": 20
+      },
+      "X": {
+       "b": 5.6,
+       "k": "Betfair",
+       "a": 5.072,
+       "n": 20
+      },
+      "O25": {
+       "b": 1.6,
+       "k": "William Hill",
+       "a": 1.573,
+       "n": 3
+      },
+      "U25": {
+       "b": 2.43,
+       "k": "Grosvenor",
+       "a": 2.343,
+       "n": 3
+      }
+     },
+     "inj": {
+      "h": {
+       "players": [],
+       "others": 0,
+       "all": []
+      },
+      "a": {
+       "players": [],
+       "others": 0,
+       "all": []
+      }
+     }
+    },
+    {
+     "id": 559626,
+     "date": "2026-11-22T16:15:00Z",
+     "d": "Sun 22 Nov",
+     "k": "16:15",
+     "h": "Lorient",
+     "a": "Stade Rennais",
+     "v": "Stade Yves Allainmat - Le Moustoir",
+     "w": "dry",
+     "wx": {
+      "temp": 12,
+      "precip": 0,
+      "snow": 0,
+      "wind": 24
+     },
+     "odds": null,
+     "inj": {
+      "h": {
+       "players": [],
+       "others": 0,
+       "all": []
+      },
+      "a": {
+       "players": [],
+       "others": 0,
+       "all": []
+      }
+     }
+    },
+    {
+     "id": 559629,
+     "date": "2026-11-22T19:45:00Z",
+     "d": "Sun 22 Nov",
+     "k": "19:45",
+     "h": "Marseille",
+     "a": "Le Mans",
+     "v": "Orange Vélodrome",
+     "w": "dry",
+     "wx": {
+      "temp": 13,
+      "precip": 0,
+      "snow": 0,
+      "wind": 30
+     },
+     "odds": {
+      "1": {
+       "b": 1.49,
+       "k": "Betfair",
+       "a": 1.431,
+       "n": 20
+      },
+      "2": {
+       "b": 7,
+       "k": "Betfair",
+       "a": 5.94,
+       "n": 20
+      },
+      "X": {
+       "b": 5.1,
+       "k": "Betfair",
+       "a": 4.657,
+       "n": 20
+      },
+      "O35": {
+       "b": 2.23,
+       "k": "Grosvenor",
+       "a": 2.215,
+       "n": 2
+      },
+      "U35": {
+       "b": 1.63,
+       "k": "Grosvenor",
+       "a": 1.625,
+       "n": 2
+      },
+      "O25": {
+       "b": 1.44,
+       "k": "William Hill",
+       "a": 1.44,
+       "n": 1
+      },
+      "U25": {
+       "b": 2.5,
+       "k": "William Hill",
+       "a": 2.5,
+       "n": 1
+      }
+     },
+     "inj": {
+      "h": {
+       "players": [],
+       "others": 0,
+       "all": []
+      },
+      "a": {
+       "players": [],
+       "others": 0,
+       "all": []
+      }
+     }
+    }
+   ]
   }
  ]
 }
