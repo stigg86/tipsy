@@ -116,6 +116,7 @@ async function odds(sport) {
   url.searchParams.set("regions", "uk");
   url.searchParams.set("markets", "h2h,totals");
   url.searchParams.set("oddsFormat", "decimal");
+  url.searchParams.set("includeLinks", "true");
   const r = await fetch(url);
   const left = r.headers.get("x-requests-remaining");
   if (left !== null) oddsLeft = Number(left);
@@ -187,35 +188,41 @@ function sim(a, b) {
 
 function parseOdds(ev) {
   const prices = {}; // key -> { book: price }
-  const put = (key, price, book) => {
+  const links = {};  // key -> { book: [url, kind] }   kind: "slip" (bet on the slip), "market" or "event"
+  const eventLinks = {}; // book -> url
+  const put = (key, price, book, link) => {
     if (!(price > 1)) return;
     const k = (prices[key] ??= {});
-    if (!k[book] || price > k[book]) k[book] = price;
+    if (!k[book] || price > k[book]) { k[book] = price; if (link) (links[key] ??= {})[book] = link; }
   };
   for (const bm of ev.bookmakers || []) {
     if (/^(betfair_ex|matchbook|smarkets)/.test(bm.key || "")) continue; // exchanges charge commission – compare sportsbooks only
+    if (bm.link) eventLinks[bm.title] = bm.link;
     for (const mk of bm.markets || []) {
+      const L = o => o.link ? [o.link, "slip"] : mk.link ? [mk.link, "market"] : bm.link ? [bm.link, "event"] : null;
       if (mk.key === "h2h") {
         for (const o of mk.outcomes || []) {
-          if (o.name === "Draw") put("X", o.price, bm.title);
-          else if (o.name === ev.home_team) put("1", o.price, bm.title);
-          else if (o.name === ev.away_team) put("2", o.price, bm.title);
+          if (o.name === "Draw") put("X", o.price, bm.title, L(o));
+          else if (o.name === ev.home_team) put("1", o.price, bm.title, L(o));
+          else if (o.name === ev.away_team) put("2", o.price, bm.title, L(o));
         }
       } else if (mk.key === "totals") {
         for (const o of mk.outcomes || []) {
           const line = Number(o.point);
           if (![1.5, 2.5, 3.5].includes(line)) continue;
-          put((o.name === "Over" ? "O" : "U") + String(line).replace(".", ""), o.price, bm.title);
+          put((o.name === "Over" ? "O" : "U") + String(line).replace(".", ""), o.price, bm.title, L(o));
         }
       }
     }
   }
   const out = {};
   for (const [k, byBook] of Object.entries(prices)) {
-    const all = Object.entries(byBook).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+    const all = Object.entries(byBook).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+      .map(([book, price]) => { const l = links[k]?.[book]; return l ? [book, price, l[0], l[1]] : [book, price]; });
     const avg = all.reduce((s, x) => s + x[1], 0) / all.length;
     out[k] = { b: all[0][1], k: all[0][0], a: +avg.toFixed(3), n: all.length, all };
   }
+  if (Object.keys(eventLinks).length) out._ev = eventLinks;
   return Object.keys(out).length ? out : null;
 }
 
@@ -323,7 +330,7 @@ async function buildLeague(code, cache, prev) {
   // Bookmaker odds (refreshed at most every 6 hours to save credits; otherwise reuse the last prices)
   const oddsByMatch = {};
   const prevOdds = Object.fromEntries((prev?.matches || []).filter(x => x.odds).map(x => [x.id, x.odds]));
-  const fresh = cache.oddsAt?.[code] && Date.now() - cache.oddsAt[code] < 6 * 3600e3 && Object.keys(prevOdds).length;
+  const fresh = !process.env.FORCE_ODDS && cache.oddsAt?.[code] && Date.now() - cache.oddsAt[code] < 6 * 3600e3 && Object.keys(prevOdds).length;
   if (fresh) { Object.assign(oddsByMatch, prevOdds); console.log(`  odds: reusing prices from ${new Date(cache.oddsAt[code]).toISOString()} (under 6 hours old)`); }
   else if (ODDS_KEY && info.odds && next.length) {
     if (oddsLeft !== null && oddsLeft < ODDS_MIN_LEFT) console.warn(`odds: skipped, only ${oddsLeft} credits left this month`);
@@ -341,6 +348,11 @@ async function buildLeague(code, cache, prev) {
           if (bestM) { const o = parseOdds(ev); if (o) oddsByMatch[bestM.id] = o; }
         }
         console.log(`  odds matched for ${Object.keys(oddsByMatch).length}/${next.length} matches`);
+        const st = {};
+        for (const o of Object.values(oddsByMatch)) for (const [k, v] of Object.entries(o)) if (k !== "_ev") for (const r of v.all) {
+          const b = (st[r[0]] ??= { slip: 0, market: 0, event: 0, none: 0, ex: "" }); b[r[3] || "none"]++; if (r[2] && !b.ex) b.ex = r[2];
+        }
+        for (const [b, v] of Object.entries(st)) console.log(`  LINKS ${b}: slip ${v.slip}, market ${v.market}, event ${v.event}, none ${v.none}${v.ex ? " e.g. " + v.ex.slice(0, 110) : ""}`);
         (cache.oddsAt ??= {})[code] = Date.now();
       } catch (e) { console.warn("odds:", e.message); }
     }
