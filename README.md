@@ -17,8 +17,20 @@ Tips only. Not betting advice. 18+ · BeGambleAware.org
 | [football-data.org](https://www.football-data.org) | fixtures, results, tables, form, top scorers, stadium towns | 10 requests/min, current season |
 | [The Odds API](https://the-odds-api.com) | UK bookmaker odds: match result + goals over/under | 500 credits/month (each league costs 2 per run) |
 | [Open-Meteo](https://open-meteo.com) | kick-off weather | no key, non-commercial use |
+| [Fantasy Premier League feed](https://fantasy.premierleague.com/api/bootstrap-static/) | Premier League injuries, suspensions, xG | no key |
+| [ClubElo](http://clubelo.com) | long-run team strength ratings | no key; last good ratings are kept if it's down |
 
-The free sources have no xG, corners, cards or injury data. Mark missing players yourself on each match. The model blends in xG automatically if a future data source provides it.
+Team news and xG are automatic for the Premier League only. The free sources have none for La Liga, the Bundesliga or Ligue 1.
+
+## Model
+
+The model lives in `model.js`, which both the page and the data builder use. In short:
+
+- Team strength comes from goals (plus xG where available), blended with ClubElo early in the season.
+- Then it adjusts for form, injuries, weather and rest.
+- Scorelines use Poisson with the Dixon–Coles correction.
+- Tips blend our expected goals 50/50 with the ones the bookmakers' prices imply. The value finder uses the pure model.
+- Every prediction is saved in `data/history.json` before kick-off and graded against the result, which feeds the "How accurate is Tipsy?" panel.
 
 ## Setup
 
@@ -33,7 +45,8 @@ The free sources have no xG, corners, cards or injury data. Mark missing players
 ## How it updates
 
 - It runs every day at 06:15 UTC, plus 11:15 UTC Friday to Monday.
-- Each run makes about 8–12 football-data calls (about 1–2 minutes because of the 10/min limit) and uses 8 odds credits. That's about 380 credits a month, inside the free 500. Odds are skipped automatically if fewer than 20 credits are left.
+- Each run makes about 9–13 football-data calls (about 1–2 minutes because of the 10/min limit).
+- Odds are re-downloaded at most every 6 hours (8 credits each time, about 380 a month, inside the free 500). Odds are skipped automatically if fewer than 20 credits are left.
 - If a run fails, the site keeps the last good data.
 
 ## Settings (optional repository variables)
@@ -47,4 +60,6 @@ The free sources have no xG, corners, cards or injury data. Mark missing players
 - `index.html` – the page and the model
 - `scripts/build.mjs` – data builder (Node 22, no dependencies)
 - `data/tips.json` – latest data (written by the Action)
-- `data/cache.json` – cached stadium locations
+- `model.js` – the prediction model (shared)
+- `data/history.json` – saved predictions and results
+- `data/cache.json` – cached stadium locations, ClubElo ratings and odds timestamps
