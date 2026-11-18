@@ -585,17 +585,19 @@ function whereToBet(){
   const L=legs.map(l=>{const m=MATCH[l.mid];return m&&{m,x:market(m,l.key)}}).filter(Boolean);
   if(!L.length)return"";
   const priced=L.filter(({x})=>x.o&&x.o.all);
-  if(priced.length<L.length){
-    const n=L.length-priced.length;
-    return `<div class="accnote">🏦 ${n} leg${n===1?" has":"s have"} no bookmaker prices in our data (double chance and BTTS aren't in the free feed), so we can't compare bookies for the whole accumulator.</div>`;
-  }
-  const books=new Set(priced[0].x.o.all.map(r=>r[0]));
-  const rows=[...books].map(b=>{let p=1;for(const {m,x} of priced){const v=priceAt(m,x.key,b);if(!v)return null;p*=v;}return [b,p];}).filter(Boolean).sort((a,b)=>b[1]-a[1]);
-  if(!rows.length)return `<div class="accnote">🏦 No single bookmaker prices every leg of this accumulator.</div>`;
+  if(!priced.length)return `<div class="accnote">🏦 None of these legs have bookmaker prices in our data (double chance and BTTS aren't in the free feed). Turn on "Only bets with bookie prices" to compare bookies.</div>`;
+  const books=new Set();priced.forEach(({x})=>x.o.all.forEach(r=>books.add(r[0])));
   const fmt=p=>p>=1000?Math.round(p).toLocaleString():p.toFixed(2);
-  return `<div class="where"><div class="plh">🏦 Where to place it <small class="mute">· whole-accumulator price</small></div>
-    ${rows.slice(0,6).map(([b,p],i)=>`<div class="wrow ${i===0?"top":""}"><span>${i+1}. ${esc(b)}</span><b>${fmt(p)}</b></div>`).join("")}
-    <div class="accnote">${rows.length} bookie${rows.length===1?" prices":"s price"} every leg. £10 at ${esc(rows[0][0])} would return £${(10*rows[0][1]).toFixed(2)} if it all lands. Prices change, so check on the bookie's site.</div></div>`;
+  const rows=[...books].map(b=>{let p=1,c=0;for(const {m,x} of priced){const v=priceAt(m,x.key,b);if(v){p*=v;c++;}}return {b,p,c};})
+    .filter(r=>r.c>0).sort((a,b)=>b.c-a.c||b.p-a.p);
+  const full=rows.filter(r=>r.c===L.length);
+  const missing=L.length-priced.length;
+  const head=`<div class="plh">🏦 Where to place it <small class="mute">· price for the legs each bookie offers</small></div>`;
+  const list=rows.slice(0,6).map((r,i)=>`<div class="wrow ${i===0&&r.c===L.length?"top":""}"><span>${i+1}. ${esc(r.b)}${r.c<L.length?` <small class="mute">${r.c}/${L.length} legs</small>`:""}</span><b>${fmt(r.p)}</b></div>`).join("");
+  let note;
+  if(full.length) note=`${full.length} bookie${full.length===1?" prices":"s price"} every leg. £10 at ${esc(full[0].b)} would return £${(10*full[0].p).toFixed(2)} if it all lands.`;
+  else note=`No single bookie prices every leg${missing?` (${missing} leg${missing===1?" is a":"s are"} double chance or BTTS, which the free feed doesn't price)`:""}. Goals over/under is only priced by a few bookies in our data, so try swapping those legs for match results.`;
+  return `<div class="where">${head}${list}<div class="accnote">${note} Prices change, so check on the bookie's site.</div></div>`;
 }
 
 function renderAcca(){
