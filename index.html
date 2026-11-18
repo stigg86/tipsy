@@ -189,6 +189,13 @@ button.wrow:hover,button.wrow:focus-visible{border-color:var(--line)}
 .wrow .tapnote{display:block;color:var(--accent);font-size:11.5px;margin-top:2px}
 .undo{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px;color:var(--ink);background:rgba(232,197,71,.12);border-radius:9px;padding:6px 6px 6px 10px;margin-top:10px}
 .undo .btn{padding:5px 12px}
+.betlink{display:inline-block;margin-top:4px;color:var(--accent);font:600 12.5px Inter,sans-serif;text-decoration:none;border:1px solid rgba(61,220,151,.4);border-radius:7px;padding:3px 8px}
+.betlink.slip{background:rgba(61,220,151,.14)}
+.betlink:active{transform:scale(.97)}
+a.betbox{display:block;background:var(--panel2);border-radius:9px;padding:6px 8px;text-align:center;min-width:0;color:var(--ink);text-decoration:none;border:1px solid transparent}
+a.betbox:active{border-color:var(--home)}
+.tlink{color:var(--ink);text-decoration:none;border-bottom:1px dotted var(--mute)}
+.wrow.chosen .tapnote{color:var(--home)}
 .accgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px}
 .accgrid .stat b{font-size:19px}
 .accrows{display:grid;gap:4px}
@@ -350,6 +357,7 @@ section[data-sec]>h2:first-child{margin-top:10px}
     <li><b>Goals markets</b> – expected goals feed a Poisson scoreline model (0–0 to 8–8) with the Dixon–Coles correction, which adds a little to 0–0 and 1–1 and takes it from 1–0 and 0–1. That gives win/draw/loss, double chance, over/under 1.5/2.5/3.5, both teams to score and the most likely score.</li>
     <li><b>Score predictions</b> – the predicted score is the most likely scoreline for the most likely result. For a likely home win that's usually 1–0 or 2–1, even when 1–1 is the single most common score. Exact scores are hard: even the best-placed scoreline rarely tops 15%.</li>
     <li><b>Bookmakers in the tips</b> – where odds exist, we work out the expected goals the bookmakers' prices imply and blend them 50/50 with ours. Bookmakers know things our data can't see, such as rotation and late team news, so this makes the tips more accurate. The value finder still uses our model on its own, so it isn't just comparing bookmakers with themselves.</li>
+    <li><b>Links to bookmakers</b> – buttons open the bookmaker with the best price. Sky Bet links put the bet straight on your betslip; other bookmakers open on the match page so you can tap the bet. You still log in and confirm every bet yourself. Tipsy doesn't earn anything from these links.</li>
     <li><b>Value</b> – edge = (30% model chance + 70% bookmaker consensus) × best sportsbook price − 1, skipping longshots over 5.0 and big model/market disagreements. The "Bookies" figure is the average UK price turned into a chance with the bookmaker's margin removed. If the model and the bookies disagree a lot, the bookies are more often right.</li>
     <li><b>Accumulators</b> – the chance all legs land is each leg's chance multiplied together; fair odds = 1 ÷ that chance. Legs from the same match are linked, so for those the combined figure is only a rough guide.</li>
   </ul></div>
@@ -454,7 +462,7 @@ function renderCards(){
       <div class="bar" style="margin-top:8px">
         <div class="h" style="flex:${r.pH}">${pc(r.pH)}</div><div class="d" style="flex:${r.pD}">${pc(r.pD)}</div><div class="a" style="flex:${r.pA}">${pc(r.pA)}</div>
       </div>
-      ${m.odds&&m.odds["1"]?`<div class="cardodds">${[["1",m.h],["X","Draw"],["2",m.a]].map(([k,n])=>{const o=m.odds[k];return `<div><small>${esc(n)}</small><b>${o?o.b.toFixed(2):"–"}</b><small>${o?esc(o.k):""}</small></div>`}).join("")}</div>`:`<div class="mute" style="font-size:12px;margin-top:6px">No bookmaker prices for this match yet.</div>`}
+      ${m.odds&&m.odds["1"]?`<div class="cardodds">${[["1",m.h],["X","Draw"],["2",m.a]].map(([k,n])=>{const o=m.odds[k],l=o&&linkFor(m,k,o.k),u=l&&safeUrl(l.url);const inner=`<small>${esc(n)}</small><b>${o?o.b.toFixed(2):"–"}</b><small>${o?esc(o.k)+(u?" ↗":""):""}</small>`;return u?`<a href="${esc(u)}" target="_blank" rel="noopener noreferrer" class="betbox">${inner}</a>`:`<div>${inner}</div>`}).join("")}</div>`:`<div class="mute" style="font-size:12px;margin-top:6px">No bookmaker prices for this match yet.</div>`}
       <div class="stats stats6">
         <div class="stat"><small>xG home</small><b>${r.lh.toFixed(2)}</b></div>
         <div class="stat"><small>xG away</small><b>${r.la.toFixed(2)}</b></div>
@@ -463,7 +471,7 @@ function renderCards(){
         <div class="stat"><small>Corners</small><b>${r.cMu?r.cMu.toFixed(1):"–"}</b></div>
         <div class="stat"><small>Cards</small><b>${r.kMu?r.kMu.toFixed(1):"–"}</b></div>
       </div>
-      <div class="tip"><span>Tip: <b>${esc(tip.label)}</b> · ${pc(tip.p)}<small class="tipodds">${oddsTxt(m,tip.key,tip.p)}</small></span><span style="display:flex;gap:6px;align-items:center"><span class="badge ${g[1]}">${g[0]}</span>${accaBtn(m.id,tip.key)}</span></div>
+      <div class="tip"><span>Tip: <b>${esc(tip.label)}</b> · ${pc(tip.p)}<small class="tipodds">${oddsTxt(m,tip.key,tip.p)} ${betLink(m,tip.key,bestBook(m,tip.key))}</small></span><span style="display:flex;gap:6px;align-items:center"><span class="badge ${g[1]}">${g[0]}</span>${accaBtn(m.id,tip.key)}</span></div>
     </div>
     <details ${open} data-det="${m.id}">
       <summary>All bets, bookmaker prices and why</summary>
@@ -492,7 +500,7 @@ function renderPicks(){
   const list=inView().map(pickFor).filter(Boolean).sort((a,b)=>b.p-a.p).slice(0,cur<0?8:5);
   document.getElementById("picks").innerHTML=list.length?list.map((x,i)=>{const g=grade(x.p);return `
     <div class="pick" data-go="${x.m.id}"><span class="rank">${i+1}</span>
-      <div class="what"><b>${esc(x.what)}</b><small>${esc(x.sub)}</small><small class="oline">${oddsTxt(x.m,x.key,x.p)}</small></div>
+      <div class="what"><b>${esc(x.what)}</b><small>${esc(x.sub)}</small><small class="oline">${oddsTxt(x.m,x.key,x.p)} ${betLink(x.m,x.key,bestBook(x.m,x.key))}</small></div>
       <span class="pright"><span class="pct">${pc(x.p)}</span><span class="badge ${g[1]}">${g[0]}</span>${accaBtn(x.m.id,x.key)}</span></div>`}).join(""):
     `<div class="empty">${mode==="corners"||mode==="cards"?"Corner and card stats arrive with the first data update.":"No matches yet."}</div>`;
 }
@@ -503,6 +511,20 @@ function oddsTxt(m,key,p){
   if(o)return `<span class="odds">${o.b.toFixed(2)}</span> <span class="bk">${esc(o.k)}</span>`;
   return p?`<span class="odds fair">fair odds ${(1/p).toFixed(2)} · no bookie price in our data</span>`:"";
 }
+
+// ---------- Links to bookmakers ----------
+function linkFor(m,key,book){
+  const o=m.odds&&m.odds[key],r=o&&o.all&&o.all.find(x=>x[0]===book);
+  if(r&&r[2])return {url:r[2],kind:r[3]};
+  const ev=m.odds&&m.odds._ev&&m.odds._ev[book];
+  return ev?{url:ev,kind:"event"}:null;
+}
+const safeUrl=u=>/^https:\/\//i.test(u||"")?u:null;
+function betLink(m,key,book){
+  if(!book)return"";const l=linkFor(m,key,book);if(!l||!safeUrl(l.url))return"";
+  return `<a class="betlink ${l.kind==="slip"?"slip":""}" href="${esc(l.url)}" target="_blank" rel="noopener noreferrer">${l.kind==="slip"?`Add to ${esc(book)} slip`:`Open at ${esc(book)}`} ↗</a>`;
+}
+const bestBook=(m,key)=>m.odds&&m.odds[key]?m.odds[key].k:null;
 
 // add/remove a bet from the user's own accumulator
 const inMine=(mid,key)=>(accaMode==="custom"?legs:ACCA.custom).some(l=>l.mid==mid&&l.key===key);
@@ -536,7 +558,7 @@ function priceTable(m){
   const list=[...books].sort((a,b)=>cols.reduce((s,[k])=>s+(priceAt(m,k,b)||0),0)<cols.reduce((s,[k])=>s+(priceAt(m,k,a)||0),0)?-1:1);
   return `<div class="ptwrap"><div class="plh">Bookmaker prices <small class="mute">· best in green · Home = ${esc(m.h)}</small></div>
   <table class="ptab"><thead><tr><th>Bookmaker</th>${cols.map(([,l])=>`<th>${l}</th>`).join("")}</tr></thead><tbody>${
-    list.map(b=>`<tr><td>${esc(b)}</td>${cols.map(([k])=>{const p=priceAt(m,k,b);return `<td class="${p&&p===m.odds[k].b?"best":""}">${p?p.toFixed(2):"–"}</td>`}).join("")}</tr>`).join("")
+    list.map(b=>{const ev=(m.odds._ev&&m.odds._ev[b])||cols.map(([k])=>{const l=linkFor(m,k,b);return l&&l.url}).find(Boolean);const u=safeUrl(ev);return `<tr><td>${u?`<a class="tlink" href="${esc(u)}" target="_blank" rel="noopener noreferrer">${esc(b)} ↗</a>`:esc(b)}</td>${cols.map(([k])=>{const p=priceAt(m,k,b);return `<td class="${p&&p===m.odds[k].b?"best":""}">${p?p.toFixed(2):"–"}</td>`}).join("")}</tr>`}).join("")
   }</tbody></table></div>`;
 }
 const topBooks=(o,n=3)=>o&&o.all?o.all.slice(0,n).map(([b,p])=>`${esc(b)} ${p.toFixed(2)}`).join(" · "):"";
@@ -559,7 +581,7 @@ function renderValue(){
     <div class="pick vrow" data-go="${m.id}" data-lgi="${LG.indexOf(m.L)}">
       <div class="what"><b>${esc(x.label)}</b><small>${esc(m.h)} v ${esc(m.a)} · ${esc(m.L.name)} · ${esc(m.d)}</small>
         <small>${pc(bp)} chance · fair odds ${(1/bp).toFixed(2)} · best ${x.o.b.toFixed(2)}</small>
-        <small class="books">💷 ${topBooks(x.o)}</small></div>
+        <small class="books">💷 ${topBooks(x.o)}</small><small>${betLink(m,x.key,x.o.k)}</small></div>
       <div style="text-align:right"><span class="pct" style="color:var(--home)">+${(e*100).toFixed(e<.1?1:0)}%</span>
         <div style="margin-top:4px">${accaBtn(m.id,x.key)}</div></div>
     </div>`).join("");
@@ -638,7 +660,7 @@ function quick(kind){
   if(kind==="clear"){legs=[];autoNote="";saveLegs();renderAuto();renderAcca();renderCustom();}
 }
 // Rank bookmakers by the price they'd pay for the whole accumulator (an acca must be placed at one bookie)
-let undoBook=null; // {before:[legs], after:"json", book, n}
+let undoBook=null, accaBook=null; // bookie chosen to place the whole accumulator // {before:[legs], after:"json", book, n}
 function whereToBet(){
   const L=legs.map(l=>{const m=MATCH[l.mid];return m&&{m,x:market(m,l.key)}}).filter(Boolean);
   if(!L.length)return"";
@@ -653,7 +675,7 @@ function whereToBet(){
   const head=`<div class="plh">🏦 Where to place it <small class="mute">· price for the legs each bookie offers</small></div>`;
   const list=rows.slice(0,6).map((r,i)=>r.c<L.length
     ?`<button class="wrow part" data-book="${esc(r.b)}"><span>${i+1}. ${esc(r.b)} <small class="mute">${r.c}/${L.length} bets</small><small class="tapnote">Tap to keep only the ${r.c} bet${r.c===1?"":"s"} ${esc(r.b)} offers</small></span><b>${fmt(r.p)}</b></button>`
-    :`<div class="wrow ${i===0?"top":""}"><span>${i+1}. ${esc(r.b)}</span><b>${fmt(r.p)}</b></div>`).join("");
+    :`<button class="wrow ${accaBook===r.b?"top chosen":""}" data-place="${esc(r.b)}"><span>${i+1}. ${esc(r.b)}<small class="tapnote">${accaBook===r.b?"✓ Placing here – links below":"Tap to place here"}</small></span><b>${fmt(r.p)}</b></button>`).join("");
   let note;
   if(full.length) note=`${full.length} bookie${full.length===1?" prices":"s price"} every leg. £10 at ${esc(full[0].b)} would return £${(10*full[0].p).toFixed(2)} if it all lands.`;
   else note=`No single bookie prices every leg${missing?` (${missing} leg${missing===1?" is a":"s are"} double chance or BTTS, which the free feed doesn't price)`:""}. Goals over/under is only priced by a few bookies in our data, so try swapping those legs for match results.`;
@@ -665,12 +687,14 @@ function renderAcca(){
   const el=document.getElementById("acca");
   if(!legs.length){el.innerHTML=`<div class="empty">Use Quick build for an instant accumulator, or Build your own to pick bets match by match – up to ${MAXLEGS} legs.</div>`;return;}
   let comb=1,bcomb=1,price=1,allPriced=true;const counts={};
+  if(accaBook&&!legs.every(l=>{const m=MATCH[l.mid];return m&&priceAt(m,l.key,accaBook)}))accaBook=null;
   const rows=legs.map((l,i)=>{
     const m=MATCH[l.mid],x=m&&market(m,l.key);if(!x)return"";
     comb*=x.p;bcomb*=blendP(x);counts[l.mid]=(counts[l.mid]||0)+1;if(x.o)price*=x.o.b;else allPriced=false;
     return `<div class="leg"><span class="n">${i+1}</span>
-      <div class="what" data-go="${m.id}" data-lgi="${LG.indexOf(m.L)}"><b>${esc(x.label)}</b><small>${esc(m.h)} v ${esc(m.a)} · ${esc(m.L.name)} · ${esc(m.d)} ${esc(m.k)}</small></div>
-      <span class="pct">${pc(x.p)}${x.o?`<small style="display:block;font:500 11px Inter;color:var(--mute)">${x.o.b.toFixed(2)} · ${esc(x.o.k)}</small>`:""}</span><button class="legx" data-rm="${i}" aria-label="Remove">×</button></div>`;
+      <div class="what"><b data-go="${m.id}" data-lgi="${LG.indexOf(m.L)}">${esc(x.label)}</b><small>${esc(m.h)} v ${esc(m.a)} · ${esc(m.L.name)} · ${esc(m.d)} ${esc(m.k)}</small>
+        <small>${betLink(m,l.key,accaBook||(x.o&&x.o.k))}</small></div>
+      <span class="pct">${pc(x.p)}${x.o?`<small style="display:block;font:500 11px Inter;color:var(--mute)">${accaBook?`${priceAt(m,l.key,accaBook).toFixed(2)} · ${esc(accaBook)}`:`${x.o.b.toFixed(2)} · ${esc(x.o.k)}`}</small>`:""}</span><button class="legx" data-rm="${i}" aria-label="Remove">×</button></div>`;
   }).join("");
   const same=Object.values(counts).some(c=>c>1);
   el.innerHTML=rows+`
@@ -737,13 +761,16 @@ function rememberOpen(){document.querySelectorAll("details[data-det]").forEach(d
 
 document.addEventListener("click",e=>{
   const t=e.target;
+  if(t.closest("a.betlink,a.betbox,a.tlink"))return; // open the bookmaker in a new tab
+  const pb=t.closest("[data-place]");
+  if(pb){accaBook=accaBook===pb.dataset.place?null:pb.dataset.place;renderAcca();return;}
   const wb=t.closest("[data-book]");
   if(wb){
     const book=wb.dataset.book,before=legs.map(l=>({...l}));
     const keep=legs.filter(l=>{const m=MATCH[l.mid],x=m&&market(m,l.key);return x&&x.o&&priceAt(m,l.key,book)});
     if(!keep.length||keep.length===legs.length)return;
     legs.splice(0,legs.length,...keep);
-    undoBook={before,after:JSON.stringify(legs),book,n:before.length-keep.length};
+    undoBook={before,after:JSON.stringify(legs),book,n:before.length-keep.length};accaBook=book;
     autoNote="";saveLegs();renderAcca();renderCustom();renderAuto();return;}
   if(t.closest("[data-undo]")&&undoBook){legs.splice(0,legs.length,...undoBook.before);undoBook=null;saveLegs();renderAcca();renderCustom();return;}
   const am=t.closest("[data-amode]");
