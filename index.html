@@ -184,6 +184,11 @@ header.pitch::after{content:"";position:absolute;inset:auto 0 0 0;height:34px;ba
 .wrow b{font-family:"Space Grotesk"}
 .wrow.top{outline:1px solid var(--home)}
 .wrow.top b{color:var(--home)}
+button.wrow{width:100%;border:1px solid transparent;color:var(--ink);font:inherit;text-align:left;cursor:pointer;align-items:center}
+button.wrow:hover,button.wrow:focus-visible{border-color:var(--line)}
+.wrow .tapnote{display:block;color:var(--accent);font-size:11.5px;margin-top:2px}
+.undo{display:flex;align-items:center;justify-content:space-between;gap:8px;font-size:13px;color:var(--ink);background:rgba(232,197,71,.12);border-radius:9px;padding:6px 6px 6px 10px;margin-top:10px}
+.undo .btn{padding:5px 12px}
 .accgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px}
 .accgrid .stat b{font-size:19px}
 .accrows{display:grid;gap:4px}
@@ -633,6 +638,7 @@ function quick(kind){
   if(kind==="clear"){legs=[];autoNote="";saveLegs();renderAuto();renderAcca();renderCustom();}
 }
 // Rank bookmakers by the price they'd pay for the whole accumulator (an acca must be placed at one bookie)
+let undoBook=null; // {before:[legs], after:"json", book, n}
 function whereToBet(){
   const L=legs.map(l=>{const m=MATCH[l.mid];return m&&{m,x:market(m,l.key)}}).filter(Boolean);
   if(!L.length)return"";
@@ -645,7 +651,9 @@ function whereToBet(){
   const full=rows.filter(r=>r.c===L.length);
   const missing=L.length-priced.length;
   const head=`<div class="plh">🏦 Where to place it <small class="mute">· price for the legs each bookie offers</small></div>`;
-  const list=rows.slice(0,6).map((r,i)=>`<div class="wrow ${i===0&&r.c===L.length?"top":""}"><span>${i+1}. ${esc(r.b)}${r.c<L.length?` <small class="mute">${r.c}/${L.length} legs</small>`:""}</span><b>${fmt(r.p)}</b></div>`).join("");
+  const list=rows.slice(0,6).map((r,i)=>r.c<L.length
+    ?`<button class="wrow part" data-book="${esc(r.b)}"><span>${i+1}. ${esc(r.b)} <small class="mute">${r.c}/${L.length} bets</small><small class="tapnote">Tap to keep only the ${r.c} bet${r.c===1?"":"s"} ${esc(r.b)} offers</small></span><b>${fmt(r.p)}</b></button>`
+    :`<div class="wrow ${i===0?"top":""}"><span>${i+1}. ${esc(r.b)}</span><b>${fmt(r.p)}</b></div>`).join("");
   let note;
   if(full.length) note=`${full.length} bookie${full.length===1?" prices":"s price"} every leg. £10 at ${esc(full[0].b)} would return £${(10*full[0].p).toFixed(2)} if it all lands.`;
   else note=`No single bookie prices every leg${missing?` (${missing} leg${missing===1?" is a":"s are"} double chance or BTTS, which the free feed doesn't price)`:""}. Goals over/under is only priced by a few bookies in our data, so try swapping those legs for match results.`;
@@ -673,6 +681,7 @@ function renderAcca(){
     ${allPriced?`<div class="accsum"><div class="stat"><small>Best bookie price</small><b>${price>=1000?Math.round(price).toLocaleString():price.toFixed(2)}</b></div>
       <div class="stat"><small>Edge (blend)</small><b style="color:${bcomb*price-1>=0?"var(--home)":"var(--bad)"}">${bcomb*price-1>=0?"+":""}${Math.round((bcomb*price-1)*100)}%</b></div></div>
       <div class="accnote">Best price multiplies the top UK price for each leg, which may be at different bookies. One bookie's acca price is usually lower.</div>`:""}
+    ${undoBook&&JSON.stringify(legs)===undoBook.after?`<div class="undo">Removed ${undoBook.n} bet${undoBook.n===1?"":"s"} ${esc(undoBook.book)} doesn't offer. <button class="btn ghost" data-undo>Undo</button></div>`:""}
     ${whereToBet()}
     ${autoNote?`<div class="warn">${esc(autoNote)}</div>`:""}
     ${same?'<div class="warn">⚠ Some legs are from the same match, so they\'re linked – treat the combined figure as a rough guide.</div>':""}
@@ -728,6 +737,15 @@ function rememberOpen(){document.querySelectorAll("details[data-det]").forEach(d
 
 document.addEventListener("click",e=>{
   const t=e.target;
+  const wb=t.closest("[data-book]");
+  if(wb){
+    const book=wb.dataset.book,before=legs.map(l=>({...l}));
+    const keep=legs.filter(l=>{const m=MATCH[l.mid],x=m&&market(m,l.key);return x&&x.o&&priceAt(m,l.key,book)});
+    if(!keep.length||keep.length===legs.length)return;
+    legs.splice(0,legs.length,...keep);
+    undoBook={before,after:JSON.stringify(legs),book,n:before.length-keep.length};
+    autoNote="";saveLegs();renderAcca();renderCustom();renderAuto();return;}
+  if(t.closest("[data-undo]")&&undoBook){legs.splice(0,legs.length,...undoBook.before);undoBook=null;saveLegs();renderAcca();renderCustom();return;}
   const am=t.closest("[data-amode]");
   if(am){setAccaMode(am.dataset.amode);return;}
   const tg=t.closest("[data-toggle]");
