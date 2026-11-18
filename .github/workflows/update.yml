@@ -29,6 +29,7 @@ jobs:
           FOOTBALL_DATA_KEY: ${{ secrets.FOOTBALL_DATA_KEY }}
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
           LEAGUES: ${{ vars.LEAGUES }}
+          PROBE_LALIGA: ${{ vars.PROBE_LALIGA || '1' }}
         run: node scripts/build.mjs
 
       - name: Commit if changed
