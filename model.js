@@ -151,7 +151,7 @@
     const q = r.pure || r;
     const M = [
       ["Result", "1", m.h + " to win", r.pH, q.pH], ["Result", "X", "Draw", r.pD, q.pD], ["Result", "2", m.a + " to win", r.pA, q.pA],
-      ["Double chance", "1X", m.h + " or draw", r.pH + r.pD, q.pH + q.pD], ["Double chance", "X2", m.a + " or draw", r.pA + r.pD, q.pA + q.pD], ["Double chance", "12", "Either team to win", r.pH + r.pA, q.pH + q.pA],
+      ["Double chance", "1X", m.h + " or draw", r.pH + r.pD, q.pH + q.pD], ["Double chance", "X2", m.a + " or draw", r.pA + r.pD, q.pA + q.pD], ["Double chance", "12", "Home or Away (no draw)", r.pH + r.pA, q.pH + q.pA],
       ["Goals", "O15", "Over 1.5 goals", r.o15, q.o15], ["Goals", "U15", "Under 1.5 goals", 1 - r.o15, 1 - q.o15],
       ["Goals", "O25", "Over 2.5 goals", r.o25, q.o25], ["Goals", "U25", "Under 2.5 goals", 1 - r.o25, 1 - q.o25],
       ["Goals", "O35", "Over 3.5 goals", r.o35, q.o35], ["Goals", "U35", "Under 3.5 goals", 1 - r.o35, 1 - q.o35],
