@@ -96,7 +96,8 @@ async function readJSON(path, fallback) {
 const SHORT = {
   "Man United": "Man Utd", "Nottingham": "Nott'm Forest", "Brighton Hove": "Brighton", "Wolverhampton": "Wolves",
   "Tottenham": "Tottenham", "Bayern München": "Bayern", "Paris Saint-Germain": "PSG", "Paris SG": "PSG",
-  "Atleti": "Atlético", "Athletic": "Athletic", "Leverkusen": "Leverkusen", "Dortmund": "Dortmund", "M'gladbach": "M'gladbach"
+  "Atleti": "Atlético", "Leeds United": "Leeds", "Hull City": "Hull", "Ipswich Town": "Ipswich", "Coventry City": "Coventry",
+  "Leicester City": "Leicester", "Norwich City": "Norwich", "Luton Town": "Luton", "Sheffield Utd": "Sheffield Utd", "Athletic": "Athletic", "Leverkusen": "Leverkusen", "Dortmund": "Dortmund", "M'gladbach": "M'gladbach"
 };
 const teamName = t => SHORT[t.shortName] || t.shortName || t.name;
 
@@ -301,8 +302,9 @@ async function buildLeague(code, cache, prev) {
     return { players: keyOut, others: Math.min(3, others.length),
       all: list.map(x => `${x.name}${x.why ? " – " + x.why : ""}`) };
   };
+  const prevWx = Object.fromEntries((prev?.matches || []).filter(x => x.wx).map(x => [x.id, x.wx]));
   const outMatches = next.map(m => {
-    const wx = weather[m.id] || null;
+    const wx = weather[m.id] || prevWx[m.id] || null; // keep last forecast if the weather service had a blip
     return { id: m.id, date: m.utcDate, ...ukDate(m.utcDate), h: teamName(m.homeTeam), a: teamName(m.awayTeam),
       v: addr[m.homeTeam.id]?.venue || "", w: weatherKey(wx), wx, odds: oddsByMatch[m.id] || null,
       inj: { h: injSide(m.homeTeam), a: injSide(m.awayTeam) } };
