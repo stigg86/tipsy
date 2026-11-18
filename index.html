@@ -196,6 +196,11 @@ a.betbox{display:block;background:var(--panel2);border-radius:9px;padding:6px 8p
 a.betbox:active{border-color:var(--home)}
 .tlink{color:var(--ink);text-decoration:none;border-bottom:1px dotted var(--mute)}
 .wrow.chosen .tapnote{color:var(--home)}
+.placelist{display:grid;gap:6px;border:1px solid var(--home);border-top:0;border-radius:0 0 10px 10px;margin:-6px 0 4px;padding:12px 10px 10px;background:rgba(61,220,151,.06)}
+.prow{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.prow b{display:block;font-size:13.5px}
+.prow small{color:var(--mute);font-size:12px}
+.prow .betlink{margin-top:0;white-space:nowrap}
 .accgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px}
 .accgrid .stat b{font-size:19px}
 .accrows{display:grid;gap:4px}
@@ -673,9 +678,13 @@ function whereToBet(){
   const full=rows.filter(r=>r.c===L.length);
   const missing=L.length-priced.length;
   const head=`<div class="plh">🏦 Where to place it <small class="mute">· price for the legs each bookie offers</small></div>`;
+  const placeList=b=>`<div class="placelist"><div class="plh">Open each bet at ${esc(b)}</div>${L.map(({m,x},j)=>{
+      const l=linkFor(m,x.key,b),u=l&&safeUrl(l.url),p=priceAt(m,x.key,b);
+      return `<div class="prow"><span><b>${j+1}. ${esc(x.label)}</b><small>${esc(m.h)} v ${esc(m.a)}${p?` · ${p.toFixed(2)}`:""}</small></span>${u?`<a class="betlink ${l.kind==="slip"?"slip":""}" href="${esc(u)}" target="_blank" rel="noopener noreferrer">${l.kind==="slip"?"Add to slip":"Open"} ↗</a>`:`<small class="mute">no link</small>`}</div>`}).join("")}
+      <div class="accnote">Add each bet to your ${esc(b)} betslip, then place it as a ${L.length}-fold accumulator there.</div></div>`;
   const list=rows.slice(0,6).map((r,i)=>r.c<L.length
     ?`<button class="wrow part" data-book="${esc(r.b)}"><span>${i+1}. ${esc(r.b)} <small class="mute">${r.c}/${L.length} bets</small><small class="tapnote">Tap to keep only the ${r.c} bet${r.c===1?"":"s"} ${esc(r.b)} offers</small></span><b>${fmt(r.p)}</b></button>`
-    :`<button class="wrow ${accaBook===r.b?"top chosen":""}" data-place="${esc(r.b)}"><span>${i+1}. ${esc(r.b)}<small class="tapnote">${accaBook===r.b?"✓ Placing here – links below":"Tap to place here"}</small></span><b>${fmt(r.p)}</b></button>`).join("");
+    :`<button class="wrow ${accaBook===r.b?"top chosen":""}" data-place="${esc(r.b)}"><span>${i+1}. ${esc(r.b)}<small class="tapnote">${accaBook===r.b?"✓ Placing here – open each bet below":"Tap to place here"}</small></span><b>${fmt(r.p)}</b></button>${accaBook===r.b?placeList(r.b):""}`).join("");
   let note;
   if(full.length) note=`${full.length} bookie${full.length===1?" prices":"s price"} every leg. £10 at ${esc(full[0].b)} would return £${(10*full[0].p).toFixed(2)} if it all lands.`;
   else note=`No single bookie prices every leg${missing?` (${missing} leg${missing===1?" is a":"s are"} double chance or BTTS, which the free feed doesn't price)`:""}. Goals over/under is only priced by a few bookies in our data, so try swapping those legs for match results.`;
