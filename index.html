@@ -231,6 +231,8 @@ section[data-sec]>h2:first-child{margin-top:10px}
 .sbox i{font-style:normal;opacity:.5;margin:0 4px}
 .smeta{grid-column:1/-1;text-align:center;color:var(--mute);font-size:12px}
 .smore{justify-self:center;margin-top:2px}
+.csline{grid-column:1/-1;text-align:center;font-size:13px;color:var(--ink);background:rgba(61,220,151,.08);border-radius:8px;padding:6px 8px}
+.csline b{color:var(--home);font-family:"Space Grotesk",Inter,sans-serif}
 .chip.pick{outline:1px solid var(--home)}
 .odds{font:700 13.5px "Space Grotesk",Inter,sans-serif;color:var(--ink)}
 .odds.fair{font:500 12.5px Inter,sans-serif;color:var(--mute)}
@@ -304,7 +306,7 @@ section[data-sec]>h2:first-child{margin-top:10px}
   </section>
   <section data-sec="scores" hidden>
   <h2>Score predictions · <span id="lgname4"></span></h2>
-  <p class="upd" style="margin-top:-4px">Under each match are the best UK prices for a home win, a draw and an away win. Bookmakers' correct-score prices aren't in the free data, so we show the fair odds for the predicted score instead.</p>
+  <p class="upd" style="margin-top:-4px">Under each match are the best UK prices for a home win, a draw and an away win. Correct-score prices aren't in our free odds data, so "if it comes in" is an estimate: the chance of that exact score from the bookmakers' own match odds, with the margin bookmakers usually add to correct-score bets. Check the real price on the bookie's site.</p>
   <div class="scores" id="scores"></div>
   </section>
   <section data-sec="value" hidden>
@@ -490,7 +492,7 @@ function renderCards(){
       <summary>All bets, bookmaker prices and why</summary>
       <div class="adj">
         <div class="mkts">${markets(m).filter(x=>x.o||!/^U|^CU|^KU|^BN/.test(x.key)).map(x=>{const e=edgeOf(x);return `<div class="mk ${e!=null&&e>=.05?"val":""}"><span>${esc(x.label)}${x.o?`<small> @${x.o.b.toFixed(2)}</small>`:""}</span><b>${pc(x.p)}</b></div>`}).join("")}</div>
-        <div class="pl"><div class="plh">Most likely scores</div><div class="chips">${r.scores.map(([i,j,p])=>`<span class="chip ${i===r.pred[0]&&j===r.pred[1]?"pick":""}"><b>${i}–${j}</b><span>${(p*100).toFixed(1)}%</span></span>`).join("")}</div></div>
+        <div class="pl"><div class="plh">Most likely scores</div><div class="chips">${r.scores.map(([i,j,p])=>`<span class="chip ${i===r.pred[0]&&j===r.pred[1]?"pick":""}"><b>${i}–${j}</b><span>${(p*100).toFixed(1)}%${(()=>{const c=csPrice(m,i,j);return c?` · ~${c.frac}`:""})()}</span></span>`).join("")}</div></div>
         ${priceTable(m)}
         ${m.odds?'<div class="mute" style="font-size:11.5px">@ = best UK bookmaker price. Green = value (30% model + 70% bookies beats that price by 3%+).</div>':""}
         <ul class="why">${reasons(m,r).map(x=>`<li>${x}</li>`).join("")}</ul>
@@ -544,6 +546,22 @@ const inMine=(mid,key)=>(accaMode==="custom"?legs:ACCA.custom).some(l=>l.mid==mi
 function accaBtn(mid,key){const on=inMine(mid,key);return `<button class="addtip ${on?"on":""}" data-addm="${mid}" data-addk="${key}">${on?"✓ In acca":"+ Acca"}</button>`}
 function refreshAccaBtns(){document.querySelectorAll("button[data-addm]").forEach(b=>{const on=inMine(b.dataset.addm,b.dataset.addk);b.classList.toggle("on",on);b.textContent=on?"✓ In acca":"+ Acca";});}
 
+// ---------- Correct-score prices (estimated) ----------
+// chance of an exact score from the bookmakers' own expected goals, then a typical correct-score margin (~20%)
+const CS_MARGIN=1.20;
+const FRACS=[[1,10],[1,5],[1,4],[2,7],[1,3],[2,5],[1,2],[4,7],[4,6],[8,11],[4,5],[10,11],[1,1],[11,10],[6,5],[5,4],[11,8],[6,4],[13,8],[7,4],[15,8],[2,1],[9,4],[5,2],[11,4],[3,1],[10,3],[7,2],[4,1],[9,2],[5,1],[11,2],[6,1],[13,2],[7,1],[15,2],[8,1],[17,2],[9,1],[10,1],[11,1],[12,1],[14,1],[16,1],[18,1],[20,1],[22,1],[25,1],[28,1],[33,1],[40,1],[50,1],[66,1],[80,1],[100,1]];
+function toFrac(dec){const t=dec-1;let best=FRACS[0];for(const f of FRACS)if(Math.abs(f[0]/f[1]-t)<Math.abs(best[0]/best[1]-t))best=f;return best[0]+"/"+best[1];}
+function csPrice(m,i,j){
+  const r=m._r;if(!r)return null;
+  const src=r.mkt?TM.scoreProbs(r.mkt.lh,r.mkt.la):r;
+  const hit=(src.scores||[]).find(([a,b])=>a===i&&b===j);
+  let p=hit?hit[2]:null;
+  if(p==null){const lh=r.mkt?r.mkt.lh:r.lh,la=r.mkt?r.mkt.la:r.la;p=TM.pois(lh,i)*TM.pois(la,j);}
+  if(!(p>0))return null;
+  const dec=Math.max(1.5,Math.round(1/(p*CS_MARGIN)*2)/2);
+  return {dec,frac:toFrac(dec),fromMkt:!!r.mkt};
+}
+
 // ---------- Score predictions ----------
 let scoresAll=false;
 function renderScores(){
@@ -555,7 +573,8 @@ function renderScores(){
     const also=r.scores.filter(([a,b])=>!(a===i&&b===j)).slice(0,2).map(([a,b,q])=>`${a}–${b} ${Math.round(q*100)}%`).join(", ");
     return `<div class="srow" data-go="${m.id}" data-lgi="${LG.indexOf(m.L)}">
       <span class="sh">${esc(m.h)}</span><span class="sbox">${i}<i>–</i>${j}</span><span class="sa">${esc(m.a)}</span>
-      <small class="smeta">${Math.round(p*100)}% (fair odds ${(1/p).toFixed(1)}) · also ${also}${cur<0?` · ${esc(m.L.name)}`:""} · ${esc(m.d)}</small>
+      <small class="smeta">${Math.round(p*100)}% chance · also ${also}${cur<0?` · ${esc(m.L.name)}`:""} · ${esc(m.d)}</small>
+      ${(()=>{const c=csPrice(m,i,j);return c?`<div class="csline">If ${i}–${j} comes in: about <b>${c.frac}</b> (${c.dec.toFixed(1)}) · £10 returns about <b>£${Math.round(10*c.dec)}</b></div>`:""})()}
       ${m.odds&&m.odds["1"]?`<span class="sodds"><span><small>Home</small>${m.odds["1"].b.toFixed(2)}</span><span><small>Draw</small>${m.odds["X"]?m.odds["X"].b.toFixed(2):"–"}</span><span><small>Away</small>${m.odds["2"]?m.odds["2"].b.toFixed(2):"–"}</span></span>`:""}</div>`}).join("")+
     (list.length>10?`<button class="btn ghost smore" id="scoresMore">${scoresAll?"Show fewer":`Show all ${list.length}`}</button>`:"");
 }
