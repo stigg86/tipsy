@@ -194,6 +194,19 @@ section[data-sec]>h2:first-child{margin-top:10px}
 .smeta{grid-column:1/-1;text-align:center;color:var(--mute);font-size:12px}
 .smore{justify-self:center;margin-top:2px}
 .chip.pick{outline:1px solid var(--home)}
+.odds{font:700 13.5px "Space Grotesk",Inter,sans-serif;color:var(--ink)}
+.odds.fair{font:500 12.5px Inter,sans-serif;color:var(--mute)}
+.bk{color:var(--mute);font-size:12px}
+.pick .what small.oline{display:block;margin-top:3px}
+.tipodds{display:block;margin-top:2px}
+.tip .addtip{white-space:nowrap}
+.sodds{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr 1fr;text-align:center;font:600 13px "Space Grotesk",Inter,sans-serif;color:var(--ink);opacity:.9}
+.sodds span:first-child{text-align:right;padding-right:28px}
+.sodds span:last-child{text-align:left;padding-left:28px}
+.cardodds{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:6px}
+.cardodds div{background:var(--panel2);border-radius:9px;padding:6px 8px;text-align:center;min-width:0}
+.cardodds small{display:block;color:var(--mute);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cardodds b{font:700 17px "Space Grotesk",Inter,sans-serif}
 .chip.pick b{color:var(--home)}
 .record{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;text-decoration:none;color:var(--ink);
   background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin:-6px 0 12px}
@@ -248,6 +261,7 @@ section[data-sec]>h2:first-child{margin-top:10px}
   </section>
   <section data-sec="scores" hidden>
   <h2>Score predictions · <span id="lgname4"></span></h2>
+  <p class="upd" style="margin-top:-4px">Numbers under each match are the best UK prices for home, draw and away. Bookmakers' correct-score prices aren't in the free data, so we show the fair odds for the predicted score instead.</p>
   <div class="scores" id="scores"></div>
   </section>
   <section data-sec="value" hidden>
@@ -419,6 +433,7 @@ function renderCards(){
       <div class="bar" style="margin-top:8px">
         <div class="h" style="flex:${r.pH}">${pc(r.pH)}</div><div class="d" style="flex:${r.pD}">${pc(r.pD)}</div><div class="a" style="flex:${r.pA}">${pc(r.pA)}</div>
       </div>
+      ${m.odds&&m.odds["1"]?`<div class="cardodds">${[["1",m.h],["X","Draw"],["2",m.a]].map(([k,n])=>{const o=m.odds[k];return `<div><small>${esc(n)}</small><b>${o?o.b.toFixed(2):"–"}</b><small>${o?esc(o.k):""}</small></div>`}).join("")}</div>`:`<div class="mute" style="font-size:12px;margin-top:6px">No bookmaker prices for this match yet.</div>`}
       <div class="stats stats6">
         <div class="stat"><small>xG home</small><b>${r.lh.toFixed(2)}</b></div>
         <div class="stat"><small>xG away</small><b>${r.la.toFixed(2)}</b></div>
@@ -427,7 +442,7 @@ function renderCards(){
         <div class="stat"><small>Corners</small><b>${r.cMu?r.cMu.toFixed(1):"–"}</b></div>
         <div class="stat"><small>Cards</small><b>${r.kMu?r.kMu.toFixed(1):"–"}</b></div>
       </div>
-      <div class="tip"><span>Tip: <b>${esc(tip.label)}</b> · ${pc(tip.p)}</span><span style="display:flex;gap:6px;align-items:center"><span class="badge ${g[1]}">${g[0]}</span><button class="addtip" data-addm="${m.id}" data-addk="${tip.key}">+ Acca</button></span></div>
+      <div class="tip"><span>Tip: <b>${esc(tip.label)}</b> · ${pc(tip.p)}<small class="tipodds">${oddsTxt(m,tip.key,tip.p)}</small></span><span style="display:flex;gap:6px;align-items:center"><span class="badge ${g[1]}">${g[0]}</span><button class="addtip" data-addm="${m.id}" data-addk="${tip.key}">+ Acca</button></span></div>
     </div>
     <details ${open} data-det="${m.id}">
       <summary>All bets, bookmaker prices and why</summary>
@@ -456,9 +471,16 @@ function renderPicks(){
   const list=inView().map(pickFor).filter(Boolean).sort((a,b)=>b.p-a.p).slice(0,cur<0?8:5);
   document.getElementById("picks").innerHTML=list.length?list.map((x,i)=>{const g=grade(x.p);return `
     <div class="pick" data-go="${x.m.id}"><span class="rank">${i+1}</span>
-      <div class="what"><b>${esc(x.what)}</b><small>${esc(x.sub)}</small></div>
+      <div class="what"><b>${esc(x.what)}</b><small>${esc(x.sub)}</small><small class="oline">${oddsTxt(x.m,x.key,x.p)}</small></div>
       <span class="badge ${g[1]}">${g[0]}</span><span class="pct">${pc(x.p)}</span></div>`}).join(""):
     `<div class="empty">${mode==="corners"||mode==="cards"?"Corner and card stats arrive with the first data update.":"No matches yet."}</div>`;
+}
+
+// odds line for a bet: best bookmaker price, or fair odds when the free feed has no price
+function oddsTxt(m,key,p){
+  const o=m.odds&&m.odds[key];
+  if(o)return `<span class="odds">${o.b.toFixed(2)}</span> <span class="bk">${esc(o.k)}</span>`;
+  return p?`<span class="odds fair">fair odds ${(1/p).toFixed(2)} · no bookie price in our data</span>`:"";
 }
 
 // ---------- Score predictions ----------
@@ -472,7 +494,8 @@ function renderScores(){
     const also=r.scores.filter(([a,b])=>!(a===i&&b===j)).slice(0,2).map(([a,b,q])=>`${a}–${b} ${Math.round(q*100)}%`).join(", ");
     return `<div class="srow" data-go="${m.id}" data-lgi="${LG.indexOf(m.L)}">
       <span class="sh">${esc(m.h)}</span><span class="sbox">${i}<i>–</i>${j}</span><span class="sa">${esc(m.a)}</span>
-      <small class="smeta">${Math.round(p*100)}% · also ${also}${cur<0?` · ${esc(m.L.name)}`:""} · ${esc(m.d)}</small></div>`}).join("")+
+      <small class="smeta">${Math.round(p*100)}% (fair odds ${(1/p).toFixed(1)}) · also ${also}${cur<0?` · ${esc(m.L.name)}`:""} · ${esc(m.d)}</small>
+      ${m.odds&&m.odds["1"]?`<span class="sodds"><span>${m.odds["1"].b.toFixed(2)}</span><span>${m.odds["X"]?m.odds["X"].b.toFixed(2):"–"}</span><span>${m.odds["2"]?m.odds["2"].b.toFixed(2):"–"}</span></span>`:""}</div>`}).join("")+
     (list.length>10?`<button class="btn ghost smore" id="scoresMore">${scoresAll?"Show fewer":`Show all ${list.length}`}</button>`:"");
 }
 
