@@ -27,9 +27,8 @@ jobs:
       - name: Build data
         env:
           API_FOOTBALL_KEY: ${{ secrets.API_FOOTBALL_KEY }}
-          LEAGUE: ${{ vars.LEAGUE }}
+          LEAGUES: ${{ vars.LEAGUES }}
           SEASON: ${{ vars.SEASON }}
-          MAX_STATS: ${{ vars.MAX_STATS }}
           MIN_LEFT: ${{ vars.MIN_LEFT }}
         run: node scripts/build.mjs
 

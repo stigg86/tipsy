@@ -3,10 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Tipsy – Premier League Tips</title>
+<title>Tipsy – Football Tips</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
+
 :root{
   --bg:#0c1210;--panel:#141d19;--panel2:#1a2621;--line:#253530;--ink:#e9f2ee;--mute:#8aa39a;
   --home:#3ddc97;--draw:#e8c547;--away:#5aa9ff;--bad:#ff6b6b;--accent:#3ddc97;
@@ -96,277 +97,427 @@ footer{font-size:11.5px;color:var(--mute);margin-top:22px;text-align:center}
 .accsum{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
 .accsum .stat b{font-size:20px}
 .accnote{font-size:12px;color:var(--mute);margin-top:8px}
+
+.lgtabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:10px;scrollbar-width:none}
+.lgtabs::-webkit-scrollbar{display:none}
+.lgtab{flex:0 0 auto;background:var(--panel);border:1px solid var(--line);color:var(--ink);padding:8px 14px;border-radius:10px;font:600 13.5px Inter,sans-serif;cursor:pointer}
+.lgtab.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.lgtab small{display:block;font-weight:400;font-size:11px;color:var(--mute)}
+.lgtab.on small{color:#4a5a54}
+.stats6{grid-template-columns:repeat(3,1fr)}
+.builder{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:grid;gap:10px}
+.builder label{font-size:11.5px;color:var(--mute);text-transform:uppercase;letter-spacing:.4px;display:block;margin-bottom:4px}
+.builder select{width:100%}
+.addrow{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end}
+.btn{background:var(--accent);color:#04140d;border:0;border-radius:9px;padding:9px 14px;font:600 14px Inter,sans-serif;cursor:pointer}
+.btn:disabled{opacity:.4;cursor:default}
+.btn.ghost{background:var(--panel2);color:var(--ink);border:1px solid var(--line);font-weight:500;font-size:13px;padding:7px 11px}
+.quick{display:flex;gap:6px;flex-wrap:wrap}
+.legx{background:none;border:0;color:var(--mute);font-size:18px;cursor:pointer;padding:0 4px}
+.warn{font-size:12px;color:var(--draw);margin-top:6px}
+.empty{color:var(--mute);font-size:13px;padding:6px 0}
+.addtip{background:none;border:1px solid var(--line);color:var(--accent);border-radius:8px;font:600 12px Inter,sans-serif;padding:5px 9px;cursor:pointer}
+.mkts{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
+.mk{background:var(--panel2);border-radius:8px;padding:6px 8px;font-size:12px;display:flex;justify-content:space-between}
+.mk b{font-family:"Space Grotesk"}
 </style>
 </head>
 <body>
 <header><div class="wrap">
   <h1>Tips<span>y</span></h1>
-  <p>Premier League · <span id="round"></span> · tips, not bets</p>
+  <p>Premier League · La Liga · Bundesliga · Ligue 1 · tips, not bets</p>
 </div></header>
 
 <div class="wrap">
-  <div class="note"><b>Updated:</b> <span id="updated">…</span>. Table, last-5 form, xG, player stats, injuries and kick-off weather refresh automatically. Injured players are already marked out – tap to change. Percentages are model estimates, not certainties. 18+ · BeGambleAware.org</div>
+  <div class="note"><b>Updated:</b> <span id="updated">…</span>. Tables, last-5 form, xG, corners, cards, player stats, injuries and kick-off weather refresh automatically. Injured players are already marked out – tap to change. Percentages are model estimates, not certainties. 18+ · BeGambleAware.org</div>
 
-  <h2>Top tips this round</h2>
+  <div class="lgtabs" id="lgtabs"></div>
+
+  <h2>Top tips · <span id="lgname"></span></h2>
   <div class="tabs" id="tabs">
     <button class="tab on" data-m="result">Match result</button>
-    <button class="tab" data-m="goals">Goals (O/U 2.5)</button>
-    <button class="tab" data-m="btts">Both teams score</button>
+    <button class="tab" data-m="goals">Goals 2.5</button>
+    <button class="tab" data-m="btts">BTTS</button>
+    <button class="tab" data-m="corners">Corners</button>
+    <button class="tab" data-m="cards">Cards</button>
   </div>
   <div class="picks" id="picks"></div>
 
-  <h2>4-fold accumulator</h2>
-  <div class="tabs" id="accTabs">
-    <button class="tab on" data-acc="win">Straight wins</button>
-    <button class="tab" data-acc="safe">Safer mix</button>
+  <h2>Accumulator builder</h2>
+  <div class="builder">
+    <div><label>League</label><select id="selLg"></select></div>
+    <div><label>Match</label><select id="selM"></select></div>
+    <div class="addrow">
+      <div><label>Bet</label><select id="selMk"></select></div>
+      <button class="btn" id="addLeg">Add</button>
+    </div>
+    <div class="quick">
+      <button class="btn ghost" data-quick="win">⚡ Best 4 wins</button>
+      <button class="btn ghost" data-quick="safe">🛡 Safer 4</button>
+      <button class="btn ghost" data-quick="mix">🎲 Mixed 6</button>
+      <button class="btn ghost" data-quick="clear">Clear</button>
+    </div>
   </div>
-  <div class="acca" id="acca"></div>
+  <div class="acca" id="acca" style="margin-top:10px"></div>
 
-  <h2>All matches</h2>
+  <h2>Matches · <span id="lgname2"></span></h2>
   <div id="cards"></div>
 
   <h2>How the model works</h2>
   <div class="how"><ul>
-    <li><b>Attack & defence strength</b> – half from actual goals (home/away split plus overall), half from <b>season xG and xGA per game</b>. xG measures chance quality, so it filters out lucky finishing and freak results. Then it's pulled slightly towards average, because 10 games is a small sample.</li>
-    <li><b>Player form</b> – each team's players in the league's top 15 scorers or assisters, with goals, assists and goal involvements per game. Tap a player who's out and their team's attack drops by their share of its goals (goals + half of assists), less ~40% for whoever replaces them.</li>
-    <li><b>Last 5 form</b> – points from the last five, with recent games weighted heavier (newest ×5, oldest ×1). Hot teams get up to ~+15% on expected goals, cold teams lose the same.</li>
+    <li><b>Attack & defence strength</b> – half from actual goals (home/away split plus overall), half from season <b>xG and xGA</b> per game, pulled slightly towards the league average for small samples. Each league is modelled against its own averages.</li>
+    <li><b>Last 5 form</b> – recent games weighted heavier (newest ×5, oldest ×1). Hot teams get up to ~+15% on expected goals, cold teams lose the same.</li>
     <li><b>Home advantage</b> – built in, because home and away goal rates are modelled separately.</li>
-    <li><b>Weather</b> – heavy rain, strong wind and freezing conditions cut expected goals (roughly 2–10%), which nudges draws and unders up.</li>
-    <li><b>Other key players out</b> – for anyone not listed (defenders, keepers): each one trims that side's attack by 6% and adds 3% to what they concede.</li>
-    <li><b>Result</b> – expected goals feed a Poisson scoreline model (0–0 up to 8–8) to get win/draw/loss, over 2.5, both-teams-to-score and the most likely score.</li>
+    <li><b>Player form</b> – each team's top scorers and assisters. Tap a player who's out and their team's attack drops by their share of its goals (goals + half of assists), less ~40% for whoever replaces them. Injured players come in already marked.</li>
+    <li><b>Weather</b> – heavy rain, strong wind and freezing conditions cut expected goals (roughly 2–10%).</li>
+    <li><b>Goals markets</b> – expected goals feed a Poisson scoreline model (0–0 to 8–8) for win/draw/loss, double chance, over/under 1.5/2.5/3.5, both teams to score and the most likely score.</li>
+    <li><b>Corners & cards</b> – expected totals come from each side's corners/cards per game for, and their opponent's per game against. Totals are spread with a negative binomial curve, because corners and cards vary more than goals. The referee isn't modelled yet.</li>
+    <li><b>Accumulators</b> – the chance all legs land is each leg's chance multiplied together; fair odds = 1 ÷ that chance. Legs from the same match are linked, so for those the combined figure is only a rough guide.</li>
   </ul></div>
 
   <footer>Sources: <span id="srcs"></span><br>For fun and info only. Never stake what you can't afford to lose.</footer>
 </div>
 
 <script>
-// Data is loaded from data/tips.json (built by scripts/build.mjs on a schedule)
-let T={},M=[],XG={},P={},DATA=null,AVG_H=1.4,AVG_A=1.2,AVG=1.3,XGAVG=1.4;
-const out={};
-function init(d){
-  DATA=d; M=d.matches; P={}; XG={}; T={};
-  for(const [k,v] of Object.entries(d.teams)){ T[k]={o:v.o,h:v.h,a:v.a,f:v.f||""}; if(v.xg) XG[k]=v.xg; }
-  for(const [k,v] of Object.entries(d.players||{})) P[k]=v.map(p=>[p.name,p.g,p.a,Math.max(1,p.apps||1)]);
-  let hg=0,hp=0,ag=0,ap=0;
-  for(const t of Object.values(T)){hg+=t.h[1];hp+=t.h[0];ag+=t.a[1];ap+=t.a[0];}
-  AVG_H=hp?hg/hp:1.4; AVG_A=ap?ag/ap:1.2; AVG=(hp+ap)?(hg+ag)/(hp+ap):1.3;
-  const xs=Object.values(XG); XGAVG=xs.length?xs.reduce((s,v)=>s+v[0],0)/xs.length:1.4;
-  M.forEach(m=>{
-    const inj=m.inj||{h:{players:[],others:0},a:{players:[],others:0}};
-    const known=t=>new Set((P[t]||[]).map(p=>p[0]));
-    out[m.id]={
-      h:Math.min(3,inj.h.others||0), a:Math.min(3,inj.a.others||0),
-      ph:new Set(inj.h.players.filter(n=>known(m.h).has(n))),
-      pa:new Set(inj.a.players.filter(n=>known(m.a).has(n)))
-    };
-    m.injNames={h:inj.h.all||inj.h.players,a:inj.a.all||inj.a.players};
-    if(!WX[m.w]) m.w="light";
-  });
-}
-// share of team attack a player carries; replacement covers ~40%
-function playerHit(team,names){
-  if(!names||!names.size) return 0;
-  const goals=T[team].o[1]||1; let s=0;
-  (P[team]||[]).forEach(p=>{ if(names.has(p[0])) s+=(p[1]+.5*p[2])/goals; });
-  return Math.min(.35, s*.6);
-}
+// ---------- Data & state ----------
 const WX = {dry:["Dry / clear",1],light:["Light rain / showers",.98],rain:["Heavy rain",.94],wind:["Strong wind",.93],cold:["Freezing / snow",.90]};
+let DATA=null, LG=[], cur=0, mode="result";
+const out={};          // per match id: {h,a,ph:Set,pa:Set}
+const MATCH={};        // match id -> match
+let legs=[];           // [{mid,key}]
+const MAXLEGS=20;
 
 const shrink=x=>0.7*x+0.3;
-function formPPG(s){const w=[1,2,3,4,5];let p=0,ws=0;[...s].forEach((r,i)=>{p+=w[i]*(r==="W"?3:r==="D"?1:0);ws+=w[i]});return p/ws}
+const pc=x=>Math.round(x*100)+"%";
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function formPPG(s){if(!s)return 1.4;const w=[1,2,3,4,5].slice(-s.length);let p=0,ws=0;[...s].forEach((r,i)=>{p+=w[i]*(r==="W"?3:r==="D"?1:0);ws+=w[i]});return ws?p/ws:1.4}
 function formFactor(s){const f=1+0.15*(formPPG(s)-1.4)/1.6;return Math.max(.85,Math.min(1.15,f))}
 function pois(l,k){let p=Math.exp(-l);for(let i=1;i<=k;i++)p*=l/i;return p}
+// P(total > line) with a negative binomial (variance = phi * mean)
+function nbOver(mu,phi,line){
+  if(!(mu>0))return null;
+  const r=mu/(phi-1), q=mu/(r+mu);
+  let p=Math.pow(r/(r+mu),r), cdf=0;
+  for(let k=0;k<=Math.floor(line);k++){cdf+=p;p=p*(k+r)/(k+1)*q;}
+  return Math.max(0,Math.min(1,1-cdf));
+}
+const mean=a=>a.length?a.reduce((s,x)=>s+x,0)/a.length:0;
 
+function prepLeague(L){
+  L.T={};L.XG={};L.CN={};L.CD={};L.P={};
+  for(const [k,v] of Object.entries(L.teams||{})){
+    L.T[k]={o:v.o,h:v.h,a:v.a,f:v.f||""};
+    if(v.xg)L.XG[k]=v.xg; if(v.cn)L.CN[k]=v.cn; if(v.cd)L.CD[k]=v.cd;
+  }
+  for(const [k,v] of Object.entries(L.players||{})) L.P[k]=v.map(p=>[p.name,p.g,p.a,Math.max(1,p.apps||1)]);
+  let hg=0,hp=0,ag=0,ap=0;
+  for(const t of Object.values(L.T)){hg+=t.h[1];hp+=t.h[0];ag+=t.a[1];ap+=t.a[0];}
+  L.AVG_H=hp?hg/hp:1.5; L.AVG_A=ap?ag/ap:1.2; L.AVG=(hp+ap)?(hg+ag)/(hp+ap):1.35;
+  L.XGAVG=mean(Object.values(L.XG).map(v=>v[0]))||1.4;
+  (L.matches||[]).forEach(m=>{
+    m.L=L; MATCH[m.id]=m;
+    const inj=m.inj||{h:{players:[],others:0},a:{players:[],others:0}};
+    const known=t=>new Set((L.P[t]||[]).map(p=>p[0]));
+    out[m.id]={h:Math.min(3,inj.h.others||0),a:Math.min(3,inj.a.others||0),
+      ph:new Set((inj.h.players||[]).filter(n=>known(m.h).has(n))),
+      pa:new Set((inj.a.players||[]).filter(n=>known(m.a).has(n)))};
+    m.injNames={h:inj.h.all||inj.h.players||[],a:inj.a.all||inj.a.players||[]};
+    if(!WX[m.w])m.w="light";
+  });
+}
+
+function playerHit(L,team,names){
+  if(!names||!names.size)return 0;
+  const goals=(L.T[team]&&L.T[team].o[1])||1;let s=0;
+  (L.P[team]||[]).forEach(p=>{if(names.has(p[0]))s+=(p[1]+.5*p[2])/goals;});
+  return Math.min(.35,s*.6);
+}
+
+// ---------- Model ----------
 function model(m){
-  const H=T[m.h],A=T[m.a];
-  const XH=XG[m.h]||null,XA=XG[m.a]||null;
-  const mix=(g,x)=>x==null?g:.5*g+.5*x;
-  // goals-based strength (venue + overall), blended 50/50 with xG-based strength, then shrunk to average
-  const r0=(x,n)=>n?x/n:0;
-  const hAtt=shrink(mix(.5*r0(H.h[1],H.h[0])/AVG_H+.5*r0(H.o[1],H.o[0])/AVG, XH&&XH[0]/XGAVG));
-  const hDef=shrink(mix(.5*r0(H.h[2],H.h[0])/AVG_A+.5*r0(H.o[2],H.o[0])/AVG, XH&&XH[1]/XGAVG));
-  const aAtt=shrink(mix(.5*r0(A.a[1],A.a[0])/AVG_A+.5*r0(A.o[1],A.o[0])/AVG, XA&&XA[0]/XGAVG));
-  const aDef=shrink(mix(.5*r0(A.a[2],A.a[0])/AVG_H+.5*r0(A.o[2],A.o[0])/AVG, XA&&XA[1]/XGAVG));
-  const fh=formFactor(H.f), fa=formFactor(A.f);
-  const wx=WX[m.w][1], o=out[m.id];
-  const kh=playerHit(m.h,o.ph), ka=playerHit(m.a,o.pa);
-  let lh=AVG_H*hAtt*aDef*fh/Math.sqrt(fa)*wx*(1-.06*o.h)*(1+.03*o.a)*(1-kh);
-  let la=AVG_A*aAtt*hDef*fa/Math.sqrt(fh)*wx*(1-.06*o.a)*(1+.03*o.h)*(1-ka);
-  let pH=0,pD=0,pA=0,o25=0,btts=0,best=[0,0,0];
+  const L=m.L,H=L.T[m.h],A=L.T[m.a];
+  if(!H||!A)return null;
+  const XH=L.XG[m.h]||null,XA=L.XG[m.a]||null;
+  const mix=(g,x)=>x==null?g:.5*g+.5*x, r0=(x,n)=>n?x/n:0;
+  const hAtt=shrink(mix(.5*r0(H.h[1],H.h[0])/L.AVG_H+.5*r0(H.o[1],H.o[0])/L.AVG, XH&&XH[0]/L.XGAVG));
+  const hDef=shrink(mix(.5*r0(H.h[2],H.h[0])/L.AVG_A+.5*r0(H.o[2],H.o[0])/L.AVG, XH&&XH[1]/L.XGAVG));
+  const aAtt=shrink(mix(.5*r0(A.a[1],A.a[0])/L.AVG_A+.5*r0(A.o[1],A.o[0])/L.AVG, XA&&XA[0]/L.XGAVG));
+  const aDef=shrink(mix(.5*r0(A.a[2],A.a[0])/L.AVG_H+.5*r0(A.o[2],A.o[0])/L.AVG, XA&&XA[1]/L.XGAVG));
+  const fh=formFactor(H.f),fa=formFactor(A.f),wx=WX[m.w][1],o=out[m.id];
+  const kh=playerHit(L,m.h,o.ph),ka=playerHit(L,m.a,o.pa);
+  const lh=L.AVG_H*hAtt*aDef*fh/Math.sqrt(fa)*wx*(1-.06*o.h)*(1+.03*o.a)*(1-kh);
+  const la=L.AVG_A*aAtt*hDef*fa/Math.sqrt(fh)*wx*(1-.06*o.a)*(1+.03*o.h)*(1-ka);
+  let pH=0,pD=0,pA=0,btts=0,best=[0,0,0];const tot=Array(17).fill(0);
   for(let i=0;i<=8;i++)for(let j=0;j<=8;j++){
     const p=pois(lh,i)*pois(la,j);
     if(i>j)pH+=p;else if(i===j)pD+=p;else pA+=p;
-    if(i+j>2)o25+=p; if(i>0&&j>0)btts+=p;
-    if(p>best[2])best=[i,j,p];
+    tot[i+j]+=p; if(i>0&&j>0)btts+=p; if(p>best[2])best=[i,j,p];
   }
-  const s=pH+pD+pA; pH/=s;pD/=s;pA/=s;
-  return {lh,la,pH,pD,pA,o25,btts,best,fh,fa};
+  const s=pH+pD+pA;pH/=s;pD/=s;pA/=s;
+  const over=l=>tot.reduce((acc,p,k)=>k>l?acc+p:acc,0)/s;
+  // corners & cards
+  const CH=L.CN[m.h],CA=L.CN[m.a],DH=L.CD[m.h],DA=L.CD[m.a];
+  const cMu=CH&&CA?((CH[0]+CA[1])/2+(CA[0]+CH[1])/2)*(wx<.95?1.03:1):null;
+  const kMu=DH&&DA?((DH[0]+DA[1])/2+(DA[0]+DH[1])/2):null;
+  return {lh,la,pH,pD,pA,btts:btts/s,o15:over(1.5),o25:over(2.5),o35:over(3.5),best,
+    cMu,kMu,
+    c85:cMu&&nbOver(cMu,1.4,8.5),c95:cMu&&nbOver(cMu,1.4,9.5),c105:cMu&&nbOver(cMu,1.4,10.5),
+    k25:kMu&&nbOver(kMu,1.3,2.5),k35:kMu&&nbOver(kMu,1.3,3.5),k45:kMu&&nbOver(kMu,1.3,4.5)};
 }
+
+// every bet the builder offers for a match
+function markets(m){
+  const r=m._r;if(!r)return[];
+  const M=[
+    ["Result","1",m.h+" to win",r.pH],["Result","X","Draw",r.pD],["Result","2",m.a+" to win",r.pA],
+    ["Double chance","1X",m.h+" or draw",r.pH+r.pD],["Double chance","X2",m.a+" or draw",r.pA+r.pD],["Double chance","12","Either team to win",r.pH+r.pA],
+    ["Goals","O15","Over 1.5 goals",r.o15],["Goals","U15","Under 1.5 goals",1-r.o15],
+    ["Goals","O25","Over 2.5 goals",r.o25],["Goals","U25","Under 2.5 goals",1-r.o25],
+    ["Goals","O35","Over 3.5 goals",r.o35],["Goals","U35","Under 3.5 goals",1-r.o35],
+    ["Both teams to score","BY","BTTS – Yes",r.btts],["Both teams to score","BN","BTTS – No",1-r.btts]
+  ];
+  if(r.cMu){for(const [k,l] of [["c85",8.5],["c95",9.5],["c105",10.5]]){M.push(["Corners","CO"+l,`Over ${l} corners`,r[k]],["Corners","CU"+l,`Under ${l} corners`,1-r[k]]);}}
+  if(r.kMu){for(const [k,l] of [["k25",2.5],["k35",3.5],["k45",4.5]]){M.push(["Cards","KO"+l,`Over ${l} cards`,r[k]],["Cards","KU"+l,`Under ${l} cards`,1-r[k]]);}}
+  return M.map(([group,key,label,p])=>({group,key,label,p}));
+}
+const market=(m,key)=>markets(m).find(x=>x.key===key);
 
 function grade(p){return p>=.6?["Strong","b-strong"]:p>=.5?["Good","b-good"]:p>=.4?["Lean","b-lean"]:["Avoid","b-avoid"]}
 function resultTip(m,r){
-  const opts=[[r.pH,m.h+" to win"],[r.pD,"Draw"],[r.pA,m.a+" to win"]].sort((x,y)=>y[0]-x[0]);
-  if(opts[0][0]<.45){ // offer double chance
-    const dcH=r.pH+r.pD, dcA=r.pA+r.pD;
-    return dcH>=dcA?[dcH,m.h+" or draw","Double chance"]:[dcA,m.a+" or draw","Double chance"];
-  }
-  return [opts[0][0],opts[0][1],"Match result"];
+  const o=[[r.pH,"1"],[r.pD,"X"],[r.pA,"2"]].sort((x,y)=>y[0]-x[0]);
+  if(o[0][0]<.45) return (r.pH+r.pD>=r.pA+r.pD)?"1X":"X2";
+  return o[0][1];
 }
-const pc=x=>Math.round(x*100)+"%";
+
+function computeLeague(L){(L.matches||[]).forEach(m=>{m._r=model(m)});}
+
+// ---------- Rendering ----------
+const curL=()=>LG[cur];
+function form(s){return `<div class="form">${[...(s||"")].map(c=>`<span class="f ${c}">${c}</span>`).join("")}</div>`}
+function xgTxt(L,t,pre){const x=L.XG[t];return x?`${pre}xG ${x[0].toFixed(2)} · xGA ${x[1].toFixed(2)}`:""}
+function injTxt(m){const n=m.injNames||{h:[],a:[]};if(!n.h.length&&!n.a.length)return"";
+  return `<div class="injrow">🚑 ${[...n.h.map(x=>esc(m.h+": "+x)),...n.a.map(x=>esc(m.a+": "+x))].join(" · ")}</div>`}
+function wxTxt(m){if(!m.wx)return"";return `<div class="injrow">🌦 ${WX[m.w][0]} · ${m.wx.temp}°C · rain ${m.wx.precip}mm/h · wind ${m.wx.wind}km/h</div>`}
 
 function reasons(m,r){
-  const H=T[m.h],A=T[m.a],l=[];
+  const L=m.L,H=L.T[m.h],A=L.T[m.a],l=[];
   const hp=formPPG(H.f),ap=formPPG(A.f);
-  if(Math.abs(hp-ap)>.6) l.push(`${hp>ap?m.h:m.a} in much better recent form (${(hp>ap?H:A).f.slice(-3).split("").join("-")} last three).`);
-  const hHomePPG=(H.h[1]-H.h[2])/H.h[0], aAwayGD=(A.a[1]-A.a[2])/A.a[0];
-  l.push(`${m.h} at home: ${H.h[1]} scored, ${H.h[2]} conceded in ${H.h[0]}. ${m.a} away: ${A.a[1]} scored, ${A.a[2]} conceded in ${A.a[0]}.`);
-  if(WX[m.w][1]<.97) l.push(`${WX[m.w][0]} lowers expected goals.`);
-  [[m.h,"home"],[m.a,"away"]].forEach(([t])=>{
-    const x=XG[t]; if(!x) return; const luck=T[t].o[1]-x[0]*T[t].o[0];
-    if(luck>=4) l.push(`${t} have scored ${luck.toFixed(1)} more than their xG – likely to cool off.`);
-    if(luck<=-4) l.push(`${t} are ${(-luck).toFixed(1)} goals below their xG – creating more than they score.`);
-  });
-  const o=out[m.id], gone=[...o.ph,...o.pa];
-  if(o.h||o.a||gone.length) l.push(`Absences applied: ${[gone.join(", "), o.h?`${m.h} +${o.h} others`:"", o.a?`${m.a} +${o.a} others`:""].filter(Boolean).join(" · ")}.`);
-  if(r.lh+r.la>3.1) l.push("Both defences leaky – goals expected.");
-  if(r.lh+r.la<2.2) l.push("Low-scoring profile – unders/draw worth a look.");
+  if(Math.abs(hp-ap)>.6) l.push(`${esc(hp>ap?m.h:m.a)} in much better recent form.`);
+  l.push(`${esc(m.h)} at home: ${H.h[1]} scored, ${H.h[2]} conceded in ${H.h[0]}. ${esc(m.a)} away: ${A.a[1]} scored, ${A.a[2]} conceded in ${A.a[0]}.`);
+  [m.h,m.a].forEach(t=>{const x=L.XG[t];if(!x)return;const luck=L.T[t].o[1]-x[0]*L.T[t].o[0];
+    if(luck>=4)l.push(`${esc(t)} have scored ${luck.toFixed(1)} more than their xG – likely to cool off.`);
+    if(luck<=-4)l.push(`${esc(t)} are ${(-luck).toFixed(1)} goals below their xG – creating more than they score.`);});
+  if(WX[m.w][1]<.97)l.push(`${WX[m.w][0]} lowers expected goals.`);
+  const o=out[m.id],gone=[...o.ph,...o.pa];
+  if(o.h||o.a||gone.length)l.push(`Absences applied: ${esc([gone.join(", "),o.h?`${m.h} +${o.h} others`:"",o.a?`${m.a} +${o.a} others`:""].filter(Boolean).join(" · "))}.`);
+  if(r.cMu)l.push(`Expected corners ${r.cMu.toFixed(1)}${r.kMu?`, cards ${r.kMu.toFixed(1)}`:""}.`);
   return l;
 }
 
-function xgTxt(t,pre){const x=XG[t];return x?`${pre}xG ${x[0].toFixed(2)} · xGA ${x[1].toFixed(2)}`:"xG n/a"}
-function injTxt(m){const n=m.injNames||{h:[],a:[]};if(!(n.h||[]).length&&!(n.a||[]).length)return"";
-  return `<div class="injrow">🚑 ${[...(n.h||[]).map(x=>m.h+": "+x),...(n.a||[]).map(x=>m.a+": "+x)].join(" · ")}</div>`}
-function wxTxt(m){if(!m.wx)return"";return `<div class="injrow">🌦 ${WX[m.w][0]} · ${m.wx.temp}°C · rain ${m.wx.precip}mm/h · wind ${m.wx.wind}km/h</div>`}
 function players(m,side){
-  const team=side==="h"?m.h:m.a, list=P[team], set=out[m.id]["p"+side];
-  if(!list) return `<div class="pl"><div class="plh">${team} · key players</div><small class="mute">No one in the league's top 15 scorers/assisters – use the steppers below.</small></div>`;
-  return `<div class="pl"><div class="plh">${team} · key players <small class="mute">(tap if out)</small></div><div class="chips">${
-    list.map(p=>`<button class="chip ${set.has(p[0])?"off":""}" data-pid="${m.id}" data-side="${side}" data-name="${p[0]}">
-      <b>${p[0]}</b><span>${p[1]}G ${p[2]}A · ${((p[1]+p[2])/p[3]).toFixed(1)}/g</span></button>`).join("")}</div></div>`;
+  const L=m.L,team=side==="h"?m.h:m.a,list=L.P[team],set=out[m.id]["p"+side];
+  if(!list)return `<div class="pl"><div class="plh">${esc(team)} · key players</div><small class="mute">No one in the league's top scorers/assisters – use the steppers below.</small></div>`;
+  return `<div class="pl"><div class="plh">${esc(team)} · key players <small class="mute">(tap if out)</small></div><div class="chips">${
+    list.map(p=>`<button class="chip ${set.has(p[0])?"off":""}" data-pid="${m.id}" data-side="${side}" data-name="${esc(p[0])}">
+      <b>${esc(p[0])}</b><span>${p[1]}G ${p[2]}A · ${((p[1]+p[2])/p[3]).toFixed(1)}/g</span></button>`).join("")}</div></div>`;
 }
-function form(s){return `<div class="form">${[...s].map(c=>`<span class="f ${c}">${c}</span>`).join("")}</div>`}
 
-function render(){
-  const cards=document.getElementById("cards"); cards.innerHTML="";
-  M.forEach(m=>{
-    const r=model(m), t=resultTip(m,r), g=grade(t[0]);
-    m._r=r;
-    const el=document.createElement("div"); el.className="card"; el.id="m"+m.id;
-    el.innerHTML=`
+function renderTabs(){
+  document.getElementById("lgtabs").innerHTML=LG.map((L,i)=>`<button class="lgtab ${i===cur?"on":""}" data-lg="${i}">${esc(L.name)}<small>${(L.round||"").replace("Regular Season - ","Matchday ")||"—"}</small></button>`).join("");
+  document.getElementById("lgname").textContent=curL().name;
+  document.getElementById("lgname2").textContent=curL().name;
+}
+
+function renderCards(){
+  const L=curL(),el=document.getElementById("cards");
+  if(!(L.matches||[]).length){el.innerHTML='<div class="note">No upcoming matches yet – they appear after the next data update.</div>';return;}
+  el.innerHTML=L.matches.map(m=>{
+    const r=m._r;if(!r)return"";
+    const tip=market(m,resultTip(m,r)),g=grade(tip.p),open=m._open?"open":"";
+    return `<div class="card" id="m${m.id}">
     <div class="top">
-      <div class="meta"><span>${m.d} · ${m.k}</span><span>${m.v}</span></div>
+      <div class="meta"><span>${esc(m.d)} · ${esc(m.k)}</span><span>${esc(m.v)}</span></div>
       <div class="teams">
-        <div class="team">${m.h}${form(T[m.h].f)}</div>
+        <div class="team">${esc(m.h)}${form(L.T[m.h].f)}</div>
         <div class="score"><b>${r.best[0]}–${r.best[1]}</b>likely</div>
-        <div class="team r">${m.a}${form(T[m.a].f)}</div>
+        <div class="team r">${esc(m.a)}${form(L.T[m.a].f)}</div>
       </div>
-      <div class="xgrow"><span>${xgTxt(m.h,"Season ")}</span><span>${xgTxt(m.a,"")}</span></div>${injTxt(m)}${wxTxt(m)}
-      <div class="bar">
-        <div class="h" style="flex:${r.pH}">${pc(r.pH)}</div>
-        <div class="d" style="flex:${r.pD}">${pc(r.pD)}</div>
-        <div class="a" style="flex:${r.pA}">${pc(r.pA)}</div>
+      <div class="xgrow"><span>${xgTxt(L,m.h,"Season ")}</span><span>${xgTxt(L,m.a,"")}</span></div>${injTxt(m)}${wxTxt(m)}
+      <div class="bar" style="margin-top:8px">
+        <div class="h" style="flex:${r.pH}">${pc(r.pH)}</div><div class="d" style="flex:${r.pD}">${pc(r.pD)}</div><div class="a" style="flex:${r.pA}">${pc(r.pA)}</div>
       </div>
-      <div class="stats">
+      <div class="stats stats6">
         <div class="stat"><small>xG home</small><b>${r.lh.toFixed(2)}</b></div>
         <div class="stat"><small>xG away</small><b>${r.la.toFixed(2)}</b></div>
         <div class="stat"><small>Over 2.5</small><b>${pc(r.o25)}</b></div>
         <div class="stat"><small>BTTS</small><b>${pc(r.btts)}</b></div>
+        <div class="stat"><small>Corners</small><b>${r.cMu?r.cMu.toFixed(1):"–"}</b></div>
+        <div class="stat"><small>Cards</small><b>${r.kMu?r.kMu.toFixed(1):"–"}</b></div>
       </div>
-      <div class="tip"><span>Tip: <b>${t[1]}</b> · ${pc(t[0])}</span><span class="badge ${g[1]}">${g[0]}</span></div>
+      <div class="tip"><span>Tip: <b>${esc(tip.label)}</b> · ${pc(tip.p)}</span><span style="display:flex;gap:6px;align-items:center"><span class="badge ${g[1]}">${g[0]}</span><button class="addtip" data-addm="${m.id}" data-addk="${tip.key}">+ Acca</button></span></div>
     </div>
-    <details>
-      <summary>Why · weather · team news</summary>
+    <details ${open} data-det="${m.id}">
+      <summary>All bets · why · weather · team news</summary>
       <div class="adj">
+        <div class="mkts">${markets(m).filter(x=>!/^U|^CU|^KU|^BN/.test(x.key)).map(x=>`<div class="mk"><span>${esc(x.label)}</span><b>${pc(x.p)}</b></div>`).join("")}</div>
         <ul class="why">${reasons(m,r).map(x=>`<li>${x}</li>`).join("")}</ul>
         <div class="row"><span>Weather</span>
-          <select data-id="${m.id}">${Object.entries(WX).map(([k,v])=>`<option value="${k}" ${k===m.w?"selected":""}>${v[0]}</option>`).join("")}</select></div>
+          <select data-wx="${m.id}">${Object.entries(WX).map(([k,v])=>`<option value="${k}" ${k===m.w?"selected":""}>${v[0]}</option>`).join("")}</select></div>
         ${players(m,"h")}${players(m,"a")}
-        <div class="row"><span>Other key players out – ${m.h}</span>
+        <div class="row"><span>Other key players out – ${esc(m.h)}</span>
           <div class="step"><button data-id="${m.id}" data-s="h" data-d="-1">−</button><span>${out[m.id].h}</span><button data-id="${m.id}" data-s="h" data-d="1">+</button></div></div>
-        <div class="row"><span>Other key players out – ${m.a}</span>
+        <div class="row"><span>Other key players out – ${esc(m.a)}</span>
           <div class="step"><button data-id="${m.id}" data-s="a" data-d="-1">−</button><span>${out[m.id].a}</span><button data-id="${m.id}" data-s="a" data-d="1">+</button></div></div>
       </div>
-    </details>`;
-    cards.appendChild(el);
-  });
-  renderPicks();
-  renderAcca();
+    </details></div>`;
+  }).join("");
 }
 
-let mode="result";
+function pickFor(m){
+  const r=m._r;if(!r)return null;
+  const sub=`${m.h} v ${m.a}`;
+  if(mode==="result"){const k=resultTip(m,r),x=market(m,k);return {m,p:x.p,what:x.label,sub,key:k}}
+  if(mode==="goals"){const o=r.o25>=.5;return {m,p:o?r.o25:1-r.o25,what:(o?"Over":"Under")+" 2.5 goals",sub:sub+` · xG ${(r.lh+r.la).toFixed(1)}`,key:o?"O25":"U25"}}
+  if(mode==="btts"){const y=r.btts>=.5;return {m,p:y?r.btts:1-r.btts,what:"BTTS: "+(y?"Yes":"No"),sub,key:y?"BY":"BN"}}
+  if(mode==="corners"){if(!r.cMu)return null;const o=r.c95>=.5;return {m,p:o?r.c95:1-r.c95,what:(o?"Over":"Under")+" 9.5 corners",sub:sub+` · exp ${r.cMu.toFixed(1)}`,key:o?"CO9.5":"CU9.5"}}
+  if(mode==="cards"){if(!r.kMu)return null;const o=r.k35>=.5;return {m,p:o?r.k35:1-r.k35,what:(o?"Over":"Under")+" 3.5 cards",sub:sub+` · exp ${r.kMu.toFixed(1)}`,key:o?"KO3.5":"KU3.5"}}
+}
 function renderPicks(){
-  const list=M.map(m=>{
-    const r=m._r;
-    if(mode==="result"){const t=resultTip(m,r);return {m,p:t[0],what:t[1],sub:`${m.h} v ${m.a} · ${t[2]}`}}
-    if(mode==="goals"){const over=r.o25>=.5;return {m,p:over?r.o25:1-r.o25,what:(over?"Over":"Under")+" 2.5 goals",sub:`${m.h} v ${m.a} · xG ${(r.lh+r.la).toFixed(1)}`}}
-    const y=r.btts>=.5;return {m,p:y?r.btts:1-r.btts,what:"BTTS: "+(y?"Yes":"No"),sub:`${m.h} v ${m.a}`}
-  }).sort((a,b)=>b.p-a.p).slice(0,5);
-  document.getElementById("picks").innerHTML=list.map((x,i)=>{const g=grade(x.p);return `
+  const list=(curL().matches||[]).map(pickFor).filter(Boolean).sort((a,b)=>b.p-a.p).slice(0,5);
+  document.getElementById("picks").innerHTML=list.length?list.map((x,i)=>{const g=grade(x.p);return `
     <div class="pick" data-go="${x.m.id}"><span class="rank">${i+1}</span>
-      <div class="what"><b>${x.what}</b><small>${x.sub}</small></div>
-      <span class="badge ${g[1]}">${g[0]}</span><span class="pct">${pc(x.p)}</span></div>`}).join("");
+      <div class="what"><b>${esc(x.what)}</b><small>${esc(x.sub)}</small></div>
+      <span class="badge ${g[1]}">${g[0]}</span><span class="pct">${pc(x.p)}</span></div>`}).join(""):
+    `<div class="empty">${mode==="corners"||mode==="cards"?"Corner and card stats arrive with the first data update.":"No matches yet."}</div>`;
 }
 
-let accMode="win";
-function renderAcca(){
-  const legs=M.map(m=>{
-    const r=m._r;
-    let opts;
-    if(accMode==="win"){
-      opts=[[r.pH,m.h+" to win"],[r.pA,m.a+" to win"]];
-    }else{
-      opts=[[r.pH+r.pD,m.h+" or draw"],[r.pA+r.pD,m.a+" or draw"],
-            [r.o25,"Over 2.5 goals"],[1-r.o25,"Under 2.5 goals"],
-            [r.btts,"Both teams to score"],[1-r.btts,"Not both teams to score"]]
-            .filter(o=>!(o[1].includes("or draw")&&o[0]>.9)); // skip near-certain, no-value legs
-    }
-    opts.sort((a,b)=>b[0]-a[0]);
-    return {m,p:opts[0][0],what:opts[0][1]};
-  }).sort((a,b)=>b.p-a.p).slice(0,4);
-  const comb=legs.reduce((x,l)=>x*l.p,1);
-  document.getElementById("acca").innerHTML=legs.map((l,i)=>`
-    <div class="leg" data-go="${l.m.id}"><span class="n">${i+1}</span>
-      <div class="what"><b>${l.what}</b><small>${l.m.h} v ${l.m.a} · ${l.m.d} ${l.m.k}</small></div>
-      <span class="pct">${pc(l.p)}</span></div>`).join("")+`
-    <div class="accsum">
-      <div class="stat"><small>Chance all 4 land</small><b>${(comb*100).toFixed(1)}%</b></div>
-      <div class="stat"><small>Fair odds (model)</small><b>${(1/comb).toFixed(2)}</b></div>
-    </div>
-    <div class="accnote">${accMode==="win"
-      ?"The four most likely outright winners in different games. Only worth it if the bookies' acca price is higher than the fair odds."
-      :"Picks the surest market in each game from double chance, over/under 2.5 and both-teams-to-score. Lands more often, pays less."}
-      Each leg looks good on its own, but all four landing together is far less likely.</div>`;
+// ---------- Accumulator builder ----------
+function saveLegs(){try{localStorage.setItem("tipsy-acca",JSON.stringify(legs))}catch(e){}}
+function loadLegs(){try{const v=JSON.parse(localStorage.getItem("tipsy-acca")||"[]");legs=v.filter(l=>MATCH[l.mid]&&market(MATCH[l.mid],l.key)).slice(0,MAXLEGS)}catch(e){legs=[]}}
+
+function fillSelLg(){
+  const s=document.getElementById("selLg");
+  s.innerHTML=LG.map((L,i)=>`<option value="${i}" ${i===cur?"selected":""}>${esc(L.name)}</option>`).join("");
+  fillSelM();
 }
+function fillSelM(){
+  const L=LG[+document.getElementById("selLg").value]||curL(),s=document.getElementById("selM");
+  const ms=(L.matches||[]).filter(m=>m._r);
+  s.innerHTML=ms.length?ms.map(m=>`<option value="${m.id}">${esc(m.h)} v ${esc(m.a)} · ${esc(m.d)}</option>`).join(""):'<option value="">No matches yet</option>';
+  fillSelMk();
+}
+function fillSelMk(){
+  const m=MATCH[document.getElementById("selM").value],s=document.getElementById("selMk");
+  if(!m){s.innerHTML="";updateAddBtn();return;}
+  const groups={};markets(m).forEach(x=>(groups[x.group]??=[]).push(x));
+  s.innerHTML=Object.entries(groups).map(([g,xs])=>`<optgroup label="${esc(g)}">${xs.map(x=>`<option value="${x.key}">${esc(x.label)} — ${pc(x.p)}</option>`).join("")}</optgroup>`).join("");
+  updateAddBtn();
+}
+function updateAddBtn(){
+  const b=document.getElementById("addLeg"),m=document.getElementById("selM").value,k=document.getElementById("selMk").value;
+  const dup=legs.some(l=>l.mid==m&&l.key===k);
+  b.disabled=!m||!k||legs.length>=MAXLEGS||dup;
+  b.textContent=legs.length>=MAXLEGS?"Full":dup?"Added":"Add";
+}
+function addLeg(mid,key){
+  if(legs.length>=MAXLEGS||legs.some(l=>l.mid==mid&&l.key===key))return;
+  legs.push({mid:Number(mid)||mid,key});saveLegs();renderAcca();updateAddBtn();
+}
+function quick(kind){
+  if(kind==="clear"){legs=[];saveLegs();renderAcca();updateAddBtn();return;}
+  const all=LG.flatMap(L=>(L.matches||[]).filter(m=>m._r));
+  const pick=all.map(m=>{
+    let opts=markets(m);
+    if(kind==="win")opts=opts.filter(x=>x.key==="1"||x.key==="2");
+    else if(kind==="safe")opts=opts.filter(x=>x.p<.88&&!["X","1","2"].includes(x.key));
+    else opts=opts.filter(x=>x.p<.8&&x.p>.5);
+    opts.sort((a,b)=>b.p-a.p);
+    return opts[0]?{mid:m.id,key:opts[0].key,p:opts[0].p}:null;
+  }).filter(Boolean).sort((a,b)=>b.p-a.p);
+  let n=kind==="mix"?6:4, chosen=pick.slice(0,n);
+  if(kind==="mix"){ // spread across market types
+    const seen=new Set();chosen=[];
+    for(const x of pick){const g=market(MATCH[x.mid],x.key).group;if(!seen.has(g)){seen.add(g);chosen.push(x);}}
+    for(const x of pick){if(chosen.length>=n)break;if(!chosen.includes(x))chosen.push(x);}
+    chosen=chosen.slice(0,n);
+  }
+  legs=chosen.map(({mid,key})=>({mid,key}));saveLegs();renderAcca();updateAddBtn();
+  document.getElementById("acca").scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+function renderAcca(){
+  const el=document.getElementById("acca");
+  if(!legs.length){el.innerHTML=`<div class="empty">Pick a league, match and bet above and tap <b>Add</b> – up to ${MAXLEGS} legs. Or use a quick pick.</div>`;return;}
+  let comb=1;const counts={};
+  const rows=legs.map((l,i)=>{
+    const m=MATCH[l.mid],x=m&&market(m,l.key);if(!x)return"";
+    comb*=x.p;counts[l.mid]=(counts[l.mid]||0)+1;
+    return `<div class="leg"><span class="n">${i+1}</span>
+      <div class="what" data-go="${m.id}" data-lgi="${LG.indexOf(m.L)}"><b>${esc(x.label)}</b><small>${esc(m.h)} v ${esc(m.a)} · ${esc(m.L.name)} · ${esc(m.d)} ${esc(m.k)}</small></div>
+      <span class="pct">${pc(x.p)}</span><button class="legx" data-rm="${i}" aria-label="Remove">×</button></div>`;
+  }).join("");
+  const same=Object.values(counts).some(c=>c>1);
+  el.innerHTML=rows+`
+    <div class="accsum">
+      <div class="stat"><small>${legs.length}-fold · chance all land</small><b>${comb>=.001?(comb*100).toFixed(1)+"%":"<0.1%"}</b></div>
+      <div class="stat"><small>Fair odds (model)</small><b>${comb>0?(1/comb>=1000?Math.round(1/comb).toLocaleString():(1/comb).toFixed(2)):"–"}</b></div>
+    </div>
+    ${same?'<div class="warn">⚠ Some legs are from the same match, so they\'re linked – treat the combined figure as a rough guide.</div>':""}
+    <div class="accnote">Only worth backing if the bookie's price is higher than the fair odds. Every extra leg cuts the chance it all lands.</div>`;
+}
+
+// ---------- Wiring ----------
+function recompute(mid){
+  const m=MATCH[mid];m._r=model(m);
+  renderCards();renderPicks();renderAcca();
+  if(document.getElementById("selM").value==String(mid))fillSelMk();
+}
+function rememberOpen(){document.querySelectorAll("details[data-det]").forEach(d=>{MATCH[d.dataset.det]._open=d.open})}
 
 document.addEventListener("click",e=>{
-  const ch=e.target.closest(".chip");
-  if(ch){const s=out[ch.dataset.pid]["p"+ch.dataset.side];s.has(ch.dataset.name)?s.delete(ch.dataset.name):s.add(ch.dataset.name);
-    render();document.querySelector("#m"+ch.dataset.pid+" details").open=true;return;}
-  const at=e.target.closest("[data-acc]");
-  if(at){document.querySelectorAll("[data-acc]").forEach(x=>x.classList.toggle("on",x===at));accMode=at.dataset.acc;renderAcca();return;}
-  const lg=e.target.closest(".leg");
-  if(lg){const c=document.getElementById("m"+lg.dataset.go);c.scrollIntoView({behavior:"smooth",block:"center"});c.classList.add("flash");setTimeout(()=>c.classList.remove("flash"),1200);return;}
-  const b=e.target.closest("button[data-s]");
-  if(b){const o=out[b.dataset.id];o[b.dataset.s]=Math.max(0,Math.min(5,o[b.dataset.s]+ +b.dataset.d));
-    const open=b.closest("details").open;render();if(open)document.querySelector("#m"+b.dataset.id+" details").open=true;return;}
-  const t=e.target.closest(".tab");
-  if(t){document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("on",x===t));mode=t.dataset.m;renderPicks();return;}
-  const p=e.target.closest(".pick");
-  if(p){const c=document.getElementById("m"+p.dataset.go);c.scrollIntoView({behavior:"smooth",block:"center"});c.classList.add("flash");setTimeout(()=>c.classList.remove("flash"),1200);}
+  const t=e.target;
+  const lg=t.closest(".lgtab");
+  if(lg){cur=+lg.dataset.lg;renderTabs();renderPicks();renderCards();document.getElementById("selLg").value=cur;fillSelM();return;}
+  const ch=t.closest(".chip");
+  if(ch){rememberOpen();const s=out[ch.dataset.pid]["p"+ch.dataset.side];s.has(ch.dataset.name)?s.delete(ch.dataset.name):s.add(ch.dataset.name);recompute(ch.dataset.pid);return;}
+  const st=t.closest("button[data-s]");
+  if(st){rememberOpen();const o=out[st.dataset.id];o[st.dataset.s]=Math.max(0,Math.min(5,o[st.dataset.s]+ +st.dataset.d));recompute(st.dataset.id);return;}
+  const tb=t.closest(".tab[data-m]");
+  if(tb){document.querySelectorAll(".tab[data-m]").forEach(x=>x.classList.toggle("on",x===tb));mode=tb.dataset.m;renderPicks();return;}
+  const at=t.closest("[data-addm]");
+  if(at){addLeg(at.dataset.addm,at.dataset.addk);at.textContent="✓ Added";return;}
+  const q=t.closest("[data-quick]");
+  if(q){quick(q.dataset.quick);return;}
+  const rm=t.closest("[data-rm]");
+  if(rm){legs.splice(+rm.dataset.rm,1);saveLegs();renderAcca();updateAddBtn();return;}
+  if(t.closest("#addLeg")){addLeg(document.getElementById("selM").value,document.getElementById("selMk").value);return;}
+  const go=t.closest("[data-go]");
+  if(go){
+    if(go.dataset.lgi!=null&&+go.dataset.lgi!==cur){cur=+go.dataset.lgi;renderTabs();renderPicks();renderCards();}
+    const c=document.getElementById("m"+go.dataset.go);if(c){c.scrollIntoView({behavior:"smooth",block:"center"});c.classList.add("flash");setTimeout(()=>c.classList.remove("flash"),1200);}
+  }
 });
 document.addEventListener("change",e=>{
-  const s=e.target.closest("select[data-id]"); if(!s)return;
-  const m=M.find(x=>x.id==s.dataset.id); m.w=s.value; render();
-  document.querySelector("#m"+m.id+" details").open=true;
+  const t=e.target;
+  if(t.id==="selLg"){fillSelM();return;}
+  if(t.id==="selM"){fillSelMk();return;}
+  if(t.id==="selMk"){updateAddBtn();return;}
+  if(t.dataset.wx){rememberOpen();const m=MATCH[t.dataset.wx];m.w=t.value;m._open=true;recompute(m.id);}
 });
+
+function init(d){
+  DATA=d;
+  LG=(d.leagues||[]).filter(L=>L&&L.teams);
+  LG.forEach(L=>{prepLeague(L);computeLeague(L);});
+}
+
 fetch("data/tips.json",{cache:"no-store"}).then(r=>{if(!r.ok)throw 0;return r.json()}).then(d=>{
   init(d);
-  const up=new Date(d.updated);
-  document.getElementById("updated").textContent=up.toLocaleString("en-GB",{weekday:"short",day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"});
-  document.getElementById("round").textContent=(d.round||"").replace("Regular Season - ","Matchday ");
+  if(!LG.length)throw 0;
+  document.getElementById("updated").textContent=new Date(d.updated).toLocaleString("en-GB",{weekday:"short",day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"});
   document.getElementById("srcs").textContent=(d.sources||[]).join(" · ");
-  render();
+  loadLegs();renderTabs();renderPicks();renderCards();fillSelLg();renderAcca();
 }).catch(()=>{document.getElementById("cards").innerHTML='<div class="note">Couldn\'t load the latest data. Try again shortly.</div>'});
+
 </script>
 </body>
 </html>
