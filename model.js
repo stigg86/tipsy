@@ -51,7 +51,7 @@
 
   // scoreline probabilities with the Dixon–Coles adjustment
   function scoreProbs(lh, la) {
-    let pH = 0, pD = 0, pA = 0, btts = 0, best = [0, 0, 0], tot = new Array(17).fill(0), s = 0;
+    let pH = 0, pD = 0, pA = 0, btts = 0, best = [0, 0, 0], tot = new Array(17).fill(0), s = 0; const cells = [];
     for (let i = 0; i <= 8; i++) for (let j = 0; j <= 8; j++) {
       let p = pois(lh, i) * pois(la, j);
       if (i === 0 && j === 0) p *= Math.max(0, 1 - lh * la * RHO);
@@ -61,9 +61,16 @@
       s += p;
       if (i > j) pH += p; else if (i === j) pD += p; else pA += p;
       tot[i + j] += p; if (i > 0 && j > 0) btts += p; if (p > best[2]) best = [i, j, p];
+      cells.push([i, j, p]);
     }
+    const sorted = cells.sort((a, b) => b[2] - a[2]);
+    const scores = sorted.slice(0, 6).map(([i, j, p]) => [i, j, p / s]);
+    // predicted score: the most likely scoreline for the most likely result
+    const res = pH >= pD && pH >= pA ? "1" : pA >= pD ? "2" : "X";
+    const fit = sorted.find(([i, j]) => res === "1" ? i > j : res === "2" ? j > i : i === j);
+    const pred = [fit[0], fit[1], fit[2] / s];
     const over = l => tot.reduce((acc, p, k) => k > l ? acc + p : acc, 0) / s;
-    return { pH: pH / s, pD: pD / s, pA: pA / s, btts: btts / s, o15: over(1.5), o25: over(2.5), o35: over(3.5), best };
+    return { pH: pH / s, pD: pD / s, pA: pA / s, btts: btts / s, o15: over(1.5), o25: over(2.5), o35: over(3.5), best: [best[0], best[1], best[2] / s], scores, pred };
   }
 
   // bookmaker consensus probability (average odds, margin removed within each market)
