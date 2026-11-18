@@ -123,6 +123,16 @@ footer{font-size:11.5px;color:var(--mute);margin-top:22px;text-align:center}
 .mk small{color:var(--mute);font-size:11px}
 .mk.val{outline:1px solid var(--home);background:rgba(61,220,151,.1)}
 .vrow .what small{display:block}
+.autorow{display:flex;align-items:center;gap:12px}
+.step.big button{width:40px;height:40px;font-size:20px;border-radius:10px}
+.step.big span{font:700 24px "Space Grotesk";min-width:34px}
+.risk{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.rbtn{background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:11px;padding:10px;text-align:left;cursor:pointer;font:inherit}
+.rbtn b{display:block;font-size:14px}
+.rbtn small{color:var(--mute);font-size:11.5px}
+.rbtn.on{border-color:var(--accent);background:rgba(61,220,151,.12)}
+.manual{border-top:1px solid var(--line)}
+.manual summary{padding:10px 0 2px}
 </style>
 </head>
 <body>
@@ -152,18 +162,34 @@ footer{font-size:11.5px;color:var(--mute);margin-top:22px;text-align:center}
 
   <h2>Accumulator builder</h2>
   <div class="builder">
-    <div><label>League</label><select id="selLg"></select></div>
-    <div><label>Match</label><select id="selM"></select></div>
-    <div class="addrow">
-      <div><label>Bet</label><select id="selMk"></select></div>
-      <button class="btn" id="addLeg">Add</button>
+    <div>
+      <label>Auto-build · how many bets?</label>
+      <div class="autorow">
+        <div class="step big"><button data-autod="-1" aria-label="Fewer">−</button><span id="autoN">4</span><button data-autod="1" aria-label="More">+</button></div>
+        <span class="mute">legs, one per match, across all leagues</span>
+      </div>
     </div>
-    <div class="quick">
-      <button class="btn ghost" data-quick="win">⚡ Best 4 wins</button>
-      <button class="btn ghost" data-quick="safe">🛡 Safer 4</button>
-      <button class="btn ghost" data-quick="mix">🎲 Mixed 6</button>
-      <button class="btn ghost" data-quick="clear">Clear</button>
+    <div>
+      <label>How risky?</label>
+      <div class="risk">
+        <button class="rbtn" data-risk="safe"><b>🛡 Safe</b><small>70–93% each</small></button>
+        <button class="rbtn" data-risk="balanced"><b>⚖️ Balanced</b><small>52–78% each</small></button>
+        <button class="rbtn" data-risk="risky"><b>🔥 Risky</b><small>30–56%, bigger odds</small></button>
+        <button class="rbtn" data-risk="value"><b>💎 Best value</b><small>beats the bookies' price</small></button>
+      </div>
     </div>
+    <details class="manual">
+      <summary>Add bets one by one</summary>
+      <div style="display:grid;gap:10px;padding-top:8px">
+        <div><label>League</label><select id="selLg"></select></div>
+        <div><label>Match</label><select id="selM"></select></div>
+        <div class="addrow">
+          <div><label>Bet</label><select id="selMk"></select></div>
+          <button class="btn" id="addLeg">Add</button>
+        </div>
+      </div>
+    </details>
+    <div class="quick"><button class="btn ghost" data-quick="clear">Clear accumulator</button></div>
   </div>
   <div class="acca" id="acca" style="margin-top:10px"></div>
 
@@ -462,32 +488,63 @@ function updateAddBtn(){
 }
 function addLeg(mid,key){
   if(legs.length>=MAXLEGS||legs.some(l=>l.mid==mid&&l.key===key))return;
-  legs.push({mid:Number(mid)||mid,key});saveLegs();renderAcca();updateAddBtn();
+  legs.push({mid:Number(mid)||mid,key});autoNote="";saveLegs();renderAuto();renderAcca();updateAddBtn();
+}
+// Auto-build: N legs, one per match, chosen by risk level
+let autoN=4, autoRisk="balanced", autoNote="";
+const RISK={
+  safe:    {lo:.70,hi:.93, label:"Safe",       ok:k=>k!=="X"},
+  balanced:{lo:.52,hi:.78, label:"Balanced",   ok:k=>!["12","X","U15"].includes(k)},
+  risky:   {lo:.30,hi:.56, label:"Risky",      ok:k=>["1","2","X","O25","O35","BY"].includes(k)||/^(CO|KO)/.test(k)},
+  value:   {lo:.20,hi:.95, label:"Best value", ok:()=>true}
+};
+function autoBuild(risk){
+  autoRisk=risk;const R=RISK[risk];
+  const all=LG.flatMap(L=>(L.matches||[]).filter(m=>m._r));
+  const picks=[];let filled=0;
+  for(const m of all){
+    let opts=markets(m).filter(x=>x.p>=R.lo&&x.p<=R.hi&&R.ok(x.key));
+    let best=null;
+    if(risk==="value"){
+      const v=opts.map(x=>({x,e:edgeOf(x)})).filter(o=>o.e!=null&&o.e>0).sort((a,b)=>b.e-a.e);
+      if(v[0])best={mid:m.id,key:v[0].x.key,score:1+v[0].e};
+    }else if(risk==="risky"){
+      // biggest likely payout: favour outright wins/BTTS/overs, rank by chance
+      opts.sort((a,b)=>b.p-a.p);
+      if(opts[0])best={mid:m.id,key:opts[0].key,score:opts[0].p};
+    }else{
+      opts.sort((a,b)=>b.p-a.p);
+      if(opts[0])best={mid:m.id,key:opts[0].key,score:opts[0].p};
+    }
+    if(best)picks.push(best);
+  }
+  picks.sort((a,b)=>b.score-a.score);
+  let chosen=picks.slice(0,autoN);
+  // value mode: top up with balanced picks if there aren't enough priced value bets
+  if(risk==="value"&&chosen.length<autoN){
+    const used=new Set(chosen.map(c=>c.mid));
+    const extra=all.filter(m=>!used.has(m.id)).map(m=>{const o=markets(m).filter(x=>x.p>=.52&&x.p<=.78&&RISK.balanced.ok(x.key)).sort((a,b)=>b.p-a.p)[0];return o?{mid:m.id,key:o.key,score:o.p}:null}).filter(Boolean).sort((a,b)=>b.score-a.score);
+    filled=Math.min(autoN-chosen.length,extra.length);
+    chosen=chosen.concat(extra.slice(0,filled));
+  }
+  const short=autoN-chosen.length;
+  const anyOdds=all.some(m=>m.odds);
+  autoNote=[risk==="value"&&!anyOdds?"No bookmaker odds loaded yet, so these are balanced picks.":
+            filled?`Only ${chosen.length-filled} value bet${chosen.length-filled===1?"":"s"} found – topped up with ${filled} balanced pick${filled===1?"":"s"}.`:"",
+            short>0?`Only ${chosen.length} suitable match${chosen.length===1?"":"es"} available for ${R.label.toLowerCase()} picks.`:""].filter(Boolean).join(" ");
+  legs=chosen.map(({mid,key})=>({mid,key}));saveLegs();renderAuto();renderAcca();updateAddBtn();
+  document.getElementById("acca").scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+function renderAuto(){
+  document.getElementById("autoN").textContent=autoN;
+  document.querySelectorAll("[data-risk]").forEach(b=>b.classList.toggle("on",b.dataset.risk===autoRisk&&legs.length>0));
 }
 function quick(kind){
-  if(kind==="clear"){legs=[];saveLegs();renderAcca();updateAddBtn();return;}
-  const all=LG.flatMap(L=>(L.matches||[]).filter(m=>m._r));
-  const pick=all.map(m=>{
-    let opts=markets(m);
-    if(kind==="win")opts=opts.filter(x=>x.key==="1"||x.key==="2");
-    else if(kind==="safe")opts=opts.filter(x=>x.p<.88&&!["X","1","2"].includes(x.key));
-    else opts=opts.filter(x=>x.p<.8&&x.p>.5);
-    opts.sort((a,b)=>b.p-a.p);
-    return opts[0]?{mid:m.id,key:opts[0].key,p:opts[0].p}:null;
-  }).filter(Boolean).sort((a,b)=>b.p-a.p);
-  let n=kind==="mix"?6:4, chosen=pick.slice(0,n);
-  if(kind==="mix"){ // spread across market types
-    const seen=new Set();chosen=[];
-    for(const x of pick){const g=market(MATCH[x.mid],x.key).group;if(!seen.has(g)){seen.add(g);chosen.push(x);}}
-    for(const x of pick){if(chosen.length>=n)break;if(!chosen.includes(x))chosen.push(x);}
-    chosen=chosen.slice(0,n);
-  }
-  legs=chosen.map(({mid,key})=>({mid,key}));saveLegs();renderAcca();updateAddBtn();
-  document.getElementById("acca").scrollIntoView({behavior:"smooth",block:"nearest"});
+  if(kind==="clear"){legs=[];autoNote="";saveLegs();renderAuto();renderAcca();updateAddBtn();}
 }
 function renderAcca(){
   const el=document.getElementById("acca");
-  if(!legs.length){el.innerHTML=`<div class="empty">Pick a league, match and bet above and tap <b>Add</b> – up to ${MAXLEGS} legs. Or use a quick pick.</div>`;return;}
+  if(!legs.length){el.innerHTML=`<div class="empty">Choose how many legs and a risk level for an instant accumulator, or add bets one by one below – up to ${MAXLEGS} legs.</div>`;return;}
   let comb=1,bcomb=1,price=1,allPriced=true;const counts={};
   const rows=legs.map((l,i)=>{
     const m=MATCH[l.mid],x=m&&market(m,l.key);if(!x)return"";
@@ -505,6 +562,7 @@ function renderAcca(){
     ${allPriced?`<div class="accsum"><div class="stat"><small>Best bookie price</small><b>${price>=1000?Math.round(price).toLocaleString():price.toFixed(2)}</b></div>
       <div class="stat"><small>Edge (blend)</small><b style="color:${bcomb*price-1>=0?"var(--home)":"var(--bad)"}">${bcomb*price-1>=0?"+":""}${Math.round((bcomb*price-1)*100)}%</b></div></div>
       <div class="accnote">Best price multiplies the top UK price for each leg, which may be at different bookies. One bookie's acca price is usually lower.</div>`:""}
+    ${autoNote?`<div class="warn">${esc(autoNote)}</div>`:""}
     ${same?'<div class="warn">⚠ Some legs are from the same match, so they\'re linked – treat the combined figure as a rough guide.</div>':""}
     <div class="accnote">Only worth backing if the bookie's price is higher than the fair odds. Every extra leg cuts the chance it all lands.</div>`;
 }
@@ -529,6 +587,10 @@ document.addEventListener("click",e=>{
   if(tb){document.querySelectorAll(".tab[data-m]").forEach(x=>x.classList.toggle("on",x===tb));mode=tb.dataset.m;renderPicks();return;}
   const at=t.closest("[data-addm]");
   if(at){addLeg(at.dataset.addm,at.dataset.addk);at.textContent="✓ Added";return;}
+  const rk=t.closest("[data-risk]");
+  if(rk){autoBuild(rk.dataset.risk);return;}
+  const an=t.closest("[data-autod]");
+  if(an){autoN=Math.max(1,Math.min(MAXLEGS,autoN+ +an.dataset.autod));renderAuto();if(legs.length&&autoRisk)autoBuild(autoRisk);return;}
   const q=t.closest("[data-quick]");
   if(q){quick(q.dataset.quick);return;}
   const rm=t.closest("[data-rm]");
@@ -562,7 +624,7 @@ fetch("data/tips.json",{cache:"no-store"}).then(r=>{if(!r.ok)throw 0;return r.js
   const hasC=LG.some(L=>Object.keys(L.CN).length),hasK=LG.some(L=>Object.keys(L.CD).length);
   document.querySelectorAll('.tab[data-m="corners"]').forEach(b=>b.style.display=hasC?"":"none");
   document.querySelectorAll('.tab[data-m="cards"]').forEach(b=>b.style.display=hasK?"":"none");
-  loadLegs();renderTabs();renderPicks();renderValue();renderCards();fillSelLg();renderAcca();
+  loadLegs();renderAuto();renderTabs();renderPicks();renderValue();renderCards();fillSelLg();renderAcca();
 }).catch(()=>{document.getElementById("cards").innerHTML='<div class="note">Couldn\'t load the latest data. Try again shortly.</div>'});
 
 </script>
