@@ -552,8 +552,17 @@ function renderValue(){
 }
 
 // ---------- Accumulator builder ----------
-function saveLegs(){try{localStorage.setItem("tipsy-acca",JSON.stringify(legs))}catch(e){}}
-function loadLegs(){try{const v=JSON.parse(localStorage.getItem("tipsy-acca")||"[]");legs=v.filter(l=>MATCH[l.mid]&&market(MATCH[l.mid],l.key)).slice(0,MAXLEGS)}catch(e){legs=[]}}
+// two separate accumulators: Quick build suggestions and the user's own picks
+const ACCA={quick:[],custom:[]};
+function saveLegs(){ACCA[accaMode]=legs;try{localStorage.setItem("tipsy-acca2",JSON.stringify({quick:ACCA.quick,custom:ACCA.custom,mode:accaMode}))}catch(e){}}
+function loadLegs(){
+  const ok=v=>(v||[]).filter(l=>MATCH[l.mid]&&market(MATCH[l.mid],l.key)).slice(0,MAXLEGS);
+  try{const v=JSON.parse(localStorage.getItem("tipsy-acca2")||"null");
+    if(v){ACCA.quick=ok(v.quick);ACCA.custom=ok(v.custom);if(v.mode==="custom"||v.mode==="quick")accaMode=v.mode;}
+    else{ACCA.quick=ok(JSON.parse(localStorage.getItem("tipsy-acca")||"[]"));} // older single accumulator → Quick build
+  }catch(e){ACCA.quick=[];ACCA.custom=[];}
+  legs=ACCA[accaMode];
+}
 
 function updateAddBtn(){}
 function addLeg(mid,key){
@@ -569,6 +578,7 @@ const RISK={
   value:   {lo:.20,hi:.95, label:"Best value", ok:()=>true}
 };
 function autoBuild(risk){
+  if(accaMode!=="quick")setAccaMode("quick");
   autoRisk=risk;const R=RISK[risk];
   const all=LG.flatMap(L=>(L.matches||[]).filter(m=>m._r));
   const picks=[];let filled=0;
@@ -691,7 +701,7 @@ function renderCustom(){
   el.querySelectorAll("details.cm").forEach(d=>d.addEventListener("toggle",()=>{d.open?openCm.add(d.dataset.cm):openCm.delete(d.dataset.cm)}));
 }
 function setAccaMode(m){
-  accaMode=m;
+  ACCA[accaMode]=legs;accaMode=m;legs=ACCA[m];autoNote="";saveLegs();renderAuto();renderAcca();
   document.querySelectorAll("[data-amode]").forEach(b=>b.classList.toggle("on",b.dataset.amode===m));
   document.getElementById("quickPanel").hidden=m!=="quick";
   document.getElementById("customPanel").hidden=m!=="custom";
@@ -725,7 +735,7 @@ document.addEventListener("click",e=>{
   const tb=t.closest(".tab[data-m]");
   if(tb){document.querySelectorAll(".tab[data-m]").forEach(x=>x.classList.toggle("on",x===tb));mode=tb.dataset.m;renderPicks();return;}
   const at=t.closest("[data-addm]");
-  if(at){addLeg(at.dataset.addm,at.dataset.addk);at.textContent="✓ Added";return;}
+  if(at){if(accaMode!=="custom")setAccaMode("custom");addLeg(at.dataset.addm,at.dataset.addk);renderCustom();at.textContent="✓ Added";return;}
   if(t.closest("#pricedOnly")){pricedOnly=!pricedOnly;renderAuto();if(legs.length)autoBuild(autoRisk);return;}
   const vm=t.closest("[data-vmode]");
   if(vm){valueMode=vm.dataset.vmode;renderValue();return;}
@@ -809,7 +819,7 @@ fetch("data/tips.json",{cache:"no-store"}).then(r=>{if(!r.ok)throw 0;return r.js
   document.querySelectorAll('.tab[data-m="cards"]').forEach(b=>b.style.display=hasK?"":"none");
   fetch("data/history.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(renderAccuracy).catch(()=>renderAccuracy(null));
   showSec(location.hash.slice(1)||"tips",{scroll:false});
-  loadLegs();renderAuto();renderTabs();renderPicks();renderScores();renderValue();renderCards();renderCustom();renderAcca();
+  loadLegs();setAccaMode(accaMode);renderAuto();renderTabs();renderPicks();renderScores();renderValue();renderCards();renderCustom();renderAcca();
 }).catch(()=>{document.getElementById("cards").innerHTML='<div class="note">Couldn\'t load the latest data. Try again shortly.</div>'});
 
 
