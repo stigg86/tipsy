@@ -235,7 +235,11 @@ header.pitch::after{content:"";position:absolute;inset:auto 0 0 0;height:34px;ba
   <div class="scores" id="scores"></div>
 
   <h2>Value finder · <span id="lgname3"></span></h2>
-  <div class="note" style="margin-bottom:8px">Bets where the best UK bookmaker price pays more than it should. Bookmakers are sharper than a simple model, so the chance used is 30% our model + 70% the bookmakers' own consensus. A bet is listed when that × the best sportsbook price beats 1 by 3% or more. To cut false alarms it also skips longshots over 5.0 and bets where our model and the bookies disagree by more than 15 points. Exchanges are left out because they charge commission. Check team news before betting.</div>
+  <div class="tabs">
+    <button class="tab on" data-vmode="likely">Likely winners</button>
+    <button class="tab" data-vmode="all">Bigger prices</button>
+  </div>
+  <div class="note" style="margin-bottom:8px">Bets where the best UK bookmaker price is higher than it should be. <b>Likely winners</b> only shows bets with at least a 50% chance of landing, so the edges are small but they win more often than not. <b>Bigger prices</b> shows any bet with a 3%+ edge – these pay more but lose more often. The chance used is 30% our model + 70% the bookmakers' own view, skipping longshots over 5.0 and big disagreements. Check team news before betting.</div>
   <div class="picks" id="value"></div>
 
   <h2>Accumulator builder</h2>
@@ -253,7 +257,7 @@ header.pitch::after{content:"";position:absolute;inset:auto 0 0 0;height:34px;ba
         <button class="rbtn" data-risk="safe"><b>🛡 Safe</b><small>70–93% each</small></button>
         <button class="rbtn" data-risk="balanced"><b>⚖️ Balanced</b><small>52–78% each</small></button>
         <button class="rbtn" data-risk="risky"><b>🔥 Risky</b><small>30–56%, bigger odds</small></button>
-        <button class="rbtn" data-risk="value"><b>💎 Best value</b><small>beats the bookies' price</small></button>
+        <button class="rbtn" data-risk="value"><b>💎 Best value</b><small>likely winners priced too high</small></button>
       </div>
       <button class="btn ghost" id="pricedOnly" style="margin-top:8px">💷 Only bets with bookie prices</button>
       <div class="mute" style="font-size:11.5px;margin-top:4px">Turn on to compare bookies for the whole accumulator – uses match result and goals over/under only.</div>
@@ -467,18 +471,25 @@ function priceTable(m){
 const topBooks=(o,n=3)=>o&&o.all?o.all.slice(0,n).map(([b,p])=>`${esc(b)} ${p.toFixed(2)}`).join(" · "):"";
 
 // ---------- Value finder ----------
+let valueMode="likely"; // likely = 50%+ chance to win; all = any price
 function renderValue(){
   const el=document.getElementById("value"),list=[];
   const ms=inView();const anyOdds=ms.some(m=>m.odds);
-  for(const m of ms)for(const x of markets(m)){const e=edgeOf(x);if(e!=null&&e>=.03&&x.p>=.2)list.push({m,x,e});}
+  const likely=valueMode==="likely";
+  for(const m of ms)for(const x of markets(m)){
+    const e=edgeOf(x);if(e==null)continue;
+    const bp=blendP(x);
+    if(likely?(bp>=.5&&e>=.01):(e>=.03&&x.pm>=.2))list.push({m,x,e,bp});
+  }
   list.sort((a,b)=>b.e-a.e);
-  if(!list.length){el.innerHTML=`<div class="empty">${anyOdds?"No bets right now where our model beats the best bookmaker price by 5% or more.":"Bookmaker odds arrive with the next data update."}</div>`;return;}
-  el.innerHTML=list.slice(0,10).map(({m,x,e})=>`
+  document.querySelectorAll("[data-vmode]").forEach(b=>b.classList.toggle("on",b.dataset.vmode===valueMode));
+  if(!list.length){el.innerHTML=`<div class="empty">${!anyOdds?"Bookmaker odds arrive with the next data update.":likely?"No likely winners are priced above their fair odds right now. Bookmakers price favourites tightly, so these are rare – check back after the next update.":"No bets right now where the best price beats our estimate by 3% or more."}</div>`;return;}
+  el.innerHTML=list.slice(0,10).map(({m,x,e,bp})=>`
     <div class="pick vrow" data-go="${m.id}" data-lgi="${LG.indexOf(m.L)}">
       <div class="what"><b>${esc(x.label)}</b><small>${esc(m.h)} v ${esc(m.a)} · ${esc(m.L.name)} · ${esc(m.d)}</small>
-        <small>Model ${pc(x.p)} · Bookies ${pc(x.mp)} · Blend ${pc(blendP(x))}</small>
+        <small>${pc(bp)} chance · fair odds ${(1/bp).toFixed(2)} · best ${x.o.b.toFixed(2)}</small>
         <small class="books">💷 ${topBooks(x.o)}</small></div>
-      <div style="text-align:right"><span class="pct" style="color:var(--home)">+${Math.round(e*100)}%</span>
+      <div style="text-align:right"><span class="pct" style="color:var(--home)">+${(e*100).toFixed(e<.1?1:0)}%</span>
         <button class="addtip" data-addm="${m.id}" data-addk="${x.key}" style="margin-top:4px">+ Acca</button></div>
     </div>`).join("");
 }
@@ -531,7 +542,7 @@ function autoBuild(risk){
     let opts=markets(m).filter(x=>x.p>=R.lo&&x.p<=R.hi&&R.ok(x.key)&&(!pricedOnly||x.o));
     let best=null;
     if(risk==="value"){
-      const v=opts.map(x=>({x,e:edgeOf(x)})).filter(o=>o.e!=null&&o.e>0).sort((a,b)=>b.e-a.e);
+      const v=opts.map(x=>({x,e:edgeOf(x)})).filter(o=>o.e!=null&&o.e>0&&blendP(o.x)>=.5).sort((a,b)=>b.e-a.e);
       if(v[0])best={mid:m.id,key:v[0].x.key,score:1+v[0].e};
     }else if(risk==="risky"){
       // biggest likely payout: favour outright wins/BTTS/overs, rank by chance
@@ -631,6 +642,8 @@ document.addEventListener("click",e=>{
   const at=t.closest("[data-addm]");
   if(at){addLeg(at.dataset.addm,at.dataset.addk);at.textContent="✓ Added";return;}
   if(t.closest("#pricedOnly")){pricedOnly=!pricedOnly;renderAuto();if(legs.length)autoBuild(autoRisk);return;}
+  const vm=t.closest("[data-vmode]");
+  if(vm){valueMode=vm.dataset.vmode;renderValue();return;}
   if(t.closest("#scoresMore")){scoresAll=!scoresAll;renderScores();return;}
   const rk=t.closest("[data-risk]");
   if(rk){autoBuild(rk.dataset.risk);return;}
