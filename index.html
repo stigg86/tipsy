@@ -165,6 +165,9 @@ header.pitch::after{content:"";position:absolute;inset:auto 0 0 0;height:34px;ba
 .wrow b{font-family:"Space Grotesk"}
 .wrow.top{outline:1px solid var(--home)}
 .wrow.top b{color:var(--home)}
+.accgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px}
+.accgrid .stat b{font-size:19px}
+.accrows{display:grid;gap:4px}
 #pricedOnly.on{border-color:var(--accent);color:var(--accent)}
 </style>
 </head>
@@ -244,6 +247,9 @@ header.pitch::after{content:"";position:absolute;inset:auto 0 0 0;height:34px;ba
   <h2>Matches · <span id="lgname2"></span></h2>
   <div id="cards"></div>
 
+  <h2>How accurate is Tipsy?</h2>
+  <div id="acc"></div>
+
   <h2>How the model works</h2>
   <div class="how"><ul>
     <li><b>Attack & defence strength</b> – goals scored and conceded per game (home/away split plus overall), pulled slightly towards the league average for small samples. Each league is modelled against its own averages. For the Premier League, season xG from the FPL feed is blended in 50/50.</li>
@@ -251,7 +257,10 @@ header.pitch::after{content:"";position:absolute;inset:auto 0 0 0;height:34px;ba
     <li><b>Home advantage</b> – built in, because home and away goal rates are modelled separately.</li>
     <li><b>Team news</b> – for the Premier League, absent regulars come from the FPL feed. If a top scorer is out, their team's attack drops by their share of its goals (goals + half of assists), less ~40% for whoever replaces them; each other regular out trims attack 6% and adds 3% to what they concede.</li>
     <li><b>Weather</b> – heavy rain, strong wind and freezing conditions cut expected goals (roughly 2–10%).</li>
-    <li><b>Goals markets</b> – expected goals feed a Poisson scoreline model (0–0 to 8–8) for win/draw/loss, double chance, over/under 1.5/2.5/3.5, both teams to score and the most likely score.</li>
+    <li><b>Club Elo</b> – long-run team strength from clubelo.com. It counts for about half of team strength after 10 games and fades as the season builds up evidence.</li>
+    <li><b>Rest</b> – a team playing 3 or fewer days after its last league or Champions League game loses 4% attack and concedes 3% more. Europa League and Conference League games aren't in the free data.</li>
+    <li><b>Goals markets</b> – expected goals feed a Poisson scoreline model (0–0 to 8–8) with the Dixon–Coles correction, which adds a little to 0–0 and 1–1 and takes it from 1–0 and 0–1. That gives win/draw/loss, double chance, over/under 1.5/2.5/3.5, both teams to score and the most likely score.</li>
+    <li><b>Bookmakers in the tips</b> – where odds exist, we work out the expected goals the bookmakers' prices imply and blend them 50/50 with ours. Bookmakers know things our data can't see, such as rotation and late team news, so this makes the tips more accurate. The value finder still uses our model on its own, so it isn't just comparing bookmakers with themselves.</li>
     <li><b>Value</b> – edge = (30% model chance + 70% bookmaker consensus) × best sportsbook price − 1, skipping longshots over 5.0 and big model/market disagreements. The "Bookies" figure is the average UK price turned into a chance with the bookmaker's margin removed. If the model and the bookies disagree a lot, the bookies are more often right.</li>
     <li><b>Accumulators</b> – the chance all legs land is each leg's chance multiplied together; fair odds = 1 ÷ that chance. Legs from the same match are linked, so for those the combined figure is only a rough guide.</li>
   </ul></div>
@@ -259,132 +268,32 @@ header.pitch::after{content:"";position:absolute;inset:auto 0 0 0;height:34px;ba
   <footer>Sources: <span id="srcs"></span><br>For fun and info only. Never stake what you can't afford to lose.</footer>
 </div>
 
+<script src="model.js"></script>
 <script>
 // ---------- Data & state ----------
-const WX = {dry:["Dry / clear",1],light:["Light rain / showers",.98],rain:["Heavy rain",.94],wind:["Strong wind",.93],cold:["Freezing / snow",.90]};
+const TM=window.TipsyModel;
+const {WX,formPPG,mktProb,blendP,credible,edgeOf,grade,resultTip}=TM;
 let DATA=null, LG=[], cur=-1, mode="result"; // cur -1 = all leagues
 const out={};          // per match id: {h,a,ph:Set,pa:Set}
 const MATCH={};        // match id -> match
 let legs=[];           // [{mid,key}]
 const MAXLEGS=20;
-
-const shrink=x=>0.7*x+0.3;
 const pc=x=>Math.round(x*100)+"%";
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-function formPPG(s){if(!s)return 1.4;const w=[1,2,3,4,5].slice(-s.length);let p=0,ws=0;[...s].forEach((r,i)=>{p+=w[i]*(r==="W"?3:r==="D"?1:0);ws+=w[i]});return ws?p/ws:1.4}
-function formFactor(s){const f=1+0.15*(formPPG(s)-1.4)/1.6;return Math.max(.85,Math.min(1.15,f))}
-function pois(l,k){let p=Math.exp(-l);for(let i=1;i<=k;i++)p*=l/i;return p}
-// P(total > line) with a negative binomial (variance = phi * mean)
-function nbOver(mu,phi,line){
-  if(!(mu>0))return null;
-  const r=mu/(phi-1), q=mu/(r+mu);
-  let p=Math.pow(r/(r+mu),r), cdf=0;
-  for(let k=0;k<=Math.floor(line);k++){cdf+=p;p=p*(k+r)/(k+1)*q;}
-  return Math.max(0,Math.min(1,1-cdf));
-}
-const mean=a=>a.length?a.reduce((s,x)=>s+x,0)/a.length:0;
 
 function prepLeague(L){
-  L.T={};L.XG={};L.CN={};L.CD={};L.P={};
-  for(const [k,v] of Object.entries(L.teams||{})){
-    L.T[k]={o:v.o,h:v.h,a:v.a,f:v.f||""};
-    if(v.xg)L.XG[k]=v.xg; if(v.cn)L.CN[k]=v.cn; if(v.cd)L.CD[k]=v.cd;
-  }
-  for(const [k,v] of Object.entries(L.players||{})) L.P[k]=v.map(p=>[p.name,p.g,p.a,Math.max(1,p.apps||1)]);
-  let hg=0,hp=0,ag=0,ap=0;
-  for(const t of Object.values(L.T)){hg+=t.h[1];hp+=t.h[0];ag+=t.a[1];ap+=t.a[0];}
-  L.AVG_H=hp?hg/hp:1.5; L.AVG_A=ap?ag/ap:1.2; L.AVG=(hp+ap)?(hg+ag)/(hp+ap):1.35;
-  L.XGAVG=mean(Object.values(L.XG).map(v=>v[0]))||1.4;
+  TM.prepLeague(L);
   (L.matches||[]).forEach(m=>{
     m.L=L; MATCH[m.id]=m;
-    const inj=m.inj||{h:{players:[],others:0},a:{players:[],others:0}};
-    const known=t=>new Set((L.P[t]||[]).map(p=>p[0]));
-    out[m.id]={h:Math.min(3,inj.h.others||0),a:Math.min(3,inj.a.others||0),
-      ph:new Set((inj.h.players||[]).filter(n=>known(m.h).has(n))),
-      pa:new Set((inj.a.players||[]).filter(n=>known(m.a).has(n)))};
+    out[m.id]=TM.outFor(L,m);
+    const inj=m.inj||{h:{},a:{}};
     m.injNames={h:inj.h.all||inj.h.players||[],a:inj.a.all||inj.a.players||[]};
     if(!WX[m.w])m.w="light";
   });
 }
-
-function playerHit(L,team,names){
-  if(!names||!names.size)return 0;
-  const goals=(L.T[team]&&L.T[team].o[1])||1;let s=0;
-  (L.P[team]||[]).forEach(p=>{if(names.has(p[0]))s+=(p[1]+.5*p[2])/goals;});
-  return Math.min(.35,s*.6);
-}
-
-// ---------- Model ----------
-function model(m){
-  const L=m.L,H=L.T[m.h],A=L.T[m.a];
-  if(!H||!A)return null;
-  const XH=L.XG[m.h]||null,XA=L.XG[m.a]||null;
-  const mix=(g,x)=>x==null?g:.5*g+.5*x, r0=(x,n)=>n?x/n:0;
-  const hAtt=shrink(mix(.5*r0(H.h[1],H.h[0])/L.AVG_H+.5*r0(H.o[1],H.o[0])/L.AVG, XH&&XH[0]/L.XGAVG));
-  const hDef=shrink(mix(.5*r0(H.h[2],H.h[0])/L.AVG_A+.5*r0(H.o[2],H.o[0])/L.AVG, XH&&XH[1]/L.XGAVG));
-  const aAtt=shrink(mix(.5*r0(A.a[1],A.a[0])/L.AVG_A+.5*r0(A.o[1],A.o[0])/L.AVG, XA&&XA[0]/L.XGAVG));
-  const aDef=shrink(mix(.5*r0(A.a[2],A.a[0])/L.AVG_H+.5*r0(A.o[2],A.o[0])/L.AVG, XA&&XA[1]/L.XGAVG));
-  const fh=formFactor(H.f),fa=formFactor(A.f),wx=WX[m.w][1],o=out[m.id];
-  const kh=playerHit(L,m.h,o.ph),ka=playerHit(L,m.a,o.pa);
-  const lh=L.AVG_H*hAtt*aDef*fh/Math.sqrt(fa)*wx*(1-.06*o.h)*(1+.03*o.a)*(1-kh);
-  const la=L.AVG_A*aAtt*hDef*fa/Math.sqrt(fh)*wx*(1-.06*o.a)*(1+.03*o.h)*(1-ka);
-  let pH=0,pD=0,pA=0,btts=0,best=[0,0,0];const tot=Array(17).fill(0);
-  for(let i=0;i<=8;i++)for(let j=0;j<=8;j++){
-    const p=pois(lh,i)*pois(la,j);
-    if(i>j)pH+=p;else if(i===j)pD+=p;else pA+=p;
-    tot[i+j]+=p; if(i>0&&j>0)btts+=p; if(p>best[2])best=[i,j,p];
-  }
-  const s=pH+pD+pA;pH/=s;pD/=s;pA/=s;
-  const over=l=>tot.reduce((acc,p,k)=>k>l?acc+p:acc,0)/s;
-  // corners & cards
-  const CH=L.CN[m.h],CA=L.CN[m.a],DH=L.CD[m.h],DA=L.CD[m.a];
-  const cMu=CH&&CA?((CH[0]+CA[1])/2+(CA[0]+CH[1])/2)*(wx<.95?1.03:1):null;
-  const kMu=DH&&DA?((DH[0]+DA[1])/2+(DA[0]+DH[1])/2):null;
-  return {lh,la,pH,pD,pA,btts:btts/s,o15:over(1.5),o25:over(2.5),o35:over(3.5),best,
-    cMu,kMu,
-    c85:cMu&&nbOver(cMu,1.4,8.5),c95:cMu&&nbOver(cMu,1.4,9.5),c105:cMu&&nbOver(cMu,1.4,10.5),
-    k25:kMu&&nbOver(kMu,1.3,2.5),k35:kMu&&nbOver(kMu,1.3,3.5),k45:kMu&&nbOver(kMu,1.3,4.5)};
-}
-
-// every bet the builder offers for a match
-function markets(m){
-  const r=m._r;if(!r)return[];
-  const M=[
-    ["Result","1",m.h+" to win",r.pH],["Result","X","Draw",r.pD],["Result","2",m.a+" to win",r.pA],
-    ["Double chance","1X",m.h+" or draw",r.pH+r.pD],["Double chance","X2",m.a+" or draw",r.pA+r.pD],["Double chance","12","Either team to win",r.pH+r.pA],
-    ["Goals","O15","Over 1.5 goals",r.o15],["Goals","U15","Under 1.5 goals",1-r.o15],
-    ["Goals","O25","Over 2.5 goals",r.o25],["Goals","U25","Under 2.5 goals",1-r.o25],
-    ["Goals","O35","Over 3.5 goals",r.o35],["Goals","U35","Under 3.5 goals",1-r.o35],
-    ["Both teams to score","BY","BTTS – Yes",r.btts],["Both teams to score","BN","BTTS – No",1-r.btts]
-  ];
-  if(r.cMu){for(const [k,l] of [["c85",8.5],["c95",9.5],["c105",10.5]]){M.push(["Corners","CO"+l,`Over ${l} corners`,r[k]],["Corners","CU"+l,`Under ${l} corners`,1-r[k]]);}}
-  if(r.kMu){for(const [k,l] of [["k25",2.5],["k35",3.5],["k45",4.5]]){M.push(["Cards","KO"+l,`Over ${l} cards`,r[k]],["Cards","KU"+l,`Under ${l} cards`,1-r[k]]);}}
-  return M.map(([group,key,label,p])=>({group,key,label,p,o:(m.odds&&m.odds[key])||null,mp:mktProb(m,key)}));
-}
-// bookmaker consensus probability (average odds, margin removed within each market)
-const MGROUPS=[["1","X","2"],["O15","U15"],["O25","U25"],["O35","U35"]];
-function mktProb(m,key){
-  if(!m.odds||!m.odds[key])return null;
-  const g=MGROUPS.find(g=>g.includes(key));if(!g)return null;
-  if(!g.every(k=>m.odds[k]))return null;
-  const inv=g.map(k=>1/m.odds[k].a),s=inv.reduce((a,b)=>a+b,0);
-  return inv[g.indexOf(key)]/s;
-}
-// value is judged on a 30/70 blend of model and bookmaker consensus, so model blind spots don't show up as fake value
-const W_MODEL=.3;
-const blendP=x=>x.mp!=null?W_MODEL*x.p+(1-W_MODEL)*x.mp:x.p;
-// a value bet must also be believable: not a longshot, and model not wildly off the market
-const credible=x=>x.o&&x.mp!=null&&x.o.b<=5&&Math.abs(x.p-x.mp)<=.15&&x.o.n>=2;
-const edgeOf=x=>credible(x)?blendP(x)*x.o.b-1:null;
+const model=m=>TM.model(m,m.L,out[m.id]);
+const markets=m=>TM.markets(m);
 const market=(m,key)=>markets(m).find(x=>x.key===key);
-
-function grade(p){return p>=.6?["Strong","b-strong"]:p>=.5?["Good","b-good"]:p>=.4?["Lean","b-lean"]:["Avoid","b-avoid"]}
-function resultTip(m,r){
-  const o=[[r.pH,"1"],[r.pD,"X"],[r.pA,"2"]].sort((x,y)=>y[0]-x[0]);
-  if(o[0][0]<.45) return (r.pH+r.pD>=r.pA+r.pD)?"1X":"X2";
-  return o[0][1];
-}
-
 function computeLeague(L){(L.matches||[]).forEach(m=>{m._r=model(m)});}
 
 // ---------- Rendering ----------
@@ -412,6 +321,9 @@ function reasons(m,r){
   const o=out[m.id],gone=[...o.ph,...o.pa];
   if(o.h||o.a||gone.length)l.push(`Absences taken into account: ${esc([gone.join(", "),o.h?`${m.h}: ${o.h} other regular${o.h>1?"s":""}`:"",o.a?`${m.a}: ${o.a} other regular${o.a>1?"s":""}`:""].filter(Boolean).join("; "))}.`);
   if(r.cMu)l.push(`Expected corners ${r.cMu.toFixed(1)}${r.kMu?`, cards ${r.kMu.toFixed(1)}`:""}.`);
+  if(r.tiredH||r.tiredA)l.push(`${esc([r.tiredH?m.h:"",r.tiredA?m.a:""].filter(Boolean).join(" and "))} played 3 or fewer days ago, so slightly less sharp.`);
+  if(L.ELO[m.h]&&L.ELO[m.a])l.push(`Club Elo: ${esc(m.h)} ${Math.round(L.ELO[m.h])}, ${esc(m.a)} ${Math.round(L.ELO[m.a])} (counts for ${Math.round(r.eloW*100)}% of team strength this early in the season).`);
+  if(r.mkt){const q=r.pure;l.push(`Our model alone: ${pc(q.pH)} / ${pc(q.pD)} / ${pc(q.pA)}. Bookmakers: ${pc(mktProb(m,"1"))} / ${pc(mktProb(m,"X"))} / ${pc(mktProb(m,"2"))}. The tip blends the two 50/50.`);}
   return l;
 }
 
@@ -695,6 +607,32 @@ document.addEventListener("change",e=>{
 
 });
 
+// ---------- Accuracy tracking ----------
+function renderAccuracy(h){
+  const el=document.getElementById("acc");if(!el)return;
+  const g=(h&&h.entries||[]).filter(e=>e.res);
+  if(!g.length){el.innerHTML=`<div class="empty">Tipsy saves every prediction before kick-off and checks it against the result. Scores appear here once this round has been played.</div>`;return;}
+  const hit=e=>TM.settle(e.tip.key,e.res.hg,e.res.ag);
+  const tips=g.filter(e=>e.tip),wins=tips.filter(hit).length;
+  const bucket={};for(const e of tips){const k=grade(e.tip.p)[0];(bucket[k]??=[0,0]);bucket[k][1]++;if(hit(e))bucket[k][0]++;}
+  const brier=(e,src)=>{const p=e[src];if(!p)return null;const o=e.res.hg>e.res.ag?"1":e.res.hg===e.res.ag?"X":"2";return ["1","X","2"].reduce((s,k)=>s+((p[k]||0)-(k===o?1:0))**2,0);};
+  const both=g.filter(e=>e.mkt&&e.pure&&e.p);
+  const avg=src=>both.length?both.reduce((s,e)=>s+brier(e,src),0)/both.length:null;
+  const bT=avg("p"),bM=avg("pure"),bB=avg("mkt");
+  let vb=0,vp=0,vw=0;for(const e of g)for(const v of (e.value||[])){const w=TM.settle(v.key,e.res.hg,e.res.ag);if(w==null)continue;vb++;if(w){vw++;vp+=v.b-1;}else vp-=1;}
+  const pctTxt=(a,b)=>b?`${Math.round(a/b*100)}%`:"–";
+  el.innerHTML=`
+    <div class="accgrid">
+      <div class="stat"><small>Matches checked</small><b>${g.length}</b></div>
+      <div class="stat"><small>Main tip right</small><b>${pctTxt(wins,tips.length)}</b></div>
+      <div class="stat"><small>Value bets, £1 each</small><b style="color:${vp>=0?"var(--home)":"var(--bad)"}">${vb?(vp>=0?"+£":"−£")+Math.abs(vp).toFixed(2):"–"}</b></div>
+    </div>
+    <div class="accrows">${["Strong","Good","Lean","Avoid"].filter(k=>bucket[k]).map(k=>`<div class="wrow"><span>${k} tips</span><b>${bucket[k][0]}/${bucket[k][1]} right</b></div>`).join("")}
+      ${vb?`<div class="wrow"><span>Value bets won</span><b>${vw}/${vb}</b></div>`:""}</div>
+    ${both.length?`<div class="accnote">Accuracy score on match results (Brier, lower is better) over ${both.length} matches: Tipsy ${bT.toFixed(3)} · our model alone ${bM.toFixed(3)} · bookmakers ${bB.toFixed(3)}.</div>`:""}
+    <div class="accnote">${g.length<50?"Early days – this needs a few hundred matches before it really means something.":"Based on predictions saved before kick-off."}</div>`;
+}
+
 function init(d){
   DATA=d;
   LG=(d.leagues||[]).filter(L=>L&&L.teams);
@@ -709,6 +647,7 @@ fetch("data/tips.json",{cache:"no-store"}).then(r=>{if(!r.ok)throw 0;return r.js
   const hasC=LG.some(L=>Object.keys(L.CN).length),hasK=LG.some(L=>Object.keys(L.CD).length);
   document.querySelectorAll('.tab[data-m="corners"]').forEach(b=>b.style.display=hasC?"":"none");
   document.querySelectorAll('.tab[data-m="cards"]').forEach(b=>b.style.display=hasK?"":"none");
+  fetch("data/history.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(renderAccuracy).catch(()=>renderAccuracy(null));
   loadLegs();renderAuto();renderTabs();renderPicks();renderValue();renderCards();fillSelLg();renderAcca();
 }).catch(()=>{document.getElementById("cards").innerHTML='<div class="note">Couldn\'t load the latest data. Try again shortly.</div>'});
 

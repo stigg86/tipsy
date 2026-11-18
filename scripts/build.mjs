@@ -3,6 +3,7 @@
 //   The Odds API       – bookmaker odds for match result and goals over/under (free tier, 500 credits/month)
 //   Open-Meteo         – kick-off weather (free, no key, non-commercial)
 //   Fantasy Premier League feed – Premier League injuries/suspensions, chance of playing, player xG (free, no key)
+//   ClubElo            – long-run team strength ratings (free CSV, no key)
 // Writes data/tips.json for the page. Runs in GitHub Actions (Node 20+).
 //
 // Env:
@@ -12,6 +13,8 @@
 //   ODDS_MIN_LEFT      (optional)  – skip odds when fewer credits than this remain this month (default 20)
 
 import fs from "node:fs/promises";
+import "../model.js"; // shared prediction model (sets globalThis.TipsyModel)
+const TM = globalThis.TipsyModel;
 
 const FD_KEY = process.env.FOOTBALL_DATA_KEY;
 const ODDS_KEY = process.env.ODDS_API_KEY || "";
@@ -42,6 +45,48 @@ async function loadFPL() {
     console.log(`  FPL feed: ${j.elements?.length} players, ${j.teams?.length} teams`);
     return j;
   } catch (e) { console.warn("FPL feed:", e.message); return null; }
+}
+
+// --- ClubElo ---
+const ELO_COUNTRY = { PL: "ENG", PD: "ESP", BL1: "GER", FL1: "FRA", SA: "ITA" };
+const ELO_ALIAS = { "Paris SG": "Paris Saint-Germain", "Bilbao": "Athletic Club", "Gladbach": "Borussia Monchengladbach",
+  "Koeln": "Koln", "Forest": "Nottingham Forest", "Lyon": "Olympique Lyonnais", "Rennes": "Stade Rennais", "Brest": "Stade Brestois",
+  "Hamburg": "Hamburger", "Man City": "Manchester City", "Man United": "Manchester United", "Sociedad": "Real Sociedad",
+  "Betis": "Real Betis", "Atletico": "Atletico Madrid", "Celta": "Celta Vigo", "Leverkusen": "Bayer Leverkusen",
+  "Frankfurt": "Eintracht Frankfurt", "Werder": "Werder Bremen", "Wolves": "Wolverhampton", "Inter": "Internazionale",
+  "Saint-Etienne": "Saint Etienne", "Sporting": "Sporting CP" };
+async function loadElo() {
+  const day = new Date().toISOString().slice(0, 10);
+  for (const base of ["http://api.clubelo.com/", "https://api.clubelo.com/"]) {
+    try {
+      const r = await fetch(base + day);
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      const lines = (await r.text()).trim().split(/\r?\n/);
+      const head = lines.shift().split(",");
+      const ix = k => head.indexOf(k);
+      const rows = lines.map(l => l.split(",")).map(c => ({ club: c[ix("Club")], country: c[ix("Country")], level: Number(c[ix("Level")]), elo: Number(c[ix("Elo")]) }))
+        .filter(x => x.club && x.elo > 0);
+      console.log(`  ClubElo: ${rows.length} clubs`);
+      return rows;
+    } catch (e) { console.warn("ClubElo:", base, e.message); }
+  }
+  return null;
+}
+let ELO = null, CL = null;
+// one-to-one match of ClubElo clubs to this league's teams
+function matchElo(code, fdTeams) {
+  if (!ELO) return {};
+  const pool = ELO.filter(x => x.country === ELO_COUNTRY[code]);
+  const pairs = [];
+  for (const t of fdTeams) for (const e of pool) {
+    const name = ELO_ALIAS[e.club] || e.club;
+    const sc = Math.max(sim(name, t.name), sim(name, t.shortName || ""));
+    if (sc >= .5) pairs.push({ t: t.id, e, sc: sc + Math.max(jac(name, t.name), jac(name, t.shortName || "")) + (e.level === 1 ? .01 : 0) });
+  }
+  pairs.sort((a, b) => b.sc - a.sc);
+  const out = {}, used = new Set();
+  for (const p of pairs) { if (out[p.t] || used.has(p.e.club)) continue; out[p.t] = p.e.elo; used.add(p.e.club); }
+  return out;
 }
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -118,12 +163,16 @@ function weatherKey(w) {
 }
 
 // --- team-name matching between football-data and The Odds API ---
-const STOP = new Set(["fc","afc","cf","sc","ac","as","ssc","rc","rcd","ogc","club","de","del","la","the","and","calcio","sv","vfb","vfl","tsg","fsv","1","04","05","1899","1846","1909","1910","stade","sport","us","ud","cd","sd","ca"]);
+const STOP = new Set(["fc","afc","cf","sc","ac","as","ssc","rc","rcd","ogc","club","de","del","la","the","and","calcio","sv","vfb","vfl","tsg","fsv","1","04","05","1899","1846","1909","1910","stade","sport","us","ud","cd","sd","ca","le","les"]);
 const ALIAS = { munich: "munchen", wolves: "wolverhampton", spurs: "tottenham", psg: "paris", inter: "internazionale", man: "manchester", utd: "united", nottm: "nottingham", "saint": "st" };
 function tokens(name) {
   return String(name).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase()
     .replace(/&/g, " ").replace(/[^a-z0-9 ]+/g, " ").split(/\s+/)
     .map(t => ALIAS[t] || t).filter(t => t && !STOP.has(t));
+}
+function jac(a, b) {
+  const A = new Set(tokens(a)), B = new Set(tokens(b)); let n = 0; for (const t of A) if (B.has(t)) n++;
+  return n / ((A.size + B.size - n) || 1);
 }
 function sim(a, b) {
   const A = new Set(tokens(a)), B = new Set(tokens(b));
@@ -289,8 +338,26 @@ async function buildLeague(code, cache, prev) {
     }
   }
 
+  // ClubElo ratings
+  const fdTeamList = {}; for (const m of [...done, ...next]) { fdTeamList[m.homeTeam.id] = m.homeTeam; fdTeamList[m.awayTeam.id] = m.awayTeam; }
+  const elo = matchElo(code, Object.values(fdTeamList));
+  console.log(`  ClubElo matched ${Object.keys(elo).length}/${Object.keys(fdTeamList).length} teams`);
+
+  // rest days: time since each team's previous league or Champions League game
+  const allGames = [...matches, ...(CL || [])].filter(g => !["CANCELLED", "POSTPONED", "SUSPENDED"].includes(g.status));
+  const lastBefore = (tid, when) => {
+    let best = null;
+    for (const g of allGames) {
+      if (g.homeTeam?.id !== tid && g.awayTeam?.id !== tid) continue;
+      const d = new Date(g.utcDate); if (d >= when - 3600e3) continue;
+      if (!best || d > best) best = d;
+    }
+    return best;
+  };
+  const restDays = (tid, iso) => { const k = new Date(iso), l = lastBefore(tid, k); return l ? Math.round((k - l) / 864e5 * 10) / 10 : null; };
+
   const teams = {};
-  for (const [tid, t] of Object.entries(T)) teams[t.name] = { o: t.o, h: t.h, a: t.a, f: t.res.slice(-5).join(""), xg: fplXg[tid] || null, cn: null, cd: null };
+  for (const [tid, t] of Object.entries(T)) teams[t.name] = { o: t.o, h: t.h, a: t.a, f: t.res.slice(-5).join(""), xg: fplXg[tid] || null, cn: null, cd: null, elo: elo[tid] || null };
   const injSide = (team) => {
     const list = fplInj[team.id] || [], name = teamName(team);
     const keys = (players[name] || []);
@@ -307,10 +374,12 @@ async function buildLeague(code, cache, prev) {
     const wx = weather[m.id] || prevWx[m.id] || null; // keep last forecast if the weather service had a blip
     return { id: m.id, date: m.utcDate, ...ukDate(m.utcDate), h: teamName(m.homeTeam), a: teamName(m.awayTeam),
       v: addr[m.homeTeam.id]?.venue || "", w: weatherKey(wx), wx, odds: oddsByMatch[m.id] || null,
+      rest: { h: restDays(m.homeTeam.id, m.utcDate), a: restDays(m.awayTeam.id, m.utcDate) },
       inj: { h: injSide(m.homeTeam), a: injSide(m.awayTeam) } };
   });
 
-  return { code, name: info.name, round: md ? `Matchday ${md}` : (prev?.round || ""), teams,
+  const results = {}; for (const m of done) results[m.id] = { hg: m.score.fullTime.home, ag: m.score.fullTime.away };
+  return { _results: results, code, name: info.name, round: md ? `Matchday ${md}` : (prev?.round || ""), teams,
     players: Object.keys(players).length ? players : (prev?.players || {}),
     matches: outMatches.length ? outMatches : (prev?.matches || []) };
 }
@@ -323,6 +392,9 @@ async function main() {
   const prevBy = Object.fromEntries((previous?.leagues || []).map(l => [l.code || l.name, l]));
 
   if (LEAGUES.includes("PL")) FPL = await loadFPL();
+  ELO = await loadElo();
+  try { CL = (await fd("/competitions/CL/matches")).matches || []; console.log(`  Champions League: ${CL.length} matches (for rest days)`); }
+  catch (e) { console.warn("Champions League:", e.message); CL = []; }
   const leagues = [];
   for (const code of LEAGUES) {
     const name = INFO[code]?.name;
@@ -334,10 +406,41 @@ async function main() {
   }
   if (!leagues.length) throw new Error("No league data built");
 
+  // --- accuracy tracking: save each prediction until kick-off, then attach the result ---
+  const hist = await readJSON("data/history.json", { entries: [] });
+  const byId = new Map((hist.entries || []).map(e => [e.id, e]));
+  const r4 = x => x == null ? null : Math.round(x * 1e4) / 1e4;
+  const results = {};
+  const now = Date.now();
+  for (const L of leagues) {
+    Object.assign(results, L._results || {}); delete L._results;
+    const Lc = TM.prepLeague(JSON.parse(JSON.stringify(L)));
+    for (const m of Lc.matches || []) {
+      if (new Date(m.date) <= now) continue; // frozen at kick-off
+      const r = TM.model(m, Lc, TM.outFor(Lc, m)); if (!r) continue;
+      m._r = r;
+      const mk = TM.markets(m), tipKey = TM.resultTip(m, r), tip = mk.find(x => x.key === tipKey);
+      const value = mk.map(x => ({ x, e: TM.edgeOf(x) })).filter(v => v.e != null && v.e >= .03 && v.x.pm >= .2)
+        .map(v => ({ key: v.x.key, b: v.x.o.b, k: v.x.o.k, edge: r4(v.e) }));
+      const hasMkt = TM.mktProb(m, "1") != null;
+      byId.set(m.id, { id: m.id, lg: L.name, date: m.date, h: m.h, a: m.a,
+        p: { 1: r4(r.pH), X: r4(r.pD), 2: r4(r.pA), O25: r4(r.o25), BY: r4(r.btts) },
+        pure: { 1: r4(r.pure.pH), X: r4(r.pure.pD), 2: r4(r.pure.pA), O25: r4(r.pure.o25), BY: r4(r.pure.btts) },
+        mkt: hasMkt ? { 1: r4(TM.mktProb(m, "1")), X: r4(TM.mktProb(m, "X")), 2: r4(TM.mktProb(m, "2")) } : null,
+        tip: { key: tipKey, p: r4(tip.p) }, value, res: byId.get(m.id)?.res || null });
+    }
+  }
+  let graded = 0;
+  for (const e of byId.values()) { if (!e.res && results[e.id]) e.res = results[e.id]; if (e.res) graded++; }
+  const entries = [...byId.values()].sort((a, b) => new Date(a.date) - new Date(b.date)).slice(-3000);
+  await fs.writeFile("data/history.json", JSON.stringify({ updated: new Date().toISOString(), entries }));
+  console.log(`History: ${entries.length} predictions saved, ${graded} with results`);
+
   const data = {
     updated: new Date().toISOString(), mode: "live",
     sources: ["football-data.org (fixtures, results, tables, scorers)",
       FPL ? "Fantasy Premier League feed (Premier League team news + xG)" : "FPL feed unavailable this run",
+      ELO ? "ClubElo (team strength ratings)" : "ClubElo unavailable this run",
       ODDS_KEY ? "The Odds API (UK bookmaker odds)" : "Odds: not configured",
       "Open-Meteo (kick-off weather)"],
     oddsCreditsLeft: oddsLeft,
