@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-18T14:24:05.495Z",
+ "updated": "2026-11-18T14:46:24.897Z",
  "mode": "live",
  "sources": [
   "football-data.org (fixtures, results, tables, scorers)",
@@ -7,7 +7,7 @@
   "The Odds API (UK bookmaker odds)",
   "Open-Meteo (kick-off weather)"
  ],
- "oddsCreditsLeft": 468,
+ "oddsCreditsLeft": 460,
  "leagues": [
   {
    "code": "PL",
@@ -278,7 +278,7 @@
      "cn": null,
      "cd": null
     },
-    "Hull City": {
+    "Hull": {
      "o": [
       10,
       11,
@@ -302,7 +302,7 @@
      "cn": null,
      "cd": null
     },
-    "Leeds United": {
+    "Leeds": {
      "o": [
       10,
       10,
@@ -326,7 +326,7 @@
      "cn": null,
      "cd": null
     },
-    "Ipswich Town": {
+    "Ipswich": {
      "o": [
       10,
       15,
@@ -470,7 +470,7 @@
      "cn": null,
      "cd": null
     },
-    "Coventry City": {
+    "Coventry": {
      "o": [
       10,
       10,
@@ -691,7 +691,7 @@
       "apps": 9
      }
     ],
-    "Leeds United": [
+    "Leeds": [
      {
       "id": 7839,
       "name": "Dominic Calvert-Lewin",
@@ -732,7 +732,7 @@
       "apps": 10
      }
     ],
-    "Hull City": [
+    "Hull": [
      {
       "id": 213072,
       "name": "Mohamed Belloumi",
@@ -741,7 +741,7 @@
       "apps": 9
      }
     ],
-    "Coventry City": [
+    "Coventry": [
      {
       "id": 114123,
       "name": "Jack Rudoni",
@@ -750,7 +750,7 @@
       "apps": 10
      }
     ],
-    "Ipswich Town": [
+    "Ipswich": [
      {
       "id": 176628,
       "name": "Emersonn",
@@ -808,8 +808,13 @@
      "h": "Man City",
      "a": "Fulham",
      "v": "Etihad Stadium",
-     "w": "light",
-     "wx": null,
+     "w": "dry",
+     "wx": {
+      "temp": 5,
+      "precip": 0,
+      "snow": 0,
+      "wind": 7
+     },
      "odds": {
       "1": {
        "b": 1.4,
@@ -1129,10 +1134,15 @@
      "d": "Sat 21 Nov",
      "k": "15:00",
      "h": "Chelsea",
-     "a": "Leeds United",
+     "a": "Leeds",
      "v": "Stamford Bridge",
-     "w": "light",
-     "wx": null,
+     "w": "dry",
+     "wx": {
+      "temp": 7,
+      "precip": 0,
+      "snow": 0,
+      "wind": 8
+     },
      "odds": {
       "1": {
        "b": 1.91,
@@ -1444,13 +1454,18 @@
      "h": "Aston Villa",
      "a": "Sunderland",
      "v": "Villa Park",
-     "w": "light",
-     "wx": null,
+     "w": "dry",
+     "wx": {
+      "temp": 5,
+      "precip": 0,
+      "snow": 0,
+      "wind": 10
+     },
      "odds": {
       "1": {
        "b": 1.84,
        "k": "Unibet (UK)",
-       "a": 1.776,
+       "a": 1.777,
        "n": 18,
        "all": [
         [
@@ -1458,11 +1473,19 @@
          1.84
         ],
         [
-         "888sport",
-         1.8
+         "Betfair Sportsbook",
+         1.83
         ],
         [
-         "Betfair Sportsbook",
+         "Paddy Power",
+         1.83
+        ],
+        [
+         "Sky Bet",
+         1.83
+        ],
+        [
+         "888sport",
          1.8
         ],
         [
@@ -1482,36 +1505,28 @@
          1.8
         ],
         [
-         "Paddy Power",
-         1.8
-        ],
-        [
-         "Sky Bet",
-         1.8
-        ],
-        [
          "William Hill",
          1.8
-        ],
-        [
-         "Grosvenor",
-         1.77
-        ],
-        [
-         "LiveScore Bet",
-         1.76
-        ],
-        [
-         "Virgin Bet",
-         1.76
         ],
         [
          "BoyleSports",
          1.75
         ],
         [
+         "Grosvenor",
+         1.75
+        ],
+        [
          "Ladbrokes",
          1.75
+        ],
+        [
+         "LiveScore Bet",
+         1.74
+        ],
+        [
+         "Virgin Bet",
+         1.74
         ],
         [
          "Casumo",
@@ -1528,14 +1543,14 @@
        ]
       },
       "2": {
-       "b": 4.33,
-       "k": "Betfair Sportsbook",
-       "a": 4.132,
+       "b": 4.4,
+       "k": "Grosvenor",
+       "a": 4.134,
        "n": 18,
        "all": [
         [
-         "Betfair Sportsbook",
-         4.33
+         "Grosvenor",
+         4.4
         ],
         [
          "BoyleSports",
@@ -1546,16 +1561,20 @@
          4.33
         ],
         [
-         "Paddy Power",
-         4.33
+         "LiveScore Bet",
+         4.3
         ],
         [
-         "Grosvenor",
+         "Virgin Bet",
          4.3
         ],
         [
          "Unibet (UK)",
          4.25
+        ],
+        [
+         "Betfair Sportsbook",
+         4.2
         ],
         [
          "Betfred (UK)",
@@ -1566,15 +1585,11 @@
          4.2
         ],
         [
-         "LiveScore Bet",
+         "Paddy Power",
          4.2
         ],
         [
          "Sky Bet",
-         4.2
-        ],
-        [
-         "Virgin Bet",
          4.2
         ],
         [
@@ -1709,10 +1724,14 @@
       },
       "U25": {
        "b": 2,
-       "k": "LeoVegas",
-       "a": 1.99,
+       "k": "Grosvenor",
+       "a": 2,
        "n": 3,
        "all": [
+        [
+         "Grosvenor",
+         2
+        ],
         [
          "LeoVegas",
          2
@@ -1720,10 +1739,6 @@
         [
          "William Hill",
          2
-        ],
-        [
-         "Grosvenor",
-         1.97
         ]
        ]
       }
@@ -1751,8 +1766,13 @@
      "h": "Bournemouth",
      "a": "Nott'm Forest",
      "v": "Vitality Stadium",
-     "w": "light",
-     "wx": null,
+     "w": "dry",
+     "wx": {
+      "temp": 9,
+      "precip": 0,
+      "snow": 0,
+      "wind": 16
+     },
      "odds": {
       "1": {
        "b": 2,
@@ -2062,10 +2082,15 @@
      "d": "Sat 21 Nov",
      "k": "15:00",
      "h": "Tottenham",
-     "a": "Ipswich Town",
+     "a": "Ipswich",
      "v": "Tottenham Hotspur Stadium",
-     "w": "light",
-     "wx": null,
+     "w": "dry",
+     "wx": {
+      "temp": 7,
+      "precip": 0,
+      "snow": 0,
+      "wind": 8
+     },
      "odds": {
       "1": {
        "b": 1.55,
@@ -2366,16 +2391,21 @@
      "date": "2026-11-21T15:00:00Z",
      "d": "Sat 21 Nov",
      "k": "15:00",
-     "h": "Coventry City",
+     "h": "Coventry",
      "a": "Crystal Palace",
      "v": "Coventry Building Society Arena",
-     "w": "light",
-     "wx": null,
+     "w": "dry",
+     "wx": {
+      "temp": 6,
+      "precip": 0,
+      "snow": 0,
+      "wind": 10
+     },
      "odds": {
       "1": {
        "b": 2.4,
        "k": "Betfair Sportsbook",
-       "a": 2.342,
+       "a": 2.343,
        "n": 18,
        "all": [
         [
@@ -2395,15 +2425,15 @@
          2.4
         ],
         [
+         "Sky Bet",
+         2.4
+        ],
+        [
          "Unibet (UK)",
          2.4
         ],
         [
          "Grosvenor",
-         2.38
-        ],
-        [
-         "Sky Bet",
          2.38
         ],
         [
@@ -2455,7 +2485,7 @@
       "2": {
        "b": 2.8,
        "k": "Betfred (UK)",
-       "a": 2.717,
+       "a": 2.725,
        "n": 18,
        "all": [
         [
@@ -2479,6 +2509,10 @@
          2.75
         ],
         [
+         "Betfair Sportsbook",
+         2.75
+        ],
+        [
          "Coral",
          2.75
         ],
@@ -2491,16 +2525,20 @@
          2.75
         ],
         [
+         "Paddy Power",
+         2.75
+        ],
+        [
+         "Sky Bet",
+         2.75
+        ],
+        [
          "Virgin Bet",
          2.75
         ],
         [
          "William Hill",
          2.75
-        ],
-        [
-         "Betfair Sportsbook",
-         2.7
         ],
         [
          "Betway",
@@ -2512,14 +2550,6 @@
         ],
         [
          "LeoVegas",
-         2.7
-        ],
-        [
-         "Paddy Power",
-         2.7
-        ],
-        [
-         "Sky Bet",
          2.7
         ],
         [
@@ -2535,7 +2565,7 @@
       "X": {
        "b": 3.7,
        "k": "Coral",
-       "a": 3.519,
+       "a": 3.492,
        "n": 18,
        "all": [
         [
@@ -2543,15 +2573,7 @@
          3.7
         ],
         [
-         "Betfair Sportsbook",
-         3.6
-        ],
-        [
          "Ladbrokes",
-         3.6
-        ],
-        [
-         "Paddy Power",
          3.6
         ],
         [
@@ -2587,10 +2609,6 @@
          3.5
         ],
         [
-         "Sky Bet",
-         3.5
-        ],
-        [
          "William Hill",
          3.5
         ],
@@ -2607,7 +2625,19 @@
          3.45
         ],
         [
+         "Betfair Sportsbook",
+         3.4
+        ],
+        [
          "Casumo",
+         3.4
+        ],
+        [
+         "Paddy Power",
+         3.4
+        ],
+        [
+         "Sky Bet",
          3.4
         ]
        ]
@@ -2678,8 +2708,13 @@
      "h": "Newcastle",
      "a": "Arsenal",
      "v": "St. James' Park",
-     "w": "light",
-     "wx": null,
+     "w": "dry",
+     "wx": {
+      "temp": 10,
+      "precip": 0,
+      "snow": 0,
+      "wind": 28
+     },
      "odds": {
       "1": {
        "b": 5.75,
@@ -2984,11 +3019,16 @@
      "date": "2026-11-22T14:00:00Z",
      "d": "Sun 22 Nov",
      "k": "14:00",
-     "h": "Hull City",
+     "h": "Hull",
      "a": "Brighton",
      "v": "Kingston Communications Stadium",
-     "w": "light",
-     "wx": null,
+     "w": "dry",
+     "wx": {
+      "temp": 9,
+      "precip": 0,
+      "snow": 0,
+      "wind": 13
+     },
      "odds": {
       "1": {
        "b": 6.5,
@@ -3292,8 +3332,13 @@
      "h": "Liverpool",
      "a": "Man Utd",
      "v": "Anfield",
-     "w": "light",
-     "wx": null,
+     "w": "dry",
+     "wx": {
+      "temp": 6,
+      "precip": 0,
+      "snow": 0,
+      "wind": 9
+     },
      "odds": {
       "1": {
        "b": 1.78,
@@ -3616,7 +3661,12 @@
      "a": "Everton",
      "v": "Griffin Park",
      "w": "light",
-     "wx": null,
+     "wx": {
+      "temp": 11,
+      "precip": 0.3,
+      "snow": 0,
+      "wind": 20
+     },
      "odds": {
       "1": {
        "b": 2.1,
@@ -5238,7 +5288,7 @@
       "1": {
        "b": 1.95,
        "k": "Betfair Sportsbook",
-       "a": 1.906,
+       "a": 1.913,
        "n": 17,
        "all": [
         [
@@ -5278,7 +5328,15 @@
          1.91
         ],
         [
+         "Casumo",
+         1.91
+        ],
+        [
          "Paddy Power",
+         1.91
+        ],
+        [
+         "Sky Bet",
          1.91
         ],
         [
@@ -5288,14 +5346,6 @@
         [
          "William Hill",
          1.91
-        ],
-        [
-         "Casumo",
-         1.85
-        ],
-        [
-         "Sky Bet",
-         1.85
         ],
         [
          "Bet Victor",
@@ -5314,7 +5364,7 @@
       "2": {
        "b": 4.1,
        "k": "Betfair Sportsbook",
-       "a": 3.868,
+       "a": 3.844,
        "n": 17,
        "all": [
         [
@@ -5327,10 +5377,6 @@
         ],
         [
          "Betway",
-         4
-        ],
-        [
-         "Casumo",
          4
         ],
         [
@@ -5384,13 +5430,17 @@
         [
          "Betano (UK)",
          3.6
+        ],
+        [
+         "Casumo",
+         3.6
         ]
        ]
       },
       "X": {
        "b": 3.5,
        "k": "Betfair Sportsbook",
-       "a": 3.376,
+       "a": 3.379,
        "n": 17,
        "all": [
         [
@@ -5451,7 +5501,7 @@
         ],
         [
          "Casumo",
-         3.25
+         3.3
         ],
         [
          "LiveScore Bet",
@@ -5536,7 +5586,7 @@
       "1": {
        "b": 3,
        "k": "Coral",
-       "a": 2.8,
+       "a": 2.768,
        "n": 17,
        "all": [
         [
@@ -5548,14 +5598,6 @@
          2.9
         ],
         [
-         "Sky Bet",
-         2.9
-        ],
-        [
-         "Betfair Sportsbook",
-         2.88
-        ],
-        [
          "Betfred (UK)",
          2.88
         ],
@@ -5564,7 +5606,7 @@
          2.85
         ],
         [
-         "Casumo",
+         "Betfair Sportsbook",
          2.8
         ],
         [
@@ -5576,10 +5618,6 @@
          2.8
         ],
         [
-         "Paddy Power",
-         2.8
-        ],
-        [
          "William Hill",
          2.8
         ],
@@ -5588,7 +5626,19 @@
          2.75
         ],
         [
+         "Casumo",
+         2.75
+        ],
+        [
          "LeoVegas",
+         2.75
+        ],
+        [
+         "Paddy Power",
+         2.75
+        ],
+        [
+         "Sky Bet",
          2.75
         ],
         [
@@ -5597,30 +5647,38 @@
         ],
         [
          "BoyleSports",
-         2.7
+         2.62
         ],
         [
          "Bet Victor",
-         2.62
+         2.55
         ],
         [
          "Betano (UK)",
-         2.62
+         2.55
         ]
        ]
       },
       "2": {
-       "b": 2.4,
+       "b": 2.45,
        "k": "Betfair Sportsbook",
-       "a": 2.306,
+       "a": 2.328,
        "n": 17,
        "all": [
         [
          "Betfair Sportsbook",
-         2.4
+         2.45
         ],
         [
          "Betway",
+         2.4
+        ],
+        [
+         "Paddy Power",
+         2.4
+        ],
+        [
+         "Sky Bet",
          2.4
         ],
         [
@@ -5636,12 +5694,12 @@
          2.38
         ],
         [
-         "Paddy Power",
-         2.38
-        ],
-        [
          "Grosvenor",
          2.33
+        ],
+        [
+         "Casumo",
+         2.3
         ],
         [
          "Coral",
@@ -5656,10 +5714,6 @@
          2.3
         ],
         [
-         "Sky Bet",
-         2.3
-        ],
-        [
          "William Hill",
          2.3
         ],
@@ -5668,27 +5722,23 @@
          2.28
         ],
         [
-         "Casumo",
+         "BoyleSports",
          2.25
         ],
         [
-         "BoyleSports",
+         "Bet Victor",
          2.2
         ],
         [
-         "Bet Victor",
-         2.15
-        ],
-        [
          "Betano (UK)",
-         2.15
+         2.2
         ]
        ]
       },
       "X": {
        "b": 3.5,
        "k": "Betfair Sportsbook",
-       "a": 3.441,
+       "a": 3.435,
        "n": 17,
        "all": [
         [
@@ -5701,10 +5751,6 @@
         ],
         [
          "Betway",
-         3.5
-        ],
-        [
-         "BoyleSports",
          3.5
         ],
         [
@@ -5733,6 +5779,10 @@
         ],
         [
          "Betano (UK)",
+         3.4
+        ],
+        [
+         "BoyleSports",
          3.4
         ],
         [
@@ -5834,7 +5884,7 @@
       "1": {
        "b": 1.2,
        "k": "Betfred (UK)",
-       "a": 1.171,
+       "a": 1.17,
        "n": 17,
        "all": [
         [
@@ -5852,10 +5902,6 @@
         [
          "William Hill",
          1.2
-        ],
-        [
-         "Unibet (UK)",
-         1.19
         ],
         [
          "Betway",
@@ -5879,6 +5925,10 @@
         ],
         [
          "LiveScore Bet",
+         1.17
+        ],
+        [
+         "Unibet (UK)",
          1.17
         ],
         [
@@ -5986,7 +6036,7 @@
       "X": {
        "b": 8,
        "k": "Betfair Sportsbook",
-       "a": 7.044,
+       "a": 7.074,
        "n": 17,
        "all": [
         [
@@ -5996,6 +6046,10 @@
         [
          "Paddy Power",
          8
+        ],
+        [
+         "LeoVegas",
+         7.5
         ],
         [
          "Sky Bet",
@@ -6031,10 +6085,6 @@
         ],
         [
          "Ladbrokes",
-         7
-        ],
-        [
-         "LeoVegas",
          7
         ],
         [
@@ -6438,16 +6488,12 @@
       "1": {
        "b": 3.3,
        "k": "Betfair Sportsbook",
-       "a": 3.074,
+       "a": 3.071,
        "n": 17,
        "all": [
         [
          "Betfair Sportsbook",
          3.3
-        ],
-        [
-         "Sky Bet",
-         3.25
         ],
         [
          "Betfred (UK)",
@@ -6463,6 +6509,10 @@
         ],
         [
          "Paddy Power",
+         3.2
+        ],
+        [
+         "Sky Bet",
          3.2
         ],
         [
@@ -6514,7 +6564,7 @@
       "2": {
        "b": 2.05,
        "k": "Betfred (UK)",
-       "a": 1.99,
+       "a": 1.993,
        "n": 17,
        "all": [
         [
@@ -6558,6 +6608,10 @@
          2
         ],
         [
+         "Sky Bet",
+         2
+        ],
+        [
          "Virgin Bet",
          2
         ],
@@ -6571,10 +6625,6 @@
         ],
         [
          "Paddy Power",
-         1.95
-        ],
-        [
-         "Sky Bet",
          1.95
         ],
         [
@@ -7364,7 +7414,7 @@
       "1": {
        "b": 2.15,
        "k": "Betfred (UK)",
-       "a": 2.103,
+       "a": 2.101,
        "n": 16,
        "all": [
         [
@@ -7380,10 +7430,6 @@
          2.15
         ],
         [
-         "LeoVegas",
-         2.15
-        ],
-        [
          "Sky Bet",
          2.15
         ],
@@ -7394,6 +7440,10 @@
         [
          "William Hill",
          2.15
+        ],
+        [
+         "LeoVegas",
+         2.12
         ],
         [
          "Betway",
@@ -7436,7 +7486,7 @@
       "2": {
        "b": 3.2,
        "k": "Betfred (UK)",
-       "a": 3.03,
+       "a": 3.033,
        "n": 16,
        "all": [
         [
@@ -7456,6 +7506,10 @@
          3.1
         ],
         [
+         "LeoVegas",
+         3.1
+        ],
+        [
          "Paddy Power",
          3.1
         ],
@@ -7470,10 +7524,6 @@
         [
          "William Hill",
          3.1
-        ],
-        [
-         "LeoVegas",
-         3.05
         ],
         [
          "LiveScore Bet",
@@ -8891,7 +8941,7 @@
       "U35": {
        "b": 1.94,
        "k": "Grosvenor",
-       "a": 1.903,
+       "a": 1.923,
        "n": 3,
        "all": [
         [
@@ -8904,7 +8954,7 @@
         ],
         [
          "Casumo",
-         1.85
+         1.91
         ]
        ]
       },
@@ -8965,7 +9015,7 @@
       "1": {
        "b": 5.5,
        "k": "Betfair Sportsbook",
-       "a": 4.956,
+       "a": 4.97,
        "n": 18,
        "all": [
         [
@@ -9001,6 +9051,10 @@
          5
         ],
         [
+         "Casumo",
+         5
+        ],
+        [
          "Coral",
          5
         ],
@@ -9025,10 +9079,6 @@
          4.8
         ],
         [
-         "Casumo",
-         4.75
-        ],
-        [
          "BoyleSports",
          4.5
         ],
@@ -9045,7 +9095,7 @@
       "2": {
        "b": 1.6,
        "k": "Coral",
-       "a": 1.532,
+       "a": 1.533,
        "n": 18,
        "all": [
         [
@@ -9069,6 +9119,10 @@
          1.57
         ],
         [
+         "Casumo",
+         1.55
+        ],
+        [
          "Grosvenor",
          1.54
         ],
@@ -9086,10 +9140,6 @@
         ],
         [
          "Betway",
-         1.53
-        ],
-        [
-         "Casumo",
          1.53
         ],
         [
@@ -9291,7 +9341,7 @@
       "1": {
        "b": 3.5,
        "k": "Betfair Sportsbook",
-       "a": 3.272,
+       "a": 3.275,
        "n": 18,
        "all": [
         [
@@ -9319,6 +9369,10 @@
          3.35
         ],
         [
+         "Casumo",
+         3.3
+        ],
+        [
          "Coral",
          3.3
         ],
@@ -9336,10 +9390,6 @@
         ],
         [
          "888sport",
-         3.25
-        ],
-        [
-         "Casumo",
          3.25
         ],
         [
@@ -9371,7 +9421,7 @@
       "2": {
        "b": 2.05,
        "k": "Coral",
-       "a": 1.96,
+       "a": 1.958,
        "n": 18,
        "all": [
         [
@@ -9391,7 +9441,7 @@
          2
         ],
         [
-         "Casumo",
+         "LeoVegas",
          2
         ],
         [
@@ -9403,15 +9453,15 @@
          2
         ],
         [
-         "LeoVegas",
-         1.98
-        ],
-        [
          "888sport",
          1.95
         ],
         [
          "Betway",
+         1.95
+        ],
+        [
+         "Casumo",
          1.95
         ],
         [
@@ -9451,7 +9501,7 @@
       "X": {
        "b": 3.8,
        "k": "Betfair Sportsbook",
-       "a": 3.686,
+       "a": 3.692,
        "n": 18,
        "all": [
         [
@@ -9524,7 +9574,7 @@
         ],
         [
          "Casumo",
-         3.5
+         3.6
         ]
        ]
       },
@@ -9617,7 +9667,7 @@
       "1": {
        "b": 5,
        "k": "Betfair Sportsbook",
-       "a": 4.644,
+       "a": 4.656,
        "n": 18,
        "all": [
         [
@@ -9633,11 +9683,11 @@
          5
         ],
         [
-         "Grosvenor",
-         4.8
+         "Sky Bet",
+         5
         ],
         [
-         "Sky Bet",
+         "Grosvenor",
          4.8
         ],
         [
@@ -9697,7 +9747,7 @@
       "2": {
        "b": 1.65,
        "k": "Coral",
-       "a": 1.584,
+       "a": 1.587,
        "n": 18,
        "all": [
         [
@@ -9722,6 +9772,10 @@
         ],
         [
          "Betway",
+         1.6
+        ],
+        [
+         "Casumo",
          1.6
         ],
         [
@@ -9755,10 +9809,6 @@
         [
          "Virgin Bet",
          1.57
-        ],
-        [
-         "Casumo",
-         1.55
         ],
         [
          "LiveScore Bet",
@@ -9943,7 +9993,7 @@
       "1": {
        "b": 2.38,
        "k": "Betfred (UK)",
-       "a": 2.252,
+       "a": 2.254,
        "n": 18,
        "all": [
         [
@@ -9960,6 +10010,10 @@
         ],
         [
          "Betway",
+         2.3
+        ],
+        [
+         "Casumo",
          2.3
         ],
         [
@@ -9984,10 +10038,6 @@
         ],
         [
          "888sport",
-         2.25
-        ],
-        [
-         "Casumo",
          2.25
         ],
         [
@@ -10023,7 +10073,7 @@
       "2": {
        "b": 2.75,
        "k": "Betfair Sportsbook",
-       "a": 2.596,
+       "a": 2.599,
        "n": 18,
        "all": [
         [
@@ -10075,12 +10125,12 @@
          2.6
         ],
         [
-         "Virgin Bet",
+         "LeoVegas",
          2.6
         ],
         [
-         "LeoVegas",
-         2.55
+         "Virgin Bet",
+         2.6
         ],
         [
          "LiveScore Bet",
@@ -10103,7 +10153,7 @@
       "X": {
        "b": 4,
        "k": "Betfair Sportsbook",
-       "a": 3.831,
+       "a": 3.839,
        "n": 18,
        "all": [
         [
@@ -10171,12 +10221,12 @@
          3.75
         ],
         [
-         "LiveScore Bet",
+         "Casumo",
          3.75
         ],
         [
-         "Casumo",
-         3.6
+         "LiveScore Bet",
+         3.75
         ]
        ]
       },
@@ -10203,7 +10253,7 @@
       "U35": {
        "b": 1.91,
        "k": "LeoVegas",
-       "a": 1.873,
+       "a": 1.88,
        "n": 3,
        "all": [
         [
@@ -10216,7 +10266,7 @@
         ],
         [
          "Casumo",
-         1.83
+         1.85
         ]
        ]
       },
@@ -10277,7 +10327,7 @@
       "1": {
        "b": 4,
        "k": "Betfair Sportsbook",
-       "a": 3.742,
+       "a": 3.739,
        "n": 18,
        "all": [
         [
@@ -10321,11 +10371,11 @@
          3.8
         ],
         [
-         "LeoVegas",
-         3.75
+         "Grosvenor",
+         3.7
         ],
         [
-         "Grosvenor",
+         "LeoVegas",
          3.7
         ],
         [
@@ -10357,7 +10407,7 @@
       "2": {
        "b": 1.81,
        "k": "Virgin Bet",
-       "a": 1.762,
+       "a": 1.763,
        "n": 18,
        "all": [
         [
@@ -10385,15 +10435,15 @@
          1.8
         ],
         [
+         "LeoVegas",
+         1.8
+        ],
+        [
          "Unibet (UK)",
          1.8
         ],
         [
          "Betway",
-         1.77
-        ],
-        [
-         "LeoVegas",
          1.77
         ],
         [
@@ -10517,7 +10567,7 @@
       "O35": {
        "b": 2.12,
        "k": "Grosvenor",
-       "a": 2.11,
+       "a": 2.12,
        "n": 2,
        "all": [
         [
@@ -10526,7 +10576,7 @@
         ],
         [
          "LeoVegas",
-         2.1
+         2.12
         ]
        ]
       },
