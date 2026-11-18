@@ -324,7 +324,6 @@ section[data-sec]>h2:first-child{margin-top:10px}
     <button class="tab on" data-amode="quick">Quick build</button>
     <button class="tab" data-amode="custom">Build your own</button>
   </div>
-  <div class="acca" id="acca" style="margin-bottom:12px"></div>
   <div class="builder" id="quickPanel">
     <div>
       <label>How many bets?</label>
@@ -346,6 +345,7 @@ section[data-sec]>h2:first-child{margin-top:10px}
     </div>
     <div class="quick"><button class="btn ghost" data-quick="clear">Clear accumulator</button></div>
   </div>
+  <div class="acca" id="acca" style="margin:12px 0"></div>
   <div class="builder" id="customPanel" hidden>
     <div class="mute" style="font-size:13px">Open a match and tap the bets you want. Tap again to remove. Up to 20 bets – the league buttons above filter the matches.</div>
     <div id="custom"></div>
@@ -678,8 +678,7 @@ function autoBuild(risk){
             filled?`Only ${chosen.length-filled} value bet${chosen.length-filled===1?"":"s"} found – topped up with ${filled} balanced pick${filled===1?"":"s"}.`:"",
             short>0?`Only ${chosen.length} suitable match${chosen.length===1?"":"es"} available for ${R.label.toLowerCase()} picks.`:""].filter(Boolean).join(" ");
   legs=chosen.map(({mid,key})=>({mid,key}));saveLegs();renderAuto();renderAcca();renderCustom();
-  const sl=document.getElementById("acca"),nav=document.getElementById("sectabs");
-  if(sl&&sl.getBoundingClientRect().top<(nav?nav.offsetHeight:0))window.scrollTo({top:sl.getBoundingClientRect().top+window.scrollY-(nav?nav.offsetHeight:0)-8,behavior:"smooth"});
+  // stay where you are, so you can keep adjusting
 }
 function renderAuto(){
   document.getElementById("autoN").textContent=autoN;
@@ -810,7 +809,9 @@ document.addEventListener("click",e=>{
   const am=t.closest("[data-amode]");
   if(am){setAccaMode(am.dataset.amode);return;}
   const tg=t.closest("[data-toggle]");
-  if(tg){const [mid,key]=tg.dataset.toggle.split("|");const i=legs.findIndex(l=>l.mid==mid&&l.key===key);
+  if(tg){const anchorId=tg.dataset.toggle,before=tg.getBoundingClientRect().top;
+    requestAnimationFrame(()=>{const n=document.querySelector(`[data-toggle="${anchorId}"]`);if(n){const d=n.getBoundingClientRect().top-before;if(Math.abs(d)>1)window.scrollBy(0,d);}});
+    const [mid,key]=anchorId.split("|");const i=legs.findIndex(l=>l.mid==mid&&l.key===key);
     if(i>=0){legs.splice(i,1);saveLegs();renderAcca();}
     else if(legs.length>=MAXLEGS){tg.animate&&tg.animate([{transform:"translateX(-3px)"},{transform:"translateX(3px)"},{transform:"none"}],{duration:200});}
     else addLeg(mid,key);
