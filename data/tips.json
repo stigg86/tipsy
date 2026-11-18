@@ -1,13 +1,14 @@
 {
- "updated": "2026-11-18T14:46:24.897Z",
+ "updated": "2026-11-18T15:00:57.347Z",
  "mode": "live",
  "sources": [
   "football-data.org (fixtures, results, tables, scorers)",
   "Fantasy Premier League feed (Premier League team news + xG)",
+  "ClubElo unavailable this run",
   "The Odds API (UK bookmaker odds)",
   "Open-Meteo (kick-off weather)"
  ],
- "oddsCreditsLeft": 460,
+ "oddsCreditsLeft": 452,
  "leagues": [
   {
    "code": "PL",
@@ -36,7 +37,8 @@
       0.76
      ],
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Aston Villa": {
      "o": [
@@ -60,7 +62,8 @@
       1.86
      ],
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Chelsea": {
      "o": [
@@ -84,7 +87,8 @@
       1.5
      ],
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Everton": {
      "o": [
@@ -108,7 +112,8 @@
       1.42
      ],
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Fulham": {
      "o": [
@@ -132,7 +137,8 @@
       1.39
      ],
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Liverpool": {
      "o": [
@@ -156,7 +162,8 @@
       1.32
      ],
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Man City": {
      "o": [
@@ -180,7 +187,8 @@
       1.27
      ],
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Man Utd": {
      "o": [
@@ -204,7 +212,8 @@
       1.79
      ],
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Newcastle": {
      "o": [
@@ -228,7 +237,8 @@
       1.68
      ],
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Sunderland": {
      "o": [
@@ -252,7 +262,8 @@
       1.64
      ],
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Tottenham": {
      "o": [
@@ -276,7 +287,8 @@
       1.19
      ],
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Hull": {
      "o": [
@@ -300,7 +312,8 @@
       1.45
      ],
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Leeds": {
      "o": [
@@ -324,7 +337,8 @@
       1.26
      ],
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Ipswich": {
      "o": [
@@ -348,7 +362,8 @@
       1.94
      ],
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Nott'm Forest": {
      "o": [
@@ -372,7 +387,8 @@
       1.1
      ],
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Crystal Palace": {
      "o": [
@@ -396,7 +412,8 @@
       2.19
      ],
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Brighton": {
      "o": [
@@ -420,7 +437,8 @@
       1.36
      ],
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Brentford": {
      "o": [
@@ -444,7 +462,8 @@
       1.48
      ],
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Bournemouth": {
      "o": [
@@ -468,7 +487,8 @@
       1.13
      ],
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Coventry": {
      "o": [
@@ -492,7 +512,8 @@
       1.51
      ],
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     }
    },
    "players": {
@@ -1113,6 +1134,10 @@
        ]
       }
      },
+     "rest": {
+      "h": 13.8,
+      "a": 13.9
+     },
      "inj": {
       "h": {
        "players": [],
@@ -1147,7 +1172,7 @@
       "1": {
        "b": 1.91,
        "k": "Coral",
-       "a": 1.821,
+       "a": 1.822,
        "n": 18,
        "all": [
         [
@@ -1183,6 +1208,10 @@
          1.83
         ],
         [
+         "Casumo",
+         1.83
+        ],
+        [
          "LeoVegas",
          1.83
         ],
@@ -1192,10 +1221,6 @@
         ],
         [
          "BoyleSports",
-         1.8
-        ],
-        [
-         "Casumo",
          1.8
         ],
         [
@@ -1227,7 +1252,7 @@
       "2": {
        "b": 4.1,
        "k": "Grosvenor",
-       "a": 3.861,
+       "a": 3.869,
        "n": 18,
        "all": [
         [
@@ -1292,7 +1317,7 @@
         ],
         [
          "Casumo",
-         3.6
+         3.75
         ],
         [
          "Bet Victor",
@@ -1307,7 +1332,7 @@
       "X": {
        "b": 3.75,
        "k": "Betfred (UK)",
-       "a": 3.708,
+       "a": 3.703,
        "n": 18,
        "all": [
         [
@@ -1375,12 +1400,12 @@
          3.65
         ],
         [
-         "Casumo",
+         "Sky Bet",
          3.6
         ],
         [
-         "Sky Bet",
-         3.6
+         "Casumo",
+         3.5
         ]
        ]
       },
@@ -1424,6 +1449,10 @@
         ]
        ]
       }
+     },
+     "rest": {
+      "h": 13,
+      "a": 14.1
      },
      "inj": {
       "h": {
@@ -1742,6 +1771,10 @@
         ]
        ]
       }
+     },
+     "rest": {
+      "h": 12.9,
+      "a": 13
      },
      "inj": {
       "h": {
@@ -2063,6 +2096,10 @@
        ]
       }
      },
+     "rest": {
+      "h": 13,
+      "a": 13.9
+     },
      "inj": {
       "h": {
        "players": [],
@@ -2373,6 +2410,10 @@
        ]
       }
      },
+     "rest": {
+      "h": 14.1,
+      "a": 13
+     },
      "inj": {
       "h": {
        "players": [],
@@ -2682,6 +2723,10 @@
         ]
        ]
       }
+     },
+     "rest": {
+      "h": 14.8,
+      "a": 13
      },
      "inj": {
       "h": {
@@ -2997,6 +3042,10 @@
        ]
       }
      },
+     "rest": {
+      "h": 14.1,
+      "a": 14.1
+     },
      "inj": {
       "h": {
        "players": [],
@@ -3311,6 +3360,10 @@
        ]
       }
      },
+     "rest": {
+      "h": 15,
+      "a": 14
+     },
      "inj": {
       "h": {
        "players": [],
@@ -3503,7 +3556,7 @@
       "X": {
        "b": 4.25,
        "k": "Unibet (UK)",
-       "a": 4.036,
+       "a": 4.031,
        "n": 18,
        "all": [
         [
@@ -3527,15 +3580,15 @@
          4.1
         ],
         [
-         "Betano (UK)",
-         4.1
-        ],
-        [
          "LeoVegas",
          4.1
         ],
         [
          "888sport",
+         4
+        ],
+        [
+         "Betano (UK)",
          4
         ],
         [
@@ -3636,6 +3689,10 @@
         ]
        ]
       }
+     },
+     "rest": {
+      "h": 14.1,
+      "a": 14
      },
      "inj": {
       "h": {
@@ -3937,6 +3994,10 @@
        ]
       }
      },
+     "rest": {
+      "h": 15.3,
+      "a": 17
+     },
      "inj": {
       "h": {
        "players": [],
@@ -3978,7 +4039,8 @@
      "f": "DLWWD",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Atlético": {
      "o": [
@@ -3999,7 +4061,8 @@
      "f": "WWWWL",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Osasuna": {
      "o": [
@@ -4020,7 +4083,8 @@
      "f": "LWLLD",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Espanyol": {
      "o": [
@@ -4041,7 +4105,8 @@
      "f": "DLLWD",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Barça": {
      "o": [
@@ -4062,7 +4127,8 @@
      "f": "WWLWW",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Getafe": {
      "o": [
@@ -4083,7 +4149,8 @@
      "f": "LDLWL",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Málaga": {
      "o": [
@@ -4104,7 +4171,8 @@
      "f": "DLDLL",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Real Madrid": {
      "o": [
@@ -4125,7 +4193,8 @@
      "f": "WWWWW",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Rayo Vallecano": {
      "o": [
@@ -4146,7 +4215,8 @@
      "f": "DDLWL",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Levante": {
      "o": [
@@ -4167,7 +4237,8 @@
      "f": "DWLLD",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Real Betis": {
      "o": [
@@ -4188,7 +4259,8 @@
      "f": "WLDWW",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Real Sociedad": {
      "o": [
@@ -4209,7 +4281,8 @@
      "f": "WWWLW",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Villarreal": {
      "o": [
@@ -4230,7 +4303,8 @@
      "f": "LDWLW",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Valencia": {
      "o": [
@@ -4251,7 +4325,8 @@
      "f": "DDLWL",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Alavés": {
      "o": [
@@ -4272,7 +4347,8 @@
      "f": "LLDLD",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Elche": {
      "o": [
@@ -4293,7 +4369,8 @@
      "f": "DDWLL",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Celta": {
      "o": [
@@ -4314,7 +4391,8 @@
      "f": "DWDLD",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Sevilla FC": {
      "o": [
@@ -4335,7 +4413,8 @@
      "f": "DLWLD",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Deportivo": {
      "o": [
@@ -4356,7 +4435,8 @@
      "f": "LDLWD",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Santander": {
      "o": [
@@ -4377,7 +4457,8 @@
      "f": "DLWLW",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     }
    },
    "players": {
@@ -4970,6 +5051,10 @@
        ]
       }
      },
+     "rest": {
+      "h": 13.1,
+      "a": 13.2
+     },
      "inj": {
       "h": {
        "players": [],
@@ -5255,6 +5340,10 @@
         ]
        ]
       }
+     },
+     "rest": {
+      "h": 14.7,
+      "a": 13.9
      },
      "inj": {
       "h": {
@@ -5554,6 +5643,10 @@
        ]
       }
      },
+     "rest": {
+      "h": 13,
+      "a": 13.8
+     },
      "inj": {
       "h": {
        "players": [],
@@ -5586,7 +5679,7 @@
       "1": {
        "b": 3,
        "k": "Coral",
-       "a": 2.768,
+       "a": 2.774,
        "n": 17,
        "all": [
         [
@@ -5651,23 +5744,23 @@
         ],
         [
          "Bet Victor",
-         2.55
+         2.6
         ],
         [
          "Betano (UK)",
-         2.55
+         2.6
         ]
        ]
       },
       "2": {
-       "b": 2.45,
+       "b": 2.5,
        "k": "Betfair Sportsbook",
-       "a": 2.328,
+       "a": 2.331,
        "n": 17,
        "all": [
         [
          "Betfair Sportsbook",
-         2.45
+         2.5
         ],
         [
          "Betway",
@@ -5737,14 +5830,10 @@
       },
       "X": {
        "b": 3.5,
-       "k": "Betfair Sportsbook",
-       "a": 3.435,
+       "k": "Betfred (UK)",
+       "a": 3.418,
        "n": 17,
        "all": [
-        [
-         "Betfair Sportsbook",
-         3.5
-        ],
         [
          "Betfred (UK)",
          3.5
@@ -5759,10 +5848,6 @@
         ],
         [
          "Ladbrokes",
-         3.5
-        ],
-        [
-         "Unibet (UK)",
          3.5
         ],
         [
@@ -5782,6 +5867,10 @@
          3.4
         ],
         [
+         "Betfair Sportsbook",
+         3.4
+        ],
+        [
          "BoyleSports",
          3.4
         ],
@@ -5794,16 +5883,20 @@
          3.4
         ],
         [
-         "Paddy Power",
+         "Sky Bet",
          3.4
         ],
         [
-         "Sky Bet",
+         "Unibet (UK)",
          3.4
         ],
         [
          "William Hill",
          3.4
+        ],
+        [
+         "Paddy Power",
+         3.3
         ],
         [
          "Virgin Bet",
@@ -5814,7 +5907,7 @@
       "O25": {
        "b": 1.76,
        "k": "Grosvenor",
-       "a": 1.737,
+       "a": 1.747,
        "n": 3,
        "all": [
         [
@@ -5827,20 +5920,16 @@
         ],
         [
          "LeoVegas",
-         1.7
+         1.73
         ]
        ]
       },
       "U25": {
        "b": 2.05,
-       "k": "LeoVegas",
-       "a": 2.04,
+       "k": "William Hill",
+       "a": 2.03,
        "n": 3,
        "all": [
-        [
-         "LeoVegas",
-         2.05
-        ],
         [
          "William Hill",
          2.05
@@ -5848,9 +5937,17 @@
         [
          "Grosvenor",
          2.02
+        ],
+        [
+         "LeoVegas",
+         2.02
         ]
        ]
       }
+     },
+     "rest": {
+      "h": 14.9,
+      "a": 13.2
      },
      "inj": {
       "h": {
@@ -6174,6 +6271,10 @@
        ]
       }
      },
+     "rest": {
+      "h": 14,
+      "a": 13.1
+     },
      "inj": {
       "h": {
        "players": [],
@@ -6456,6 +6557,10 @@
        ]
       }
      },
+     "rest": {
+      "h": 13.7,
+      "a": 13.8
+     },
      "inj": {
       "h": {
        "players": [],
@@ -6488,7 +6593,7 @@
       "1": {
        "b": 3.3,
        "k": "Betfair Sportsbook",
-       "a": 3.071,
+       "a": 3.053,
        "n": 17,
        "all": [
         [
@@ -6516,19 +6621,11 @@
          3.2
         ],
         [
-         "Betway",
-         3.1
-        ],
-        [
          "Grosvenor",
          3.1
         ],
         [
          "Unibet (UK)",
-         3.1
-        ],
-        [
-         "William Hill",
          3.1
         ],
         [
@@ -6540,6 +6637,10 @@
          3.05
         ],
         [
+         "Betway",
+         3
+        ],
+        [
          "Casumo",
          3
         ],
@@ -6548,23 +6649,27 @@
          3
         ],
         [
-         "Bet Victor",
-         2.8
-        ],
-        [
-         "Betano (UK)",
-         2.8
+         "William Hill",
+         3
         ],
         [
          "BoyleSports",
          2.8
+        ],
+        [
+         "Bet Victor",
+         2.75
+        ],
+        [
+         "Betano (UK)",
+         2.75
         ]
        ]
       },
       "2": {
        "b": 2.05,
        "k": "Betfred (UK)",
-       "a": 1.993,
+       "a": 1.988,
        "n": 17,
        "all": [
         [
@@ -6573,10 +6678,6 @@
         ],
         [
          "Coral",
-         2.05
-        ],
-        [
-         "Ladbrokes",
          2.05
         ],
         [
@@ -6608,6 +6709,10 @@
          2
         ],
         [
+         "Ladbrokes",
+         2
+        ],
+        [
          "Sky Bet",
          2
         ],
@@ -6629,18 +6734,18 @@
         ],
         [
          "Bet Victor",
-         1.85
+         1.83
         ],
         [
          "Betano (UK)",
-         1.85
+         1.83
         ]
        ]
       },
       "X": {
        "b": 4.1,
        "k": "Betfair Sportsbook",
-       "a": 3.882,
+       "a": 3.894,
        "n": 17,
        "all": [
         [
@@ -6664,6 +6769,10 @@
          4
         ],
         [
+         "Unibet (UK)",
+         4
+        ],
+        [
          "Bet Victor",
          3.9
         ],
@@ -6680,15 +6789,11 @@
          3.9
         ],
         [
-         "Unibet (UK)",
+         "LeoVegas",
          3.9
         ],
         [
          "Grosvenor",
-         3.85
-        ],
-        [
-         "LeoVegas",
          3.85
         ],
         [
@@ -6700,11 +6805,11 @@
          3.8
         ],
         [
-         "Virgin Bet",
-         3.75
+         "William Hill",
+         3.8
         ],
         [
-         "William Hill",
+         "Virgin Bet",
          3.75
         ],
         [
@@ -6716,28 +6821,36 @@
       "O35": {
        "b": 2.05,
        "k": "Grosvenor",
-       "a": 2.015,
-       "n": 2,
+       "a": 1.937,
+       "n": 3,
        "all": [
         [
          "Grosvenor",
          2.05
         ],
         [
+         "Casumo",
+         1.91
+        ],
+        [
          "LeoVegas",
-         1.98
+         1.85
         ]
        ]
       },
       "U35": {
-       "b": 1.77,
+       "b": 1.88,
        "k": "LeoVegas",
-       "a": 1.755,
-       "n": 2,
+       "a": 1.79,
+       "n": 3,
        "all": [
         [
          "LeoVegas",
-         1.77
+         1.88
+        ],
+        [
+         "Casumo",
+         1.75
         ],
         [
          "Grosvenor",
@@ -6746,29 +6859,33 @@
        ]
       },
       "O25": {
-       "b": 1.4,
+       "b": 1.36,
        "k": "William Hill",
-       "a": 1.4,
+       "a": 1.36,
        "n": 1,
        "all": [
         [
          "William Hill",
-         1.4
+         1.36
         ]
        ]
       },
       "U25": {
-       "b": 2.75,
+       "b": 2.9,
        "k": "William Hill",
-       "a": 2.75,
+       "a": 2.9,
        "n": 1,
        "all": [
         [
          "William Hill",
-         2.75
+         2.9
         ]
        ]
       }
+     },
+     "rest": {
+      "h": 15.1,
+      "a": 14
      },
      "inj": {
       "h": {
@@ -6800,22 +6917,34 @@
      },
      "odds": {
       "1": {
-       "b": 1.78,
-       "k": "Unibet (UK)",
-       "a": 1.731,
+       "b": 1.8,
+       "k": "Betfair Sportsbook",
+       "a": 1.749,
        "n": 17,
        "all": [
         [
+         "Betfair Sportsbook",
+         1.8
+        ],
+        [
+         "Betfred (UK)",
+         1.8
+        ],
+        [
          "Unibet (UK)",
-         1.78
+         1.8
+        ],
+        [
+         "Betway",
+         1.77
+        ],
+        [
+         "LeoVegas",
+         1.77
         ],
         [
          "Grosvenor",
          1.76
-        ],
-        [
-         "Betfair Sportsbook",
-         1.75
         ],
         [
          "Coral",
@@ -6826,7 +6955,7 @@
          1.75
         ],
         [
-         "LeoVegas",
+         "Paddy Power",
          1.75
         ],
         [
@@ -6838,10 +6967,6 @@
          1.75
         ],
         [
-         "Betfred (UK)",
-         1.73
-        ],
-        [
          "Casumo",
          1.73
         ],
@@ -6850,55 +6975,39 @@
          1.73
         ],
         [
-         "Paddy Power",
-         1.73
-        ],
-        [
          "Virgin Bet",
          1.72
         ],
         [
-         "Betway",
+         "Bet Victor",
+         1.7
+        ],
+        [
+         "Betano (UK)",
          1.7
         ],
         [
          "BoyleSports",
          1.7
-        ],
-        [
-         "Bet Victor",
-         1.67
-        ],
-        [
-         "Betano (UK)",
-         1.67
         ]
        ]
       },
       "2": {
        "b": 4.6,
-       "k": "Betfair Sportsbook",
-       "a": 4.381,
+       "k": "Coral",
+       "a": 4.328,
        "n": 17,
        "all": [
-        [
-         "Betfair Sportsbook",
-         4.6
-        ],
-        [
-         "Betfred (UK)",
-         4.6
-        ],
         [
          "Coral",
          4.6
         ],
         [
-         "Ladbrokes",
+         "Betfair Sportsbook",
          4.5
         ],
         [
-         "Paddy Power",
+         "Ladbrokes",
          4.5
         ],
         [
@@ -6918,7 +7027,7 @@
          4.35
         ],
         [
-         "Betway",
+         "Betfred (UK)",
          4.33
         ],
         [
@@ -6930,8 +7039,12 @@
          4.33
         ],
         [
-         "LeoVegas",
+         "Paddy Power",
          4.33
+        ],
+        [
+         "LeoVegas",
+         4.3
         ],
         [
          "LiveScore Bet",
@@ -6948,30 +7061,30 @@
         [
          "Betano (UK)",
          4
+        ],
+        [
+         "Betway",
+         4
         ]
        ]
       },
       "X": {
        "b": 3.75,
-       "k": "Betfair Sportsbook",
-       "a": 3.585,
+       "k": "Betfred (UK)",
+       "a": 3.574,
        "n": 17,
        "all": [
-        [
-         "Betfair Sportsbook",
-         3.75
-        ],
         [
          "Betfred (UK)",
          3.75
         ],
         [
-         "Grosvenor",
-         3.65
+         "Betfair Sportsbook",
+         3.7
         ],
         [
-         "Betway",
-         3.6
+         "Grosvenor",
+         3.65
         ],
         [
          "BoyleSports",
@@ -6983,10 +7096,6 @@
         ],
         [
          "Ladbrokes",
-         3.6
-        ],
-        [
-         "LeoVegas",
          3.6
         ],
         [
@@ -7006,11 +7115,19 @@
          3.6
         ],
         [
+         "LeoVegas",
+         3.55
+        ],
+        [
          "Bet Victor",
          3.5
         ],
         [
          "Betano (UK)",
+         3.5
+        ],
+        [
+         "Betway",
          3.5
         ],
         [
@@ -7029,32 +7146,32 @@
       },
       "O25": {
        "b": 1.95,
-       "k": "William Hill",
-       "a": 1.905,
+       "k": "LeoVegas",
+       "a": 1.93,
        "n": 4,
        "all": [
+        [
+         "LeoVegas",
+         1.95
+        ],
         [
          "William Hill",
          1.95
         ],
         [
+         "Casumo",
+         1.91
+        ],
+        [
          "Grosvenor",
          1.91
-        ],
-        [
-         "LeoVegas",
-         1.91
-        ],
-        [
-         "Casumo",
-         1.85
         ]
        ]
       },
       "U25": {
        "b": 1.85,
        "k": "Grosvenor",
-       "a": 1.82,
+       "a": 1.8,
        "n": 4,
        "all": [
         [
@@ -7063,18 +7180,22 @@
         ],
         [
          "LeoVegas",
-         1.83
-        ],
-        [
-         "Casumo",
          1.8
         ],
         [
          "William Hill",
          1.8
+        ],
+        [
+         "Casumo",
+         1.75
         ]
        ]
       }
+     },
+     "rest": {
+      "h": 15,
+      "a": 15.2
      },
      "inj": {
       "h": {
@@ -7382,6 +7503,10 @@
        ]
       }
      },
+     "rest": {
+      "h": 14.1,
+      "a": 14
+     },
      "inj": {
       "h": {
        "players": [],
@@ -7668,6 +7793,10 @@
        ]
       }
      },
+     "rest": {
+      "h": 15.1,
+      "a": 15.3
+     },
      "inj": {
       "h": {
        "players": [],
@@ -7707,7 +7836,8 @@
      "f": "WLDDL",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Hoffenheim": {
      "o": [
@@ -7728,7 +7858,8 @@
      "f": "LWWLW",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Leverkusen": {
      "o": [
@@ -7749,7 +7880,8 @@
      "f": "WWLLW",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Dortmund": {
      "o": [
@@ -7770,7 +7902,8 @@
      "f": "DDWDW",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Bayern": {
      "o": [
@@ -7791,7 +7924,8 @@
      "f": "DWWDW",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Schalke": {
      "o": [
@@ -7812,7 +7946,8 @@
      "f": "LLDLL",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "HSV": {
      "o": [
@@ -7833,7 +7968,8 @@
      "f": "WWLLW",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Stuttgart": {
      "o": [
@@ -7854,7 +7990,8 @@
      "f": "WLLWW",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Bremen": {
      "o": [
@@ -7875,7 +8012,8 @@
      "f": "DDWWL",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Mainz": {
      "o": [
@@ -7896,7 +8034,8 @@
      "f": "LWLLL",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Augsburg": {
      "o": [
@@ -7917,7 +8056,8 @@
      "f": "DLDLL",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Freiburg": {
      "o": [
@@ -7938,7 +8078,8 @@
      "f": "WLLWW",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "M'gladbach": {
      "o": [
@@ -7959,7 +8100,8 @@
      "f": "LLWDL",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Frankfurt": {
      "o": [
@@ -7980,7 +8122,8 @@
      "f": "LWLWD",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Union Berlin": {
      "o": [
@@ -8001,7 +8144,8 @@
      "f": "WDDDL",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "SC Paderborn": {
      "o": [
@@ -8022,7 +8166,8 @@
      "f": "LDWDD",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Elversberg": {
      "o": [
@@ -8043,7 +8188,8 @@
      "f": "LWLWL",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "RB Leipzig": {
      "o": [
@@ -8064,7 +8210,8 @@
      "f": "WLWWW",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     }
    },
    "players": {
@@ -8649,6 +8796,10 @@
        ]
       }
      },
+     "rest": {
+      "h": 13.2,
+      "a": 12.2
+     },
      "inj": {
       "h": {
        "players": [],
@@ -8983,6 +9134,10 @@
        ]
       }
      },
+     "rest": {
+      "h": 13,
+      "a": 14
+     },
      "inj": {
       "h": {
        "players": [],
@@ -9309,6 +9464,10 @@
        ]
       }
      },
+     "rest": {
+      "h": 12.9,
+      "a": 14
+     },
      "inj": {
       "h": {
        "players": [],
@@ -9421,7 +9580,7 @@
       "2": {
        "b": 2.05,
        "k": "Coral",
-       "a": 1.958,
+       "a": 1.961,
        "n": 18,
        "all": [
         [
@@ -9490,11 +9649,11 @@
         ],
         [
          "Bet Victor",
-         1.85
+         1.87
         ],
         [
          "Betano (UK)",
-         1.85
+         1.87
         ]
        ]
       },
@@ -9634,6 +9793,10 @@
         ]
        ]
       }
+     },
+     "rest": {
+      "h": 14,
+      "a": 12.9
      },
      "inj": {
       "h": {
@@ -9960,6 +10123,10 @@
         ]
        ]
       }
+     },
+     "rest": {
+      "h": 14.8,
+      "a": 14
      },
      "inj": {
       "h": {
@@ -10295,6 +10462,10 @@
        ]
       }
      },
+     "rest": {
+      "h": 14,
+      "a": 12.8
+     },
      "inj": {
       "h": {
        "players": [],
@@ -10327,7 +10498,7 @@
       "1": {
        "b": 4,
        "k": "Betfair Sportsbook",
-       "a": 3.739,
+       "a": 3.744,
        "n": 18,
        "all": [
         [
@@ -10396,7 +10567,7 @@
         ],
         [
          "Bet Victor",
-         3.3
+         3.4
         ],
         [
          "Betano (UK)",
@@ -10620,6 +10791,10 @@
         ]
        ]
       }
+     },
+     "rest": {
+      "h": 13,
+      "a": 14
      },
      "inj": {
       "h": {
@@ -10947,6 +11122,10 @@
        ]
       }
      },
+     "rest": {
+      "h": 15,
+      "a": 15
+     },
      "inj": {
       "h": {
        "players": [],
@@ -11273,6 +11452,10 @@
        ]
       }
      },
+     "rest": {
+      "h": 15,
+      "a": 15.9
+     },
      "inj": {
       "h": {
        "players": [],
@@ -11312,7 +11495,8 @@
      "f": "DWDLW",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Brest": {
      "o": [
@@ -11333,7 +11517,8 @@
      "f": "WDLWW",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Marseille": {
      "o": [
@@ -11354,7 +11539,8 @@
      "f": "WWWWW",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Auxerre": {
      "o": [
@@ -11375,7 +11561,8 @@
      "f": "LWDLL",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Lille": {
      "o": [
@@ -11396,7 +11583,8 @@
      "f": "WDDWW",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Nice": {
      "o": [
@@ -11417,7 +11605,8 @@
      "f": "WLWWW",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Olympique Lyon": {
      "o": [
@@ -11438,7 +11627,8 @@
      "f": "LWLWL",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "PSG": {
      "o": [
@@ -11459,7 +11649,8 @@
      "f": "WWWWW",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Lorient": {
      "o": [
@@ -11480,7 +11671,8 @@
      "f": "WWDLW",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Stade Rennais": {
      "o": [
@@ -11501,7 +11693,8 @@
      "f": "WLWLL",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Troyes": {
      "o": [
@@ -11522,7 +11715,8 @@
      "f": "LLDWL",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Angers SCO": {
      "o": [
@@ -11543,7 +11737,8 @@
      "f": "LLDLL",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Le Havre": {
      "o": [
@@ -11564,7 +11759,8 @@
      "f": "LLLLL",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Le Mans": {
      "o": [
@@ -11585,7 +11781,8 @@
      "f": "LLDLD",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "RC Lens": {
      "o": [
@@ -11606,7 +11803,8 @@
      "f": "WWWLL",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Monaco": {
      "o": [
@@ -11627,7 +11825,8 @@
      "f": "DLDLD",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Strasbourg": {
      "o": [
@@ -11648,7 +11847,8 @@
      "f": "LLLWL",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     },
     "Paris FC": {
      "o": [
@@ -11669,7 +11869,8 @@
      "f": "LWLWW",
      "xg": null,
      "cn": null,
-     "cd": null
+     "cd": null,
+     "elo": null
     }
    },
    "players": {
@@ -12088,7 +12289,7 @@
       "2": {
        "b": 3.4,
        "k": "Betfair Sportsbook",
-       "a": 3.219,
+       "a": 3.222,
        "n": 18,
        "all": [
         [
@@ -12097,6 +12298,10 @@
         ],
         [
          "888sport",
+         3.3
+        ],
+        [
+         "Betway",
          3.3
         ],
         [
@@ -12118,10 +12323,6 @@
         [
          "William Hill",
          3.3
-        ],
-        [
-         "Betway",
-         3.25
         ],
         [
          "Grosvenor",
@@ -12293,6 +12494,10 @@
         ]
        ]
       }
+     },
+     "rest": {
+      "h": 13,
+      "a": 12.1
      },
      "inj": {
       "h": {
@@ -12628,6 +12833,10 @@
        ]
       }
      },
+     "rest": {
+      "h": 13,
+      "a": 13.8
+     },
      "inj": {
       "h": {
        "players": [],
@@ -12949,6 +13158,10 @@
        ]
       }
      },
+     "rest": {
+      "h": 13.1,
+      "a": 14.1
+     },
      "inj": {
       "h": {
        "players": [],
@@ -13258,6 +13471,10 @@
         ]
        ]
       }
+     },
+     "rest": {
+      "h": 13,
+      "a": 15
      },
      "inj": {
       "h": {
@@ -13569,6 +13786,10 @@
        ]
       }
      },
+     "rest": {
+      "h": 13.2,
+      "a": 13.1
+     },
      "inj": {
       "h": {
        "players": [],
@@ -13878,6 +14099,10 @@
         ]
        ]
       }
+     },
+     "rest": {
+      "h": 15,
+      "a": 13.1
      },
      "inj": {
       "h": {
@@ -14189,6 +14414,10 @@
        ]
       }
      },
+     "rest": {
+      "h": 14.8,
+      "a": 13.9
+     },
      "inj": {
       "h": {
        "players": [],
@@ -14218,6 +14447,10 @@
       "wind": 24
      },
      "odds": null,
+     "rest": {
+      "h": 14,
+      "a": 14.1
+     },
      "inj": {
       "h": {
        "players": [],
@@ -14543,6 +14776,10 @@
         ]
        ]
       }
+     },
+     "rest": {
+      "h": 14,
+      "a": 14.1
      },
      "inj": {
       "h": {
