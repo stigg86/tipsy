@@ -156,6 +156,19 @@ header.pitch::after{content:"";position:absolute;inset:auto 0 0 0;height:34px;ba
 .rbtn b{display:block;font-size:14px}
 .rbtn small{color:var(--mute);font-size:11.5px}
 .rbtn.on{border-color:var(--accent);background:rgba(61,220,151,.12)}
+.cm{border:1px solid var(--line);border-radius:11px;background:var(--panel2)}
+.cm summary{display:flex;justify-content:space-between;gap:8px;padding:10px 12px;color:var(--ink);font-size:14px}
+.cm summary small{color:var(--mute);font-size:12px;white-space:nowrap}
+.cm summary .cnt{color:var(--home);font-weight:700}
+.cbets{padding:0 12px 12px;display:grid;gap:8px}
+.cbets h4{font:500 12.5px Inter,sans-serif;color:var(--mute);margin:4px 0 0}
+.cbrow{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px}
+.cb{background:var(--panel);border:1px solid var(--line);color:var(--ink);border-radius:9px;padding:7px 9px;text-align:left;cursor:pointer;font:inherit}
+.cb b{display:block;font-size:13px}
+.cb span{font-size:11.5px;color:var(--mute)}
+.cb.on{border-color:var(--home);background:rgba(61,220,151,.14)}
+.cb.on b::before{content:"✓ ";color:var(--home)}
+#custom{display:grid;gap:6px}
 .manual{border-top:1px solid var(--line)}
 .manual summary{padding:10px 0 2px}
 .ptwrap{display:grid;gap:6px}
@@ -276,7 +289,11 @@ section[data-sec]>h2:first-child{margin-top:10px}
   </section>
   <section data-sec="acca" hidden>
   <h2>Accumulator builder</h2>
-  <div class="builder">
+  <div class="tabs" id="accaMode">
+    <button class="tab on" data-amode="quick">Quick build</button>
+    <button class="tab" data-amode="custom">Build your own</button>
+  </div>
+  <div class="builder" id="quickPanel">
     <div>
       <label>How many bets?</label>
       <div class="autorow">
@@ -295,17 +312,11 @@ section[data-sec]>h2:first-child{margin-top:10px}
       <button class="btn ghost" id="pricedOnly" style="margin-top:8px">💷 Only bets with bookie prices</button>
       <div class="mute" style="font-size:11.5px;margin-top:4px">Turn on to compare bookies for the whole accumulator – uses match result and goals over/under only.</div>
     </div>
-    <details class="manual">
-      <summary>Add bets one by one</summary>
-      <div style="display:grid;gap:10px;padding-top:8px">
-        <div><label>League</label><select id="selLg"></select></div>
-        <div><label>Match</label><select id="selM"></select></div>
-        <div class="addrow">
-          <div><label>Bet</label><select id="selMk"></select></div>
-          <button class="btn" id="addLeg">Add</button>
-        </div>
-      </div>
-    </details>
+    <div class="quick"><button class="btn ghost" data-quick="clear">Clear accumulator</button></div>
+  </div>
+  <div class="builder" id="customPanel" hidden>
+    <div class="mute" style="font-size:13px">Open a match and tap the bets you want. Tap again to remove. Up to 20 bets – the league buttons above filter the matches.</div>
+    <div id="custom"></div>
     <div class="quick"><button class="btn ghost" data-quick="clear">Clear accumulator</button></div>
   </div>
   <div class="acca" id="acca" style="margin-top:10px"></div>
@@ -544,30 +555,7 @@ function renderValue(){
 function saveLegs(){try{localStorage.setItem("tipsy-acca",JSON.stringify(legs))}catch(e){}}
 function loadLegs(){try{const v=JSON.parse(localStorage.getItem("tipsy-acca")||"[]");legs=v.filter(l=>MATCH[l.mid]&&market(MATCH[l.mid],l.key)).slice(0,MAXLEGS)}catch(e){legs=[]}}
 
-function fillSelLg(){
-  const s=document.getElementById("selLg");
-  s.innerHTML=LG.map((L,i)=>`<option value="${i}" ${i===Math.max(0,cur)?"selected":""}>${esc(L.name)}</option>`).join("");
-  fillSelM();
-}
-function fillSelM(){
-  const L=LG[+document.getElementById("selLg").value]||curL(),s=document.getElementById("selM");
-  const ms=(L.matches||[]).filter(m=>m._r);
-  s.innerHTML=ms.length?ms.map(m=>`<option value="${m.id}">${esc(m.h)} v ${esc(m.a)} · ${esc(m.d)}</option>`).join(""):'<option value="">No matches yet</option>';
-  fillSelMk();
-}
-function fillSelMk(){
-  const m=MATCH[document.getElementById("selM").value],s=document.getElementById("selMk");
-  if(!m){s.innerHTML="";updateAddBtn();return;}
-  const groups={};markets(m).forEach(x=>(groups[x.group]??=[]).push(x));
-  s.innerHTML=Object.entries(groups).map(([g,xs])=>`<optgroup label="${esc(g)}">${xs.map(x=>`<option value="${x.key}">${esc(x.label)} — ${pc(x.p)}</option>`).join("")}</optgroup>`).join("");
-  updateAddBtn();
-}
-function updateAddBtn(){
-  const b=document.getElementById("addLeg"),m=document.getElementById("selM").value,k=document.getElementById("selMk").value;
-  const dup=legs.some(l=>l.mid==m&&l.key===k);
-  b.disabled=!m||!k||legs.length>=MAXLEGS||dup;
-  b.textContent=legs.length>=MAXLEGS?"Full":dup?"Added":"Add";
-}
+function updateAddBtn(){}
 function addLeg(mid,key){
   if(legs.length>=MAXLEGS||legs.some(l=>l.mid==mid&&l.key===key))return;
   legs.push({mid:Number(mid)||mid,key});autoNote="";saveLegs();renderAuto();renderAcca();updateAddBtn();
@@ -614,7 +602,7 @@ function autoBuild(risk){
   autoNote=[risk==="value"&&!anyOdds?"No bookmaker odds loaded yet, so these are balanced picks.":
             filled?`Only ${chosen.length-filled} value bet${chosen.length-filled===1?"":"s"} found – topped up with ${filled} balanced pick${filled===1?"":"s"}.`:"",
             short>0?`Only ${chosen.length} suitable match${chosen.length===1?"":"es"} available for ${R.label.toLowerCase()} picks.`:""].filter(Boolean).join(" ");
-  legs=chosen.map(({mid,key})=>({mid,key}));saveLegs();renderAuto();renderAcca();updateAddBtn();
+  legs=chosen.map(({mid,key})=>({mid,key}));saveLegs();renderAuto();renderAcca();renderCustom();
   document.getElementById("acca").scrollIntoView({behavior:"smooth",block:"nearest"});
 }
 function renderAuto(){
@@ -623,7 +611,7 @@ function renderAuto(){
   const pb=document.getElementById("pricedOnly");if(pb){pb.classList.toggle("on",pricedOnly);pb.textContent=(pricedOnly?"✓ ":"")+"💷 Only bets with bookie prices";}
 }
 function quick(kind){
-  if(kind==="clear"){legs=[];autoNote="";saveLegs();renderAuto();renderAcca();updateAddBtn();}
+  if(kind==="clear"){legs=[];autoNote="";saveLegs();renderAuto();renderAcca();renderCustom();}
 }
 // Rank bookmakers by the price they'd pay for the whole accumulator (an acca must be placed at one bookie)
 function whereToBet(){
@@ -647,7 +635,7 @@ function whereToBet(){
 
 function renderAcca(){
   const el=document.getElementById("acca");
-  if(!legs.length){el.innerHTML=`<div class="empty">Choose how many legs and a risk level for an instant accumulator, or add bets one by one below – up to ${MAXLEGS} legs.</div>`;return;}
+  if(!legs.length){el.innerHTML=`<div class="empty">Use Quick build for an instant accumulator, or Build your own to pick bets match by match – up to ${MAXLEGS} legs.</div>`;return;}
   let comb=1,bcomb=1,price=1,allPriced=true;const counts={};
   const rows=legs.map((l,i)=>{
     const m=MATCH[l.mid],x=m&&market(m,l.key);if(!x)return"";
@@ -685,22 +673,55 @@ function showSec(name,{scroll=true}={}){
 }
 window.addEventListener("hashchange",()=>showSec(location.hash.slice(1)));
 
+// ---------- Build your own accumulator ----------
+let accaMode="quick";const openCm=new Set();
+function renderCustom(){
+  const el=document.getElementById("custom");if(!el)return;
+  const ms=inView().filter(m=>m._r);
+  if(!ms.length){el.innerHTML='<div class="empty">No matches yet.</div>';return;}
+  const inAcca=(mid,key)=>legs.some(l=>l.mid==mid&&l.key===key);
+  el.innerHTML=ms.map(m=>{
+    const n=legs.filter(l=>l.mid==m.id).length;
+    const groups={};markets(m).forEach(x=>(groups[x.group]??=[]).push(x));
+    return `<details class="cm" data-cm="${m.id}" ${openCm.has(String(m.id))?"open":""}>
+      <summary><span>${esc(m.h)} v ${esc(m.a)}${n?` <span class="cnt">· ${n} picked</span>`:""}</span><small>${cur<0?esc(m.L.name)+" · ":""}${esc(m.d)}</small></summary>
+      <div class="cbets">${Object.entries(groups).map(([g,xs])=>`<h4>${esc(g)}</h4><div class="cbrow">${xs.map(x=>`
+        <button class="cb ${inAcca(m.id,x.key)?"on":""}" data-toggle="${m.id}|${x.key}"><b>${esc(x.label)}</b><span>${pc(x.p)}${x.o?` · ${x.o.b.toFixed(2)} ${esc(x.o.k)}`:` · fair ${(1/x.p).toFixed(2)}`}</span></button>`).join("")}</div>`).join("")}</div>
+    </details>`}).join("");
+  el.querySelectorAll("details.cm").forEach(d=>d.addEventListener("toggle",()=>{d.open?openCm.add(d.dataset.cm):openCm.delete(d.dataset.cm)}));
+}
+function setAccaMode(m){
+  accaMode=m;
+  document.querySelectorAll("[data-amode]").forEach(b=>b.classList.toggle("on",b.dataset.amode===m));
+  document.getElementById("quickPanel").hidden=m!=="quick";
+  document.getElementById("customPanel").hidden=m!=="custom";
+  if(m==="custom")renderCustom();
+}
+
 // ---------- Wiring ----------
 function recompute(mid){
   const m=MATCH[mid];m._r=model(m);
   renderCards();renderPicks();renderScores();renderValue();renderAcca();
-  if(document.getElementById("selM").value==String(mid))fillSelMk();
+  renderCustom();
 }
 function rememberOpen(){document.querySelectorAll("details[data-det]").forEach(d=>{MATCH[d.dataset.det]._open=d.open})}
 
 document.addEventListener("click",e=>{
   const t=e.target;
+  const am=t.closest("[data-amode]");
+  if(am){setAccaMode(am.dataset.amode);return;}
+  const tg=t.closest("[data-toggle]");
+  if(tg){const [mid,key]=tg.dataset.toggle.split("|");const i=legs.findIndex(l=>l.mid==mid&&l.key===key);
+    if(i>=0){legs.splice(i,1);saveLegs();renderAcca();}
+    else if(legs.length>=MAXLEGS){tg.animate&&tg.animate([{transform:"translateX(-3px)"},{transform:"translateX(3px)"},{transform:"none"}],{duration:200});}
+    else addLeg(mid,key);
+    autoNote="";renderAuto();renderCustom();return;}
   const sb=t.closest(".sectabs [data-sec]");
   if(sb){showSec(sb.dataset.sec);return;}
   const hl=t.closest('a[href="#record"]');
   if(hl){e.preventDefault();showSec("record");document.getElementById("sectabs").scrollIntoView({behavior:"smooth"});return;}
   const lg=t.closest(".lgtab");
-  if(lg){cur=+lg.dataset.lg;renderTabs();renderPicks();renderScores();renderValue();renderCards();if(cur>=0){document.getElementById("selLg").value=cur;fillSelM();}return;}
+  if(lg){cur=+lg.dataset.lg;renderTabs();renderPicks();renderScores();renderValue();renderCards();renderCustom();return;}
   const tb=t.closest(".tab[data-m]");
   if(tb){document.querySelectorAll(".tab[data-m]").forEach(x=>x.classList.toggle("on",x===tb));mode=tb.dataset.m;renderPicks();return;}
   const at=t.closest("[data-addm]");
@@ -716,8 +737,7 @@ document.addEventListener("click",e=>{
   const q=t.closest("[data-quick]");
   if(q){quick(q.dataset.quick);return;}
   const rm=t.closest("[data-rm]");
-  if(rm){legs.splice(+rm.dataset.rm,1);saveLegs();renderAcca();updateAddBtn();return;}
-  if(t.closest("#addLeg")){addLeg(document.getElementById("selM").value,document.getElementById("selMk").value);return;}
+  if(rm){legs.splice(+rm.dataset.rm,1);saveLegs();renderAcca();renderCustom();return;}
   const go=t.closest("[data-go]");
   if(go){
     if(cur>=0&&go.dataset.lgi!=null&&+go.dataset.lgi!==cur){cur=+go.dataset.lgi;renderTabs();renderPicks();renderScores();renderValue();renderCards();}
@@ -727,9 +747,6 @@ document.addEventListener("click",e=>{
 });
 document.addEventListener("change",e=>{
   const t=e.target;
-  if(t.id==="selLg"){fillSelM();return;}
-  if(t.id==="selM"){fillSelMk();return;}
-  if(t.id==="selMk"){updateAddBtn();return;}
 
 });
 
@@ -792,7 +809,7 @@ fetch("data/tips.json",{cache:"no-store"}).then(r=>{if(!r.ok)throw 0;return r.js
   document.querySelectorAll('.tab[data-m="cards"]').forEach(b=>b.style.display=hasK?"":"none");
   fetch("data/history.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(renderAccuracy).catch(()=>renderAccuracy(null));
   showSec(location.hash.slice(1)||"tips",{scroll:false});
-  loadLegs();renderAuto();renderTabs();renderPicks();renderScores();renderValue();renderCards();fillSelLg();renderAcca();
+  loadLegs();renderAuto();renderTabs();renderPicks();renderScores();renderValue();renderCards();renderCustom();renderAcca();
 }).catch(()=>{document.getElementById("cards").innerHTML='<div class="note">Couldn\'t load the latest data. Try again shortly.</div>'});
 
 
