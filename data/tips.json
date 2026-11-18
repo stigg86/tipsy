@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-18T15:03:46.919Z",
+ "updated": "2026-11-18T16:44:21.814Z",
  "mode": "live",
  "sources": [
   "football-data.org (fixtures, results, tables, scorers)",
@@ -8,7 +8,7 @@
   "The Odds API (UK bookmaker odds)",
   "Open-Meteo (kick-off weather)"
  ],
- "oddsCreditsLeft": 444,
+ "oddsCreditsLeft": null,
  "leagues": [
   {
    "code": "PL",
@@ -4776,10 +4776,10 @@
      "v": "San Mamés",
      "w": "dry",
      "wx": {
-      "temp": 12,
+      "temp": 13,
       "precip": 0,
       "snow": 0,
-      "wind": 6
+      "wind": 5
      },
      "odds": {
       "1": {
@@ -5076,12 +5076,12 @@
      "h": "Alavés",
      "a": "Deportivo",
      "v": "Estadio de Mendizorroza",
-     "w": "dry",
+     "w": "light",
      "wx": {
-      "temp": 12,
-      "precip": 0,
+      "temp": 11,
+      "precip": 0.2,
       "snow": 0,
-      "wind": 22
+      "wind": 17
      },
      "odds": {
       "1": {
@@ -6587,7 +6587,7 @@
       "temp": 15,
       "precip": 0,
       "snow": 0,
-      "wind": 26
+      "wind": 17
      },
      "odds": {
       "1": {
@@ -6910,10 +6910,10 @@
      "v": "Estadio El Sadar",
      "w": "dry",
      "wx": {
-      "temp": 9,
+      "temp": 10,
       "precip": 0,
       "snow": 0,
-      "wind": 9
+      "wind": 12
      },
      "odds": {
       "1": {
@@ -14444,7 +14444,7 @@
       "temp": 12,
       "precip": 0,
       "snow": 0,
-      "wind": 24
+      "wind": 23
      },
      "odds": null,
      "rest": {
