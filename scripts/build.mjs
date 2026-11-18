@@ -2,6 +2,7 @@
 //   football-data.org  – fixtures, results, tables, top scorers, team addresses (free tier, current season)
 //   The Odds API       – bookmaker odds for match result and goals over/under (free tier, 500 credits/month)
 //   Open-Meteo         – kick-off weather (free, no key, non-commercial)
+//   Fantasy Premier League feed – Premier League injuries/suspensions, chance of playing, player xG (free, no key)
 // Writes data/tips.json for the page. Runs in GitHub Actions (Node 20+).
 //
 // Env:
@@ -29,6 +30,19 @@ const INFO = {
   FL1: { name: "Ligue 1",        country: "FR", odds: "soccer_france_ligue_one" },
   SA:  { name: "Serie A",        country: "IT", odds: "soccer_italy_serie_a" }
 };
+
+const FPL_URL = "https://fantasy.premierleague.com/api/bootstrap-static/";
+let FPL = null; // loaded once if the Premier League is included
+
+async function loadFPL() {
+  try {
+    const r = await fetch(FPL_URL, { headers: { "User-Agent": "Mozilla/5.0 (Tipsy football tips; GitHub Actions)" } });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const j = await r.json();
+    console.log(`  FPL feed: ${j.elements?.length} players, ${j.teams?.length} teams`);
+    return j;
+  } catch (e) { console.warn("FPL feed:", e.message); return null; }
+}
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 let fdCalls = 0, oddsLeft = null, oddsUsed = 0;
@@ -197,6 +211,39 @@ async function buildLeague(code, cache, prev) {
     A.res.push(ag > hg ? "W" : ag === hg ? "D" : "L");
   }
 
+  // Premier League: team news + xG from the FPL feed
+  const fplInj = {};   // fd team id -> [{name, full, why, chance}]
+  const fplXg = {};    // fd team id -> [xgFor/game, xgAgainst/game]
+  if (code === "PL" && FPL) {
+    const fdTeams = {};
+    for (const m of [...done, ...next]) { fdTeams[m.homeTeam.id] = m.homeTeam; fdTeams[m.awayTeam.id] = m.awayTeam; }
+    const map = {}; // fpl team id -> fd team id
+    for (const ft of FPL.teams || []) {
+      let best = null, bs = 0;
+      for (const t of Object.values(fdTeams)) {
+        const sc = Math.max(sim(ft.name, t.name), sim(ft.name, t.shortName || ""), sim(ft.short_name || "", t.tla || "") );
+        if (sc > bs) { bs = sc; best = t.id; }
+      }
+      if (best && bs >= .5) map[ft.id] = best;
+    }
+    const agg = {};
+    for (const el of FPL.elements || []) {
+      const tid = map[el.team]; if (!tid || !T[tid]) continue;
+      const a = (agg[tid] ??= { xg: 0, xgc: 0 });
+      a.xg += Number(el.expected_goals || 0);
+      if (el.element_type === 1) a.xgc += Number(el.expected_goals_conceded || 0);
+      const gp = T[tid].o[0] || 1, regular = (el.minutes || 0) >= .4 * gp * 90;
+      const ch = el.chance_of_playing_next_round;
+      const out = el.status === "i" || el.status === "s" || (el.status === "d" && ch != null && ch <= 50);
+      if (out && regular) (fplInj[tid] ??= []).push({ name: el.web_name, full: `${el.first_name} ${el.second_name}`, why: el.news || "", chance: ch ?? 0 });
+    }
+    for (const [tid, a] of Object.entries(agg)) {
+      const gp = T[tid].o[0];
+      if (gp >= 3) fplXg[tid] = [+(a.xg / gp).toFixed(2), +(a.xgc / gp).toFixed(2)];
+    }
+    console.log(`  FPL: matched ${Object.keys(map).length}/20 teams, ${Object.values(fplInj).flat().length} regulars out or doubtful`);
+  }
+
   // Weather at kick-off
   const weather = {};
   for (const m of next) {
@@ -242,12 +289,23 @@ async function buildLeague(code, cache, prev) {
   }
 
   const teams = {};
-  for (const t of Object.values(T)) teams[t.name] = { o: t.o, h: t.h, a: t.a, f: t.res.slice(-5).join(""), xg: null, cn: null, cd: null };
+  for (const [tid, t] of Object.entries(T)) teams[t.name] = { o: t.o, h: t.h, a: t.a, f: t.res.slice(-5).join(""), xg: fplXg[tid] || null, cn: null, cd: null };
+  const injSide = (team) => {
+    const list = fplInj[team.id] || [], name = teamName(team);
+    const keys = (players[name] || []);
+    const keyOut = [], others = [];
+    for (const x of list) {
+      const k = keys.find(p => sim(p.name, x.full) >= .99 || sim(p.name, x.name) >= .99);
+      if (k) keyOut.push(k.name); else others.push(x);
+    }
+    return { players: keyOut, others: Math.min(3, others.length),
+      all: list.map(x => `${x.name}${x.why ? " – " + x.why : ""}`) };
+  };
   const outMatches = next.map(m => {
     const wx = weather[m.id] || null;
     return { id: m.id, date: m.utcDate, ...ukDate(m.utcDate), h: teamName(m.homeTeam), a: teamName(m.awayTeam),
       v: addr[m.homeTeam.id]?.venue || "", w: weatherKey(wx), wx, odds: oddsByMatch[m.id] || null,
-      inj: { h: { players: [], others: 0, all: [] }, a: { players: [], others: 0, all: [] } } };
+      inj: { h: injSide(m.homeTeam), a: injSide(m.awayTeam) } };
   });
 
   return { code, name: info.name, round: md ? `Matchday ${md}` : (prev?.round || ""), teams,
@@ -262,6 +320,7 @@ async function main() {
   const previous = await readJSON("data/tips.json", null);
   const prevBy = Object.fromEntries((previous?.leagues || []).map(l => [l.code || l.name, l]));
 
+  if (LEAGUES.includes("PL")) FPL = await loadFPL();
   const leagues = [];
   for (const code of LEAGUES) {
     const name = INFO[code]?.name;
@@ -276,6 +335,7 @@ async function main() {
   const data = {
     updated: new Date().toISOString(), mode: "live",
     sources: ["football-data.org (fixtures, results, tables, scorers)",
+      FPL ? "Fantasy Premier League feed (Premier League team news + xG)" : "FPL feed unavailable this run",
       ODDS_KEY ? "The Odds API (UK bookmaker odds)" : "Odds: not configured",
       "Open-Meteo (kick-off weather)"],
     oddsCreditsLeft: oddsLeft,

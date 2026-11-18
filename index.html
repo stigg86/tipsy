@@ -156,7 +156,7 @@ footer{font-size:11.5px;color:var(--mute);margin-top:22px;text-align:center}
 </div></header>
 
 <div class="wrap">
-  <div class="note"><b>Updated:</b> <span id="updated">…</span>. Fixtures, tables, last-5 form, top scorers, UK bookmaker odds and kick-off weather refresh automatically. Team news isn't in the free data, so mark missing players yourself in each match. Percentages are model estimates, not certainties. 18+ · BeGambleAware.org</div>
+  <div class="note"><b>Updated:</b> <span id="updated">…</span>. Fixtures, tables, last-5 form, top scorers, UK bookmaker odds and kick-off weather refresh automatically. Premier League team news and xG come from the official Fantasy Premier League feed, with injured, suspended and 50%-or-less doubtful regulars already marked out. For La Liga, Bundesliga and Ligue 1, mark missing players yourself in each match. Percentages are model estimates, not certainties. 18+ · BeGambleAware.org</div>
 
   <div class="lgtabs" id="lgtabs"></div>
 
@@ -214,10 +214,10 @@ footer{font-size:11.5px;color:var(--mute);margin-top:22px;text-align:center}
 
   <h2>How the model works</h2>
   <div class="how"><ul>
-    <li><b>Attack & defence strength</b> – goals scored and conceded per game (home/away split plus overall), pulled slightly towards the league average for small samples. Each league is modelled against its own averages. Where season xG is available it's blended in 50/50.</li>
+    <li><b>Attack & defence strength</b> – goals scored and conceded per game (home/away split plus overall), pulled slightly towards the league average for small samples. Each league is modelled against its own averages. For the Premier League, season xG from the FPL feed is blended in 50/50.</li>
     <li><b>Last 5 form</b> – recent games weighted heavier (newest ×5, oldest ×1). Hot teams get up to ~+15% on expected goals, cold teams lose the same.</li>
     <li><b>Home advantage</b> – built in, because home and away goal rates are modelled separately.</li>
-    <li><b>Player form</b> – each team's top scorers and assisters. Tap a player who's out and their team's attack drops by their share of its goals (goals + half of assists), less ~40% for whoever replaces them. Mark players out yourself once team news is known.</li>
+    <li><b>Player form</b> – each team's top scorers and assisters. Tap a player who's out and their team's attack drops by their share of its goals (goals + half of assists), less ~40% for whoever replaces them. Premier League absences come in automatically from the FPL feed. Elsewhere, mark players out yourself once team news is known.</li>
     <li><b>Weather</b> – heavy rain, strong wind and freezing conditions cut expected goals (roughly 2–10%).</li>
     <li><b>Goals markets</b> – expected goals feed a Poisson scoreline model (0–0 to 8–8) for win/draw/loss, double chance, over/under 1.5/2.5/3.5, both teams to score and the most likely score.</li>
     <li><b>Value</b> – edge = (30% model chance + 70% bookmaker consensus) × best sportsbook price − 1, skipping longshots over 5.0 and big model/market disagreements. The "Bookies" figure is the average UK price turned into a chance with the bookmaker's margin removed. If the model and the bookies disagree a lot, the bookies are more often right.</li>
