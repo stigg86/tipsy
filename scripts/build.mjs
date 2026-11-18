@@ -44,32 +44,6 @@ async function loadFPL() {
   } catch (e) { console.warn("FPL feed:", e.message); return null; }
 }
 
-// One-off look at the LaLiga Fantasy feed, to see if it carries injury/suspension status
-async function probeLaLiga() {
-  for (const url of ["https://api-fantasy.llt-services.com/api/v3/players?x-lang=en",
-                     "https://api-fantasy.llt-services.com/api/v4/players?x-lang=en"]) {
-    try {
-      const r = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0 (Tipsy football tips; GitHub Actions)" } });
-      const txt = await r.text();
-      console.log(`PROBE ${url} → HTTP ${r.status}, ${txt.length} bytes`);
-      let j; try { j = JSON.parse(txt); } catch { console.log("PROBE not JSON:", txt.slice(0, 200)); continue; }
-      const arr = Array.isArray(j) ? j : (j.data || j.players || j.elements || []);
-      console.log("PROBE items:", Array.isArray(arr) ? arr.length : typeof arr);
-      if (Array.isArray(arr) && arr[0]) {
-        console.log("PROBE keys:", Object.keys(arr[0]).join(","));
-        const statusKey = Object.keys(arr[0]).find(k => /status/i.test(k));
-        if (statusKey) {
-          const counts = {}; for (const x of arr) counts[x[statusKey]] = (counts[x[statusKey]] || 0) + 1;
-          console.log(`PROBE ${statusKey} values:`, JSON.stringify(counts));
-          const ex = arr.find(x => x[statusKey] && !/ok/i.test(x[statusKey]));
-          if (ex) console.log("PROBE example:", JSON.stringify(ex).slice(0, 700));
-        }
-        console.log("PROBE first:", JSON.stringify(arr[0]).slice(0, 500));
-      }
-    } catch (e) { console.log("PROBE error", url, e.message); }
-  }
-}
-
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 let fdCalls = 0, oddsLeft = null, oddsUsed = 0;
 
@@ -349,7 +323,6 @@ async function main() {
   const prevBy = Object.fromEntries((previous?.leagues || []).map(l => [l.code || l.name, l]));
 
   if (LEAGUES.includes("PL")) FPL = await loadFPL();
-  if (process.env.PROBE_LALIGA) await probeLaLiga();
   const leagues = [];
   for (const code of LEAGUES) {
     const name = INFO[code]?.name;
