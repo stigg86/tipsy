@@ -174,6 +174,17 @@ header.pitch::after{content:"";position:absolute;inset:auto 0 0 0;height:34px;ba
 .accgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px}
 .accgrid .stat b{font-size:19px}
 .accrows{display:grid;gap:4px}
+.sectabs{position:sticky;top:0;z-index:5;display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;margin:0 -14px 6px;padding:8px 14px;
+  background:rgba(12,18,16,.94);backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+.sectabs::-webkit-scrollbar{display:none}
+.sectabs{gap:2px}
+.sectabs button{flex:1 1 auto;background:none;border:0;color:var(--mute);font:600 13.5px Inter,sans-serif;padding:9px 5px;border-radius:9px;cursor:pointer;white-space:nowrap}
+@media (max-width:370px){.sectabs button{font-size:12.5px;padding:9px 4px}}
+.sectabs button.on{background:var(--panel2);color:var(--ink);box-shadow:inset 0 -2px 0 var(--home)}
+.sectabs button:focus-visible{outline:2px solid var(--accent)}
+.upd{color:var(--mute);font-size:12.5px;margin:2px 0 4px}
+.upd a{color:var(--mute)}
+section[data-sec]>h2:first-child{margin-top:10px}
 .scores{display:grid;gap:6px}
 .srow{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;cursor:pointer}
 .srow .sh{text-align:right;font-weight:600;font-size:14.5px}
@@ -216,11 +227,15 @@ header.pitch::after{content:"";position:absolute;inset:auto 0 0 0;height:34px;ba
 </header>
 
 <div class="wrap">
-  <a class="record" id="record" href="#accuracy" aria-label="Tipsy's record – see details"></a>
-  <div class="note"><b>Updated:</b> <span id="updated">…</span>. Fixtures, tables, last-5 form, top scorers, UK bookmaker odds and kick-off weather refresh automatically. Premier League team news and xG come from the official Fantasy Premier League feed, and injured, suspended or doubtful regulars are taken into account automatically. Team news for La Liga, Bundesliga and Ligue 1 isn't in the free data yet. Percentages are model estimates, not certainties. 18+ · BeGambleAware.org</div>
+  <a class="record" id="record" href="#record" aria-label="Tipsy's record – see details"></a>
 
   <div class="lgtabs" id="lgtabs"></div>
+  <nav class="sectabs" id="sectabs" aria-label="Sections">
+    <button data-sec="tips" class="on">Tips</button><button data-sec="scores">Scores</button><button data-sec="value">Value</button><button data-sec="acca">Acca</button><button data-sec="matches">Matches</button><button data-sec="record">Record</button>
+  </nav>
+  <p class="upd">Updated <span id="updated">…</span> · <a href="#record">about the data</a></p>
 
+  <section data-sec="tips">
   <h2>Top tips · <span id="lgname"></span></h2>
   <div class="tabs" id="tabs">
     <button class="tab on" data-m="result">Match result</button>
@@ -230,10 +245,12 @@ header.pitch::after{content:"";position:absolute;inset:auto 0 0 0;height:34px;ba
     <button class="tab" data-m="cards">Cards</button>
   </div>
   <div class="picks" id="picks"></div>
-
+  </section>
+  <section data-sec="scores" hidden>
   <h2>Score predictions · <span id="lgname4"></span></h2>
   <div class="scores" id="scores"></div>
-
+  </section>
+  <section data-sec="value" hidden>
   <h2>Value finder · <span id="lgname3"></span></h2>
   <div class="tabs">
     <button class="tab on" data-vmode="likely">Likely winners</button>
@@ -241,7 +258,8 @@ header.pitch::after{content:"";position:absolute;inset:auto 0 0 0;height:34px;ba
   </div>
   <div class="note" style="margin-bottom:8px">Bets where the best UK bookmaker price is higher than it should be. <b>Likely winners</b> only shows bets with at least a 50% chance of landing, so the edges are small but they win more often than not. <b>Bigger prices</b> shows any bet with a 3%+ edge – these pay more but lose more often. The chance used is 30% our model + 70% the bookmakers' own view, skipping longshots over 5.0 and big disagreements. Check team news before betting.</div>
   <div class="picks" id="value"></div>
-
+  </section>
+  <section data-sec="acca" hidden>
   <h2>Accumulator builder</h2>
   <div class="builder">
     <div>
@@ -276,11 +294,13 @@ header.pitch::after{content:"";position:absolute;inset:auto 0 0 0;height:34px;ba
     <div class="quick"><button class="btn ghost" data-quick="clear">Clear accumulator</button></div>
   </div>
   <div class="acca" id="acca" style="margin-top:10px"></div>
-
+  </section>
+  <section data-sec="matches" hidden>
   <h2>Matches · <span id="lgname2"></span></h2>
   <div id="cards"></div>
-
-  <h2 id="accuracy">How accurate is Tipsy?</h2>
+  </section>
+  <section data-sec="record" hidden>
+  <h2>How accurate is Tipsy?</h2>
   <div id="acc"></div>
 
   <h2>How the model works</h2>
@@ -298,7 +318,9 @@ header.pitch::after{content:"";position:absolute;inset:auto 0 0 0;height:34px;ba
     <li><b>Value</b> – edge = (30% model chance + 70% bookmaker consensus) × best sportsbook price − 1, skipping longshots over 5.0 and big model/market disagreements. The "Bookies" figure is the average UK price turned into a chance with the bookmaker's margin removed. If the model and the bookies disagree a lot, the bookies are more often right.</li>
     <li><b>Accumulators</b> – the chance all legs land is each leg's chance multiplied together; fair odds = 1 ÷ that chance. Legs from the same match are linked, so for those the combined figure is only a rough guide.</li>
   </ul></div>
-
+  <h2>About the data</h2>
+  <div class="note">Fixtures, tables, last-5 form, top scorers, UK bookmaker odds and kick-off weather refresh automatically. Premier League team news and xG come from the official Fantasy Premier League feed, and injured, suspended or doubtful regulars are taken into account automatically. Team news for La Liga, Bundesliga and Ligue 1 isn't in the free data yet. Percentages are model estimates, not certainties. 18+ · BeGambleAware.org</div>
+  </section>
   <footer>Sources: <span id="srcs"></span><br>For fun and info only. Never stake what you can't afford to lose.</footer>
 </div>
 
@@ -625,6 +647,20 @@ function renderAcca(){
     <div class="accnote">Only worth backing if the bookie's price is higher than the fair odds. Every extra leg cuts the chance it all lands.</div>`;
 }
 
+// ---------- Sections ----------
+const SECS=["tips","scores","value","acca","matches","record"];
+let sec="tips";
+function showSec(name,{scroll=true}={}){
+  if(!SECS.includes(name))name="tips";
+  sec=name;
+  document.querySelectorAll("section[data-sec]").forEach(s=>s.hidden=s.dataset.sec!==name);
+  document.querySelectorAll(".sectabs [data-sec]").forEach(b=>{b.classList.toggle("on",b.dataset.sec===name);b.setAttribute("aria-current",b.dataset.sec===name?"page":"false")});
+  const want="#"+name; if(location.hash!==want){try{history.replaceState(null,"",want)}catch(e){}}
+  const nav=document.getElementById("sectabs");
+  if(scroll&&nav){const top=nav.getBoundingClientRect().top+window.scrollY-2;if(window.scrollY>top)window.scrollTo({top});}
+}
+window.addEventListener("hashchange",()=>showSec(location.hash.slice(1)));
+
 // ---------- Wiring ----------
 function recompute(mid){
   const m=MATCH[mid];m._r=model(m);
@@ -635,6 +671,10 @@ function rememberOpen(){document.querySelectorAll("details[data-det]").forEach(d
 
 document.addEventListener("click",e=>{
   const t=e.target;
+  const sb=t.closest(".sectabs [data-sec]");
+  if(sb){showSec(sb.dataset.sec);return;}
+  const hl=t.closest('a[href="#record"]');
+  if(hl){e.preventDefault();showSec("record");document.getElementById("sectabs").scrollIntoView({behavior:"smooth"});return;}
   const lg=t.closest(".lgtab");
   if(lg){cur=+lg.dataset.lg;renderTabs();renderPicks();renderScores();renderValue();renderCards();if(cur>=0){document.getElementById("selLg").value=cur;fillSelM();}return;}
   const tb=t.closest(".tab[data-m]");
@@ -657,6 +697,7 @@ document.addEventListener("click",e=>{
   const go=t.closest("[data-go]");
   if(go){
     if(cur>=0&&go.dataset.lgi!=null&&+go.dataset.lgi!==cur){cur=+go.dataset.lgi;renderTabs();renderPicks();renderScores();renderValue();renderCards();}
+    if(sec!=="matches")showSec("matches",{scroll:false});
     const c=document.getElementById("m"+go.dataset.go);if(c){c.scrollIntoView({behavior:"smooth",block:"center"});c.classList.add("flash");setTimeout(()=>c.classList.remove("flash"),1200);}
   }
 });
@@ -726,6 +767,7 @@ fetch("data/tips.json",{cache:"no-store"}).then(r=>{if(!r.ok)throw 0;return r.js
   document.querySelectorAll('.tab[data-m="corners"]').forEach(b=>b.style.display=hasC?"":"none");
   document.querySelectorAll('.tab[data-m="cards"]').forEach(b=>b.style.display=hasK?"":"none");
   fetch("data/history.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(renderAccuracy).catch(()=>renderAccuracy(null));
+  showSec(location.hash.slice(1)||"tips",{scroll:false});
   loadLegs();renderAuto();renderTabs();renderPicks();renderScores();renderValue();renderCards();fillSelLg();renderAcca();
 }).catch(()=>{document.getElementById("cards").innerHTML='<div class="note">Couldn\'t load the latest data. Try again shortly.</div>'});
 
