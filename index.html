@@ -103,6 +103,7 @@ footer{font-size:11.5px;color:var(--mute);margin-top:22px;text-align:center}
 .accsum .stat b{font-size:20px}
 .accnote{font-size:12px;color:var(--mute);margin-top:8px}
 
+[hidden]{display:none!important}
 /* header: mown pitch with chalk lines */
 header.pitch{position:relative;overflow:hidden;padding:0;border:0;margin-bottom:18px;
   background:repeating-linear-gradient(90deg,#1d6a3a 0 56px,#227a43 56px 112px);}
@@ -196,6 +197,13 @@ a.betbox{display:block;background:var(--panel2);border-radius:9px;padding:6px 8p
 a.betbox:active{border-color:var(--home)}
 .tlink{color:var(--ink);text-decoration:none;border-bottom:1px dotted var(--mute)}
 .wrow.chosen .tapnote{color:var(--home)}
+.acca .empty{padding:2px 0}
+details.where{margin-top:10px;border-top:1px dashed var(--line);padding-top:8px}
+details.where>summary{cursor:pointer;font-size:14px;padding:4px 0;list-style:none}
+details.where>summary::-webkit-details-marker{display:none}
+details.where>summary::after{content:" ▾";color:var(--mute)}
+details.where[open]>summary::after{content:" ▴"}
+details.where[open]>summary{margin-bottom:6px}
 .placelist{display:grid;gap:6px;border:1px solid var(--home);border-top:0;border-radius:0 0 10px 10px;margin:-6px 0 4px;padding:12px 10px 10px;background:rgba(61,220,151,.06)}
 .prow{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .prow b{display:block;font-size:13.5px}
@@ -314,6 +322,7 @@ section[data-sec]>h2:first-child{margin-top:10px}
     <button class="tab on" data-amode="quick">Quick build</button>
     <button class="tab" data-amode="custom">Build your own</button>
   </div>
+  <div class="acca" id="acca" style="margin-bottom:12px"></div>
   <div class="builder" id="quickPanel">
     <div>
       <label>How many bets?</label>
@@ -340,7 +349,6 @@ section[data-sec]>h2:first-child{margin-top:10px}
     <div id="custom"></div>
     <div class="quick"><button class="btn ghost" data-quick="clear">Clear accumulator</button></div>
   </div>
-  <div class="acca" id="acca" style="margin-top:10px"></div>
   </section>
   <section data-sec="matches" hidden>
   <h2>Matches · <span id="lgname2"></span></h2>
@@ -654,7 +662,8 @@ function autoBuild(risk){
             filled?`Only ${chosen.length-filled} value bet${chosen.length-filled===1?"":"s"} found – topped up with ${filled} balanced pick${filled===1?"":"s"}.`:"",
             short>0?`Only ${chosen.length} suitable match${chosen.length===1?"":"es"} available for ${R.label.toLowerCase()} picks.`:""].filter(Boolean).join(" ");
   legs=chosen.map(({mid,key})=>({mid,key}));saveLegs();renderAuto();renderAcca();renderCustom();
-  document.getElementById("acca").scrollIntoView({behavior:"smooth",block:"nearest"});
+  const sl=document.getElementById("acca"),nav=document.getElementById("sectabs");
+  if(sl&&sl.getBoundingClientRect().top<(nav?nav.offsetHeight:0))window.scrollTo({top:sl.getBoundingClientRect().top+window.scrollY-(nav?nav.offsetHeight:0)-8,behavior:"smooth"});
 }
 function renderAuto(){
   document.getElementById("autoN").textContent=autoN;
@@ -665,7 +674,7 @@ function quick(kind){
   if(kind==="clear"){legs=[];autoNote="";saveLegs();renderAuto();renderAcca();renderCustom();}
 }
 // Rank bookmakers by the price they'd pay for the whole accumulator (an acca must be placed at one bookie)
-let undoBook=null, accaBook=null; // bookie chosen to place the whole accumulator // {before:[legs], after:"json", book, n}
+let whereOpen=false, undoBook=null, accaBook=null; // bookie chosen to place the whole accumulator // {before:[legs], after:"json", book, n}
 function whereToBet(){
   const L=legs.map(l=>{const m=MATCH[l.mid];return m&&{m,x:market(m,l.key)}}).filter(Boolean);
   if(!L.length)return"";
@@ -688,11 +697,12 @@ function whereToBet(){
   let note;
   if(full.length) note=`${full.length} bookie${full.length===1?" prices":"s price"} every leg. £10 at ${esc(full[0].b)} would return £${(10*full[0].p).toFixed(2)} if it all lands.`;
   else note=`No single bookie prices every leg${missing?` (${missing} leg${missing===1?" is a":"s are"} double chance or BTTS, which the free feed doesn't price)`:""}. Goals over/under is only priced by a few bookies in our data, so try swapping those legs for match results.`;
-  return `<div class="where">${head}${list}<div class="accnote">${note} Prices change, so check on the bookie's site.</div></div>`;
+  const top=rows[0],sumTxt=full.length?`🏦 Best place: <b>${esc(full[0].b)}</b> ${fmt(full[0].p)}`:`🏦 Best place: <b>${esc(top.b)}</b> <small class="mute">${top.c}/${L.length} bets</small>`;
+  return `<details class="where" id="whereBox" ${whereOpen||accaBook?"open":""}><summary>${accaBook?`🏦 Placing at <b>${esc(accaBook)}</b>`:sumTxt}<small class="mute"> · compare bookies</small></summary>${head}${list}<div class="accnote">${note} Prices change, so check on the bookie's site.</div></details>`;
 }
 
 function renderAcca(){
-  setTimeout(refreshAccaBtns,0);
+  setTimeout(()=>{refreshAccaBtns();const w=document.getElementById("whereBox");if(w)w.addEventListener("toggle",()=>{whereOpen=w.open;if(!w.open)accaBook=null;})},0);
   const el=document.getElementById("acca");
   if(!legs.length){el.innerHTML=`<div class="empty">Use Quick build for an instant accumulator, or Build your own to pick bets match by match – up to ${MAXLEGS} legs.</div>`;return;}
   let comb=1,bcomb=1,price=1,allPriced=true;const counts={};
@@ -713,7 +723,7 @@ function renderAcca(){
     </div>
     ${allPriced?`<div class="accsum"><div class="stat"><small>Best bookie price</small><b>${price>=1000?Math.round(price).toLocaleString():price.toFixed(2)}</b></div>
       <div class="stat"><small>Edge (blend)</small><b style="color:${bcomb*price-1>=0?"var(--home)":"var(--bad)"}">${bcomb*price-1>=0?"+":""}${Math.round((bcomb*price-1)*100)}%</b></div></div>
-      <div class="accnote">Best price multiplies the top UK price for each leg, which may be at different bookies. One bookie's acca price is usually lower.</div>`:""}
+`:""}
     ${undoBook&&JSON.stringify(legs)===undoBook.after?`<div class="undo">Removed ${undoBook.n} bet${undoBook.n===1?"":"s"} ${esc(undoBook.book)} doesn't offer. <button class="btn ghost" data-undo>Undo</button></div>`:""}
     ${whereToBet()}
     ${autoNote?`<div class="warn">${esc(autoNote)}</div>`:""}
