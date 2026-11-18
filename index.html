@@ -120,6 +120,9 @@ footer{font-size:11.5px;color:var(--mute);margin-top:22px;text-align:center}
 .mkts{display:grid;grid-template-columns:repeat(2,1fr);gap:6px}
 .mk{background:var(--panel2);border-radius:8px;padding:6px 8px;font-size:12px;display:flex;justify-content:space-between}
 .mk b{font-family:"Space Grotesk"}
+.mk small{color:var(--mute);font-size:11px}
+.mk.val{outline:1px solid var(--home);background:rgba(61,220,151,.1)}
+.vrow .what small{display:block}
 </style>
 </head>
 <body>
@@ -129,7 +132,7 @@ footer{font-size:11.5px;color:var(--mute);margin-top:22px;text-align:center}
 </div></header>
 
 <div class="wrap">
-  <div class="note"><b>Updated:</b> <span id="updated">…</span>. Tables, last-5 form, xG, corners, cards, player stats, injuries and kick-off weather refresh automatically. Injured players are already marked out – tap to change. Percentages are model estimates, not certainties. 18+ · BeGambleAware.org</div>
+  <div class="note"><b>Updated:</b> <span id="updated">…</span>. Fixtures, tables, last-5 form, top scorers, UK bookmaker odds and kick-off weather refresh automatically. Team news isn't in the free data, so mark missing players yourself in each match. Percentages are model estimates, not certainties. 18+ · BeGambleAware.org</div>
 
   <div class="lgtabs" id="lgtabs"></div>
 
@@ -142,6 +145,10 @@ footer{font-size:11.5px;color:var(--mute);margin-top:22px;text-align:center}
     <button class="tab" data-m="cards">Cards</button>
   </div>
   <div class="picks" id="picks"></div>
+
+  <h2>Value finder · <span id="lgname3"></span></h2>
+  <div class="note" style="margin-bottom:8px">Bets where the best UK bookmaker price pays more than it should. To avoid false alarms, the chance used is a 50/50 blend of our model and the bookmakers' own consensus, and a bet is listed if that blend × the best price beats 1 by 3% or more. Bookmakers are usually sharper than a simple model, so check team news before trusting a big edge.</div>
+  <div class="picks" id="value"></div>
 
   <h2>Accumulator builder</h2>
   <div class="builder">
@@ -165,13 +172,13 @@ footer{font-size:11.5px;color:var(--mute);margin-top:22px;text-align:center}
 
   <h2>How the model works</h2>
   <div class="how"><ul>
-    <li><b>Attack & defence strength</b> – half from actual goals (home/away split plus overall), half from season <b>xG and xGA</b> per game, pulled slightly towards the league average for small samples. Each league is modelled against its own averages.</li>
+    <li><b>Attack & defence strength</b> – goals scored and conceded per game (home/away split plus overall), pulled slightly towards the league average for small samples. Each league is modelled against its own averages. Where season xG is available it's blended in 50/50.</li>
     <li><b>Last 5 form</b> – recent games weighted heavier (newest ×5, oldest ×1). Hot teams get up to ~+15% on expected goals, cold teams lose the same.</li>
     <li><b>Home advantage</b> – built in, because home and away goal rates are modelled separately.</li>
-    <li><b>Player form</b> – each team's top scorers and assisters. Tap a player who's out and their team's attack drops by their share of its goals (goals + half of assists), less ~40% for whoever replaces them. Injured players come in already marked.</li>
+    <li><b>Player form</b> – each team's top scorers and assisters. Tap a player who's out and their team's attack drops by their share of its goals (goals + half of assists), less ~40% for whoever replaces them. Mark players out yourself once team news is known.</li>
     <li><b>Weather</b> – heavy rain, strong wind and freezing conditions cut expected goals (roughly 2–10%).</li>
     <li><b>Goals markets</b> – expected goals feed a Poisson scoreline model (0–0 to 8–8) for win/draw/loss, double chance, over/under 1.5/2.5/3.5, both teams to score and the most likely score.</li>
-    <li><b>Corners & cards</b> – expected totals come from each side's corners/cards per game for, and their opponent's per game against. Totals are spread with a negative binomial curve, because corners and cards vary more than goals. The referee isn't modelled yet.</li>
+    <li><b>Value</b> – edge = (½ model chance + ½ bookmaker consensus) × best price − 1. The "Bookies" figure is the average UK price turned into a chance with the bookmaker's margin removed. If the model and the bookies disagree a lot, the bookies are more often right.</li>
     <li><b>Accumulators</b> – the chance all legs land is each leg's chance multiplied together; fair odds = 1 ÷ that chance. Legs from the same match are linked, so for those the combined figure is only a rough guide.</li>
   </ul></div>
 
@@ -181,7 +188,7 @@ footer{font-size:11.5px;color:var(--mute);margin-top:22px;text-align:center}
 <script>
 // ---------- Data & state ----------
 const WX = {dry:["Dry / clear",1],light:["Light rain / showers",.98],rain:["Heavy rain",.94],wind:["Strong wind",.93],cold:["Freezing / snow",.90]};
-let DATA=null, LG=[], cur=0, mode="result";
+let DATA=null, LG=[], cur=-1, mode="result"; // cur -1 = all leagues
 const out={};          // per match id: {h,a,ph:Set,pa:Set}
 const MATCH={};        // match id -> match
 let legs=[];           // [{mid,key}]
@@ -278,8 +285,20 @@ function markets(m){
   ];
   if(r.cMu){for(const [k,l] of [["c85",8.5],["c95",9.5],["c105",10.5]]){M.push(["Corners","CO"+l,`Over ${l} corners`,r[k]],["Corners","CU"+l,`Under ${l} corners`,1-r[k]]);}}
   if(r.kMu){for(const [k,l] of [["k25",2.5],["k35",3.5],["k45",4.5]]){M.push(["Cards","KO"+l,`Over ${l} cards`,r[k]],["Cards","KU"+l,`Under ${l} cards`,1-r[k]]);}}
-  return M.map(([group,key,label,p])=>({group,key,label,p}));
+  return M.map(([group,key,label,p])=>({group,key,label,p,o:(m.odds&&m.odds[key])||null,mp:mktProb(m,key)}));
 }
+// bookmaker consensus probability (average odds, margin removed within each market)
+const MGROUPS=[["1","X","2"],["O15","U15"],["O25","U25"],["O35","U35"]];
+function mktProb(m,key){
+  if(!m.odds||!m.odds[key])return null;
+  const g=MGROUPS.find(g=>g.includes(key));if(!g)return null;
+  if(!g.every(k=>m.odds[k]))return null;
+  const inv=g.map(k=>1/m.odds[k].a),s=inv.reduce((a,b)=>a+b,0);
+  return inv[g.indexOf(key)]/s;
+}
+// value is judged on a 50/50 blend of model and bookmaker consensus, so model blind spots don't show up as fake value
+const blendP=x=>x.mp!=null?.5*x.p+.5*x.mp:x.p;
+const edgeOf=x=>x.o&&x.mp!=null?blendP(x)*x.o.b-1:null;
 const market=(m,key)=>markets(m).find(x=>x.key===key);
 
 function grade(p){return p>=.6?["Strong","b-strong"]:p>=.5?["Good","b-good"]:p>=.4?["Lean","b-lean"]:["Avoid","b-avoid"]}
@@ -292,7 +311,9 @@ function resultTip(m,r){
 function computeLeague(L){(L.matches||[]).forEach(m=>{m._r=model(m)});}
 
 // ---------- Rendering ----------
-const curL=()=>LG[cur];
+const curL=()=>LG[Math.max(0,cur)];
+const inView=()=>cur<0?LG.flatMap(L=>L.matches||[]).sort((a,b)=>new Date(a.date)-new Date(b.date)):(LG[cur].matches||[]);
+const viewName=()=>cur<0?"All leagues":LG[cur].name;
 function form(s){return `<div class="form">${[...(s||"")].map(c=>`<span class="f ${c}">${c}</span>`).join("")}</div>`}
 function xgTxt(L,t,pre){const x=L.XG[t];return x?`${pre}xG ${x[0].toFixed(2)} · xGA ${x[1].toFixed(2)}`:""}
 function injTxt(m){const n=m.injNames||{h:[],a:[]};if(!n.h.length&&!n.a.length)return"";
@@ -323,20 +344,23 @@ function players(m,side){
 }
 
 function renderTabs(){
-  document.getElementById("lgtabs").innerHTML=LG.map((L,i)=>`<button class="lgtab ${i===cur?"on":""}" data-lg="${i}">${esc(L.name)}<small>${(L.round||"").replace("Regular Season - ","Matchday ")||"—"}</small></button>`).join("");
-  document.getElementById("lgname").textContent=curL().name;
-  document.getElementById("lgname2").textContent=curL().name;
+  const n=LG.reduce((s,L)=>s+(L.matches||[]).length,0);
+  document.getElementById("lgtabs").innerHTML=`<button class="lgtab ${cur<0?"on":""}" data-lg="-1">All leagues<small>${n} matches</small></button>`+
+    LG.map((L,i)=>`<button class="lgtab ${i===cur?"on":""}" data-lg="${i}">${esc(L.name)}<small>${(L.round||"").replace("Regular Season - ","Matchday ")||"—"}</small></button>`).join("");
+  document.getElementById("lgname").textContent=viewName();
+  document.getElementById("lgname2").textContent=viewName();
+  document.getElementById("lgname3").textContent=viewName();
 }
 
 function renderCards(){
-  const L=curL(),el=document.getElementById("cards");
-  if(!(L.matches||[]).length){el.innerHTML='<div class="note">No upcoming matches yet – they appear after the next data update.</div>';return;}
-  el.innerHTML=L.matches.map(m=>{
-    const r=m._r;if(!r)return"";
+  const el=document.getElementById("cards"),list=inView();
+  if(!list.length){el.innerHTML='<div class="note">No upcoming matches yet – they appear after the next data update.</div>';return;}
+  el.innerHTML=list.map(m=>{
+    const r=m._r,L=m.L;if(!r)return"";
     const tip=market(m,resultTip(m,r)),g=grade(tip.p),open=m._open?"open":"";
     return `<div class="card" id="m${m.id}">
     <div class="top">
-      <div class="meta"><span>${esc(m.d)} · ${esc(m.k)}</span><span>${esc(m.v)}</span></div>
+      <div class="meta"><span>${esc(m.d)} · ${esc(m.k)}${cur<0?` · <b style="color:var(--ink)">${esc(L.name)}</b>`:""}</span><span>${esc(m.v)}</span></div>
       <div class="teams">
         <div class="team">${esc(m.h)}${form(L.T[m.h].f)}</div>
         <div class="score"><b>${r.best[0]}–${r.best[1]}</b>likely</div>
@@ -359,7 +383,8 @@ function renderCards(){
     <details ${open} data-det="${m.id}">
       <summary>All bets · why · weather · team news</summary>
       <div class="adj">
-        <div class="mkts">${markets(m).filter(x=>!/^U|^CU|^KU|^BN/.test(x.key)).map(x=>`<div class="mk"><span>${esc(x.label)}</span><b>${pc(x.p)}</b></div>`).join("")}</div>
+        <div class="mkts">${markets(m).filter(x=>x.o||!/^U|^CU|^KU|^BN/.test(x.key)).map(x=>{const e=edgeOf(x);return `<div class="mk ${e!=null&&e>=.05?"val":""}"><span>${esc(x.label)}${x.o?`<small> @${x.o.b.toFixed(2)}</small>`:""}</span><b>${pc(x.p)}</b></div>`}).join("")}</div>
+        ${m.odds?'<div class="mute" style="font-size:11.5px">@ = best UK bookmaker price. Green = value (blend of model + bookies beats that price by 3%+).</div>':""}
         <ul class="why">${reasons(m,r).map(x=>`<li>${x}</li>`).join("")}</ul>
         <div class="row"><span>Weather</span>
           <select data-wx="${m.id}">${Object.entries(WX).map(([k,v])=>`<option value="${k}" ${k===m.w?"selected":""}>${v[0]}</option>`).join("")}</select></div>
@@ -375,7 +400,7 @@ function renderCards(){
 
 function pickFor(m){
   const r=m._r;if(!r)return null;
-  const sub=`${m.h} v ${m.a}`;
+  const sub=`${m.h} v ${m.a}`+(cur<0?` · ${m.L.name}`:"");
   if(mode==="result"){const k=resultTip(m,r),x=market(m,k);return {m,p:x.p,what:x.label,sub,key:k}}
   if(mode==="goals"){const o=r.o25>=.5;return {m,p:o?r.o25:1-r.o25,what:(o?"Over":"Under")+" 2.5 goals",sub:sub+` · xG ${(r.lh+r.la).toFixed(1)}`,key:o?"O25":"U25"}}
   if(mode==="btts"){const y=r.btts>=.5;return {m,p:y?r.btts:1-r.btts,what:"BTTS: "+(y?"Yes":"No"),sub,key:y?"BY":"BN"}}
@@ -383,12 +408,28 @@ function pickFor(m){
   if(mode==="cards"){if(!r.kMu)return null;const o=r.k35>=.5;return {m,p:o?r.k35:1-r.k35,what:(o?"Over":"Under")+" 3.5 cards",sub:sub+` · exp ${r.kMu.toFixed(1)}`,key:o?"KO3.5":"KU3.5"}}
 }
 function renderPicks(){
-  const list=(curL().matches||[]).map(pickFor).filter(Boolean).sort((a,b)=>b.p-a.p).slice(0,5);
+  const list=inView().map(pickFor).filter(Boolean).sort((a,b)=>b.p-a.p).slice(0,cur<0?8:5);
   document.getElementById("picks").innerHTML=list.length?list.map((x,i)=>{const g=grade(x.p);return `
     <div class="pick" data-go="${x.m.id}"><span class="rank">${i+1}</span>
       <div class="what"><b>${esc(x.what)}</b><small>${esc(x.sub)}</small></div>
       <span class="badge ${g[1]}">${g[0]}</span><span class="pct">${pc(x.p)}</span></div>`}).join(""):
     `<div class="empty">${mode==="corners"||mode==="cards"?"Corner and card stats arrive with the first data update.":"No matches yet."}</div>`;
+}
+
+// ---------- Value finder ----------
+function renderValue(){
+  const el=document.getElementById("value"),list=[];
+  const ms=inView();const anyOdds=ms.some(m=>m.odds);
+  for(const m of ms)for(const x of markets(m)){const e=edgeOf(x);if(e!=null&&e>=.03&&x.p>=.2&&x.o.n>=3)list.push({m,x,e});}
+  list.sort((a,b)=>b.e-a.e);
+  if(!list.length){el.innerHTML=`<div class="empty">${anyOdds?"No bets right now where our model beats the best bookmaker price by 5% or more.":"Bookmaker odds arrive with the next data update."}</div>`;return;}
+  el.innerHTML=list.slice(0,10).map(({m,x,e})=>`
+    <div class="pick vrow" data-go="${m.id}" data-lgi="${LG.indexOf(m.L)}">
+      <div class="what"><b>${esc(x.label)}</b><small>${esc(m.h)} v ${esc(m.a)} · ${esc(m.L.name)} · ${esc(m.d)}</small>
+        <small>Model ${pc(x.p)} · Bookies ${pc(x.mp)} · Blend ${pc(blendP(x))} · Best ${x.o.b.toFixed(2)} @ ${esc(x.o.k)}</small></div>
+      <div style="text-align:right"><span class="pct" style="color:var(--home)">+${Math.round(e*100)}%</span>
+        <button class="addtip" data-addm="${m.id}" data-addk="${x.key}" style="margin-top:4px">+ Acca</button></div>
+    </div>`).join("");
 }
 
 // ---------- Accumulator builder ----------
@@ -397,7 +438,7 @@ function loadLegs(){try{const v=JSON.parse(localStorage.getItem("tipsy-acca")||"
 
 function fillSelLg(){
   const s=document.getElementById("selLg");
-  s.innerHTML=LG.map((L,i)=>`<option value="${i}" ${i===cur?"selected":""}>${esc(L.name)}</option>`).join("");
+  s.innerHTML=LG.map((L,i)=>`<option value="${i}" ${i===Math.max(0,cur)?"selected":""}>${esc(L.name)}</option>`).join("");
   fillSelM();
 }
 function fillSelM(){
@@ -447,13 +488,13 @@ function quick(kind){
 function renderAcca(){
   const el=document.getElementById("acca");
   if(!legs.length){el.innerHTML=`<div class="empty">Pick a league, match and bet above and tap <b>Add</b> – up to ${MAXLEGS} legs. Or use a quick pick.</div>`;return;}
-  let comb=1;const counts={};
+  let comb=1,bcomb=1,price=1,allPriced=true;const counts={};
   const rows=legs.map((l,i)=>{
     const m=MATCH[l.mid],x=m&&market(m,l.key);if(!x)return"";
-    comb*=x.p;counts[l.mid]=(counts[l.mid]||0)+1;
+    comb*=x.p;bcomb*=blendP(x);counts[l.mid]=(counts[l.mid]||0)+1;if(x.o)price*=x.o.b;else allPriced=false;
     return `<div class="leg"><span class="n">${i+1}</span>
       <div class="what" data-go="${m.id}" data-lgi="${LG.indexOf(m.L)}"><b>${esc(x.label)}</b><small>${esc(m.h)} v ${esc(m.a)} · ${esc(m.L.name)} · ${esc(m.d)} ${esc(m.k)}</small></div>
-      <span class="pct">${pc(x.p)}</span><button class="legx" data-rm="${i}" aria-label="Remove">×</button></div>`;
+      <span class="pct">${pc(x.p)}${x.o?`<small style="display:block;font:500 11px Inter;color:var(--mute)">@${x.o.b.toFixed(2)}</small>`:""}</span><button class="legx" data-rm="${i}" aria-label="Remove">×</button></div>`;
   }).join("");
   const same=Object.values(counts).some(c=>c>1);
   el.innerHTML=rows+`
@@ -461,6 +502,9 @@ function renderAcca(){
       <div class="stat"><small>${legs.length}-fold · chance all land</small><b>${comb>=.001?(comb*100).toFixed(1)+"%":"<0.1%"}</b></div>
       <div class="stat"><small>Fair odds (model)</small><b>${comb>0?(1/comb>=1000?Math.round(1/comb).toLocaleString():(1/comb).toFixed(2)):"–"}</b></div>
     </div>
+    ${allPriced?`<div class="accsum"><div class="stat"><small>Best bookie price</small><b>${price>=1000?Math.round(price).toLocaleString():price.toFixed(2)}</b></div>
+      <div class="stat"><small>Edge (blend)</small><b style="color:${bcomb*price-1>=0?"var(--home)":"var(--bad)"}">${bcomb*price-1>=0?"+":""}${Math.round((bcomb*price-1)*100)}%</b></div></div>
+      <div class="accnote">Best price multiplies the top UK price for each leg, which may be at different bookies. One bookie's acca price is usually lower.</div>`:""}
     ${same?'<div class="warn">⚠ Some legs are from the same match, so they\'re linked – treat the combined figure as a rough guide.</div>':""}
     <div class="accnote">Only worth backing if the bookie's price is higher than the fair odds. Every extra leg cuts the chance it all lands.</div>`;
 }
@@ -468,7 +512,7 @@ function renderAcca(){
 // ---------- Wiring ----------
 function recompute(mid){
   const m=MATCH[mid];m._r=model(m);
-  renderCards();renderPicks();renderAcca();
+  renderCards();renderPicks();renderValue();renderAcca();
   if(document.getElementById("selM").value==String(mid))fillSelMk();
 }
 function rememberOpen(){document.querySelectorAll("details[data-det]").forEach(d=>{MATCH[d.dataset.det]._open=d.open})}
@@ -476,7 +520,7 @@ function rememberOpen(){document.querySelectorAll("details[data-det]").forEach(d
 document.addEventListener("click",e=>{
   const t=e.target;
   const lg=t.closest(".lgtab");
-  if(lg){cur=+lg.dataset.lg;renderTabs();renderPicks();renderCards();document.getElementById("selLg").value=cur;fillSelM();return;}
+  if(lg){cur=+lg.dataset.lg;renderTabs();renderPicks();renderValue();renderCards();if(cur>=0){document.getElementById("selLg").value=cur;fillSelM();}return;}
   const ch=t.closest(".chip");
   if(ch){rememberOpen();const s=out[ch.dataset.pid]["p"+ch.dataset.side];s.has(ch.dataset.name)?s.delete(ch.dataset.name):s.add(ch.dataset.name);recompute(ch.dataset.pid);return;}
   const st=t.closest("button[data-s]");
@@ -492,7 +536,7 @@ document.addEventListener("click",e=>{
   if(t.closest("#addLeg")){addLeg(document.getElementById("selM").value,document.getElementById("selMk").value);return;}
   const go=t.closest("[data-go]");
   if(go){
-    if(go.dataset.lgi!=null&&+go.dataset.lgi!==cur){cur=+go.dataset.lgi;renderTabs();renderPicks();renderCards();}
+    if(cur>=0&&go.dataset.lgi!=null&&+go.dataset.lgi!==cur){cur=+go.dataset.lgi;renderTabs();renderPicks();renderValue();renderCards();}
     const c=document.getElementById("m"+go.dataset.go);if(c){c.scrollIntoView({behavior:"smooth",block:"center"});c.classList.add("flash");setTimeout(()=>c.classList.remove("flash"),1200);}
   }
 });
@@ -515,7 +559,10 @@ fetch("data/tips.json",{cache:"no-store"}).then(r=>{if(!r.ok)throw 0;return r.js
   if(!LG.length)throw 0;
   document.getElementById("updated").textContent=new Date(d.updated).toLocaleString("en-GB",{weekday:"short",day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"});
   document.getElementById("srcs").textContent=(d.sources||[]).join(" · ");
-  loadLegs();renderTabs();renderPicks();renderCards();fillSelLg();renderAcca();
+  const hasC=LG.some(L=>Object.keys(L.CN).length),hasK=LG.some(L=>Object.keys(L.CD).length);
+  document.querySelectorAll('.tab[data-m="corners"]').forEach(b=>b.style.display=hasC?"":"none");
+  document.querySelectorAll('.tab[data-m="cards"]').forEach(b=>b.style.display=hasK?"":"none");
+  loadLegs();renderTabs();renderPicks();renderValue();renderCards();fillSelLg();renderAcca();
 }).catch(()=>{document.getElementById("cards").innerHTML='<div class="note">Couldn\'t load the latest data. Try again shortly.</div>'});
 
 </script>

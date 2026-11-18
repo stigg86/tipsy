@@ -1,51 +1,66 @@
-// Tipsy data builder
-// Fetches league data from API-Football and kick-off weather from Open-Meteo,
-// then writes data/tips.json for the page. Runs in GitHub Actions (Node 20+).
+// Tipsy data builder (free sources)
+//   football-data.org  – fixtures, results, tables, top scorers, team addresses (free tier, current season)
+//   The Odds API       – bookmaker odds for match result and goals over/under (free tier, 500 credits/month)
+//   Open-Meteo         – kick-off weather (free, no key, non-commercial)
+// Writes data/tips.json for the page. Runs in GitHub Actions (Node 20+).
 //
 // Env:
-//   API_FOOTBALL_KEY  (required)  – your api-sports.io key, stored as a GitHub secret
-//   LEAGUES           (optional)  – comma list of API-Football league ids (default 39,140,78,61)
-//   SEASON            (optional)  – default: current season start year
-//   MIN_LEFT          (optional)  – stop using the API when this many daily requests remain (default 8)
+//   FOOTBALL_DATA_KEY  (required)  – football-data.org token (GitHub secret)
+//   ODDS_API_KEY       (optional)  – the-odds-api.com key (GitHub secret); without it, no odds / value finder
+//   LEAGUES            (optional)  – comma list of football-data codes (default PL,PD,BL1,FL1)
+//   ODDS_MIN_LEFT      (optional)  – skip odds when fewer credits than this remain this month (default 20)
 
 import fs from "node:fs/promises";
 
-const KEY = process.env.API_FOOTBALL_KEY;
-if (!KEY) { console.error("Missing API_FOOTBALL_KEY"); process.exit(1); }
+const FD_KEY = process.env.FOOTBALL_DATA_KEY;
+const ODDS_KEY = process.env.ODDS_API_KEY || "";
+if (!FD_KEY) { console.error("Missing FOOTBALL_DATA_KEY"); process.exit(1); }
 
-const now = new Date();
-const LEAGUES = (process.env.LEAGUES || "39,140,78,61").split(",").map(s => s.trim()).filter(Boolean);
-const SEASON = process.env.SEASON || String(now.getUTCMonth() >= 6 ? now.getUTCFullYear() : now.getUTCFullYear() - 1);
-const MIN_LEFT = Number(process.env.MIN_LEFT || 8);
-const BASE = "https://v3.football.api-sports.io";
-const GAP_MS = 6500; // free plan allows ~10 requests/minute
+const LEAGUES = (process.env.LEAGUES || "PL,PD,BL1,FL1").split(",").map(s => s.trim()).filter(Boolean);
+const ODDS_MIN_LEFT = Number(process.env.ODDS_MIN_LEFT || 20);
+const FD = "https://api.football-data.org/v4";
+const ODDS = "https://api.the-odds-api.com/v4";
+const GAP_MS = 6500; // football-data free plan: 10 requests/minute
 
-const LEAGUE_INFO = {
-  39: { name: "Premier League", country: "GB" },
-  140: { name: "La Liga", country: "ES" },
-  78: { name: "Bundesliga", country: "DE" },
-  61: { name: "Ligue 1", country: "FR" },
-  135: { name: "Serie A", country: "IT" }
+const INFO = {
+  PL:  { name: "Premier League", country: "GB", odds: "soccer_epl" },
+  PD:  { name: "La Liga",        country: "ES", odds: "soccer_spain_la_liga" },
+  BL1: { name: "Bundesliga",     country: "DE", odds: "soccer_germany_bundesliga" },
+  FL1: { name: "Ligue 1",        country: "FR", odds: "soccer_france_ligue_one" },
+  SA:  { name: "Serie A",        country: "IT", odds: "soccer_italy_serie_a" }
 };
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
-let remaining = Infinity, used = 0;
+let fdCalls = 0, oddsLeft = null, oddsUsed = 0;
 
-async function api(path, params = {}) {
-  if (remaining <= MIN_LEFT) throw new Error(`quota guard: ${remaining} requests left`);
-  const url = new URL(BASE + path);
+async function fd(path, params = {}) {
+  const url = new URL(FD + path);
   for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
-  if (used > 0) await sleep(GAP_MS);
-  const r = await fetch(url, { headers: { "x-apisports-key": KEY } });
-  used++;
-  const rem = r.headers.get("x-ratelimit-requests-remaining");
-  if (rem !== null) remaining = Number(rem);
-  if (!r.ok) throw new Error(`${path} HTTP ${r.status}`);
+  if (fdCalls > 0) await sleep(GAP_MS);
+  fdCalls++;
+  const r = await fetch(url, { headers: { "X-Auth-Token": FD_KEY } });
+  if (!r.ok) {
+    let msg = ""; try { msg = (await r.json()).message || ""; } catch {}
+    throw new Error(`football-data ${path} HTTP ${r.status} ${msg}`);
+  }
+  console.log(`  football-data ${path}`);
+  return r.json();
+}
+
+async function odds(sport) {
+  const url = new URL(`${ODDS}/sports/${sport}/odds`);
+  url.searchParams.set("apiKey", ODDS_KEY);
+  url.searchParams.set("regions", "uk");
+  url.searchParams.set("markets", "h2h,totals");
+  url.searchParams.set("oddsFormat", "decimal");
+  const r = await fetch(url);
+  const left = r.headers.get("x-requests-remaining");
+  if (left !== null) oddsLeft = Number(left);
+  if (!r.ok) throw new Error(`odds ${sport} HTTP ${r.status}`);
+  oddsUsed += Number(r.headers.get("x-requests-last") || 2);
   const j = await r.json();
-  if (j.errors && (Array.isArray(j.errors) ? j.errors.length : Object.keys(j.errors).length))
-    throw new Error(`${path}: ${JSON.stringify(j.errors)}`);
-  console.log(`  ${path} ${JSON.stringify(params)} → ${j.results} results (${remaining} left today)`);
-  return j.response;
+  console.log(`  odds ${sport} → ${j.length} events (${oddsLeft} credits left this month)`);
+  return j;
 }
 
 async function getJSON(url) {
@@ -53,22 +68,16 @@ async function getJSON(url) {
   if (!r.ok) throw new Error(`${url} HTTP ${r.status}`);
   return r.json();
 }
-
-const SHORT = {
-  "Manchester United": "Man Utd", "Manchester City": "Man City", "Nottingham Forest": "Nott'm Forest",
-  "Tottenham Hotspur": "Tottenham", "Wolverhampton Wanderers": "Wolves", "Brighton & Hove Albion": "Brighton",
-  "West Ham United": "West Ham", "Newcastle United": "Newcastle", "Leeds United": "Leeds",
-  "Ipswich Town": "Ipswich", "Hull City": "Hull", "Coventry City": "Coventry", "Sheffield United": "Sheffield Utd",
-  "Leicester City": "Leicester", "Norwich City": "Norwich", "Luton Town": "Luton", "AFC Bournemouth": "Bournemouth",
-  "Paris Saint Germain": "PSG", "Bayern München": "Bayern", "Bayern Munich": "Bayern",
-  "Borussia Dortmund": "Dortmund", "Borussia Mönchengladbach": "M'gladbach", "Bayer Leverkusen": "Leverkusen",
-  "Atletico Madrid": "Atlético", "Athletic Club": "Athletic", "Real Sociedad": "Real Sociedad"
-};
-const short = n => SHORT[n] || n;
-
 async function readJSON(path, fallback) {
   try { return JSON.parse(await fs.readFile(path, "utf8")); } catch { return fallback; }
 }
+
+const SHORT = {
+  "Man United": "Man Utd", "Nottingham": "Nott'm Forest", "Brighton Hove": "Brighton", "Wolverhampton": "Wolves",
+  "Tottenham": "Tottenham", "Bayern München": "Bayern", "Paris Saint-Germain": "PSG", "Paris SG": "PSG",
+  "Atleti": "Atlético", "Athletic": "Athletic", "Leverkusen": "Leverkusen", "Dortmund": "Dortmund", "M'gladbach": "M'gladbach"
+};
+const teamName = t => SHORT[t.shortName] || t.shortName || t.name;
 
 function ukDate(iso) {
   const d = new Date(iso);
@@ -77,7 +86,6 @@ function ukDate(iso) {
     k: d.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/London" })
   };
 }
-
 function weatherKey(w) {
   if (!w) return "light";
   if (w.temp <= 1 || w.snow > 0) return "cold";
@@ -87,187 +95,188 @@ function weatherKey(w) {
   return "dry";
 }
 
-const statVal = (arr, type) => {
-  const v = arr?.find(s => s.type === type)?.value;
-  if (v == null) return null;
-  const n = Number(String(v).replace("%", ""));
-  return Number.isFinite(n) ? n : null;
-};
+// --- team-name matching between football-data and The Odds API ---
+const STOP = new Set(["fc","afc","cf","sc","ac","as","ssc","rc","rcd","ogc","club","de","del","la","the","and","calcio","sv","vfb","vfl","tsg","fsv","1","04","05","1899","1846","1909","1910","stade","sport","us","ud","cd","sd","ca"]);
+const ALIAS = { munich: "munchen", wolves: "wolverhampton", spurs: "tottenham", psg: "paris", inter: "internazionale", man: "manchester", utd: "united", nottm: "nottingham", "saint": "st" };
+function tokens(name) {
+  return String(name).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase()
+    .replace(/&/g, " ").replace(/[^a-z0-9 ]+/g, " ").split(/\s+/)
+    .map(t => ALIAS[t] || t).filter(t => t && !STOP.has(t));
+}
+function sim(a, b) {
+  const A = new Set(tokens(a)), B = new Set(tokens(b));
+  if (!A.size || !B.size) return 0;
+  let n = 0; for (const t of A) if (B.has(t)) n++;
+  return n / Math.min(A.size, B.size);
+}
 
-// one league → { id, name, round, teams, players, matches } ; uses and updates cache
-async function buildLeague(id, cache, prevLeague) {
-  const info = LEAGUE_INFO[id] || { name: `League ${id}`, country: "" };
-  console.log(`\n== ${info.name} (${id}) season ${SEASON}`);
+function parseOdds(ev, homeName, awayName) {
+  const best = {}, all = {};
+  const put = (key, price, book) => {
+    if (!(price > 1)) return;
+    (all[key] ??= []).push(price);
+    if (!best[key] || price > best[key].b) best[key] = { b: price, k: book };
+  };
+  for (const bm of ev.bookmakers || []) {
+    for (const mk of bm.markets || []) {
+      if (mk.key === "h2h") {
+        for (const o of mk.outcomes || []) {
+          if (o.name === "Draw") put("X", o.price, bm.title);
+          else if (o.name === ev.home_team) put("1", o.price, bm.title);
+          else if (o.name === ev.away_team) put("2", o.price, bm.title);
+        }
+      } else if (mk.key === "totals") {
+        for (const o of mk.outcomes || []) {
+          const line = Number(o.point);
+          if (![1.5, 2.5, 3.5].includes(line)) continue;
+          const k = (o.name === "Over" ? "O" : "U") + String(line).replace(".", "");
+          put(k, o.price, bm.title);
+        }
+      }
+    }
+  }
+  const out = {};
+  for (const [k, v] of Object.entries(best)) {
+    const arr = all[k];
+    out[k] = { b: v.b, k: v.k, a: +(arr.reduce((s, x) => s + x, 0) / arr.length).toFixed(3), n: arr.length };
+  }
+  return Object.keys(out).length ? out : null;
+}
 
-  const done = await api("/fixtures", { league: id, season: SEASON, status: "FT-AET-PEN" });
-  done.sort((a, b) => new Date(a.fixture.date) - new Date(b.fixture.date));
+async function buildLeague(code, cache, prev) {
+  const info = INFO[code] || { name: code, country: "", odds: null };
+  console.log(`\n== ${info.name} (${code})`);
 
-  let next = await api("/fixtures", { league: id, season: SEASON, next: 15 });
-  next.sort((a, b) => new Date(a.fixture.date) - new Date(b.fixture.date));
-  if (next.length) { const r = next[0].league.round; next = next.filter(f => f.league.round === r); }
+  const { matches } = await fd(`/competitions/${code}/matches`);
+  const done = matches.filter(m => m.status === "FINISHED" && m.score?.fullTime?.home != null)
+    .sort((a, b) => new Date(a.utcDate) - new Date(b.utcDate));
+  const open = matches.filter(m => ["SCHEDULED", "TIMED"].includes(m.status) && new Date(m.utcDate) > new Date())
+    .sort((a, b) => new Date(a.utcDate) - new Date(b.utcDate));
+  const md = open[0]?.matchday;
+  const next = open.filter(m => m.matchday === md);
 
-  const teams = {};
+  // Teams (addresses for weather) – refreshed weekly
+  const tc = cache.teams[code];
+  if (!tc || Date.now() - tc.at > 7 * 864e5) {
+    try {
+      const { teams } = await fd(`/competitions/${code}/teams`);
+      cache.teams[code] = { at: Date.now(), list: teams.map(t => ({ id: t.id, address: t.address || "", venue: t.venue || "" })) };
+    } catch (e) { console.warn("teams:", e.message); }
+  }
+  const addr = Object.fromEntries((cache.teams[code]?.list || []).map(t => [t.id, t]));
+
+  // Top scorers (goals + assists)
+  const players = {};
+  try {
+    const { scorers } = await fd(`/competitions/${code}/scorers`, { limit: 40 });
+    for (const s of scorers || []) {
+      const team = teamName(s.team);
+      (players[team] ??= []).push({ id: s.player.id, name: s.player.name, g: s.goals || 0, a: s.assists || 0, apps: s.playedMatches || 0 });
+    }
+    for (const k of Object.keys(players)) players[k] = players[k].sort((x, y) => (y.g + y.a) - (x.g + x.a)).slice(0, 4);
+  } catch (e) { console.warn("scorers:", e.message); Object.assign(players, prev?.players || {}); }
+
+  // Table, home/away records, form
+  const T = {};
   const blank = () => [0, 0, 0];
-  const ensure = t => (teams[t.id] ??= { id: t.id, name: short(t.name), o: blank(), h: blank(), a: blank(), res: [],
-    xg: [0, 0, 0], cn: [0, 0, 0], cd: [0, 0, 0] });
-  for (const f of [...done, ...next]) { ensure(f.teams.home); ensure(f.teams.away); }
-  for (const f of done) {
-    const hg = f.goals.home ?? 0, ag = f.goals.away ?? 0;
-    const H = teams[f.teams.home.id], A = teams[f.teams.away.id];
+  const ensure = t => (T[t.id] ??= { name: teamName(t), o: blank(), h: blank(), a: blank(), res: [] });
+  for (const m of [...done, ...next]) { ensure(m.homeTeam); ensure(m.awayTeam); }
+  for (const m of done) {
+    const hg = m.score.fullTime.home, ag = m.score.fullTime.away, H = T[m.homeTeam.id], A = T[m.awayTeam.id];
     H.o[0]++; H.o[1] += hg; H.o[2] += ag; H.h[0]++; H.h[1] += hg; H.h[2] += ag;
     A.o[0]++; A.o[1] += ag; A.o[2] += hg; A.a[0]++; A.a[1] += ag; A.a[2] += hg;
     H.res.push(hg > ag ? "W" : hg === ag ? "D" : "L");
     A.res.push(ag > hg ? "W" : ag === hg ? "D" : "L");
   }
 
-  // Players (top scorers + assisters)
-  const players = {};
-  const addPlayers = list => {
-    for (const p of list || []) {
-      const s = p.statistics?.[0]; if (!s) continue;
-      const team = short(s.team.name);
-      players[team] ??= [];
-      if (players[team].some(x => x.id === p.player.id)) continue;
-      players[team].push({ id: p.player.id, name: p.player.name, g: s.goals?.total || 0, a: s.goals?.assists || 0, apps: s.games?.appearences || 0 });
-    }
-  };
-  try {
-    addPlayers(await api("/players/topscorers", { league: id, season: SEASON }));
-    addPlayers(await api("/players/topassists", { league: id, season: SEASON }));
-  } catch (e) { console.warn("players:", e.message); if (prevLeague?.players) Object.assign(players, prevLeague.players); }
-  for (const k of Object.keys(players)) {
-    players[k].sort((x, y) => (y.g + y.a) - (x.g + x.a));
-    players[k] = players[k].slice(0, 4);
-  }
-
-  // Injuries (one call for the whole league, filtered to upcoming fixtures)
-  const upcomingIds = new Set(next.map(f => f.fixture.id));
-  const injuries = {};
-  try {
-    const list = await api("/injuries", { league: id, season: SEASON });
-    for (const i of list) {
-      if (!upcomingIds.has(i.fixture?.id) || i.player?.type !== "Missing Fixture") continue;
-      (injuries[i.fixture.id] ??= []).push(i);
-    }
-  } catch (e) { console.warn("injuries:", e.message); }
-
-  // Match stats (xG, corners, cards) – batched 20 fixtures per request, cached forever
-  const todo = done.filter(f => !(f.fixture.id in cache.stats)).reverse().map(f => f.fixture.id);
-  for (let i = 0; i < todo.length; i += 20) {
-    if (remaining <= MIN_LEFT + 2) { console.warn("stats: stopping early to protect quota"); break; }
-    const chunk = todo.slice(i, i + 20);
-    try {
-      const list = await api("/fixtures", { ids: chunk.join("-") });
-      const seen = new Set();
-      for (const f of list) {
-        seen.add(f.fixture.id);
-        if (!Array.isArray(f.statistics) || f.statistics.length !== 2) { cache.stats[f.fixture.id] = null; continue; }
-        const rec = {};
-        for (const side of f.statistics) {
-          rec[side.team.id] = {
-            xg: statVal(side.statistics, "expected_goals"),
-            c: statVal(side.statistics, "Corner Kicks"),
-            y: statVal(side.statistics, "Yellow Cards"),
-            r: statVal(side.statistics, "Red Cards")
-          };
-        }
-        cache.stats[f.fixture.id] = rec;
-      }
-      for (const idx of chunk) if (!seen.has(idx)) cache.stats[idx] = null;
-    } catch (e) { console.warn("stats:", e.message); break; }
-  }
-  for (const f of done) {
-    const rec = cache.stats[f.fixture.id]; if (!rec) continue;
-    const h = f.teams.home.id, a = f.teams.away.id;
-    const H = teams[h], A = teams[a], rh = rec[h], ra = rec[a];
-    if (!rh || !ra) continue;
-    if (rh.xg != null && ra.xg != null) { H.xg[0] += rh.xg; H.xg[1] += ra.xg; H.xg[2]++; A.xg[0] += ra.xg; A.xg[1] += rh.xg; A.xg[2]++; }
-    if (rh.c != null && ra.c != null) { H.cn[0] += rh.c; H.cn[1] += ra.c; H.cn[2]++; A.cn[0] += ra.c; A.cn[1] += rh.c; A.cn[2]++; }
-    const kh = rh.y == null ? null : rh.y + (rh.r || 0), ka = ra.y == null ? null : ra.y + (ra.r || 0);
-    if (kh != null && ka != null) { H.cd[0] += kh; H.cd[1] += ka; H.cd[2]++; A.cd[0] += ka; A.cd[1] += kh; A.cd[2]++; }
-  }
-
-  // Weather at kick-off (Open-Meteo, no key)
+  // Weather at kick-off
   const weather = {};
-  for (const f of next) {
-    const city = f.fixture.venue?.city; if (!city) continue;
-    const gk = `${info.country}|${city}`;
+  for (const m of next) {
+    const a = addr[m.homeTeam.id]; if (!a?.address) continue;
+    const words = a.address.split(/\s+/).filter(w => /^[\p{L}'-]+$/u.test(w) && w.length > 2);
+    const tries = [words.slice(-1).join(" "), words.slice(-2).join(" ")].filter(Boolean);
+    const gk = `${info.country}|${m.homeTeam.id}`;
     try {
-      if (!cache.geo[gk]) {
-        const q = encodeURIComponent(city.split(",")[0]);
-        const g = await getJSON(`https://geocoding-api.open-meteo.com/v1/search?name=${q}&count=1${info.country ? "&countryCode=" + info.country : ""}`);
+      for (const q of tries) {
+        if (cache.geo[gk]) break;
+        const g = await getJSON(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=1${info.country ? "&countryCode=" + info.country : ""}`);
         if (g.results?.[0]) cache.geo[gk] = [g.results[0].latitude, g.results[0].longitude];
       }
       const ll = cache.geo[gk]; if (!ll) continue;
-      const ko = new Date(f.fixture.date), day = ko.toISOString().slice(0, 10);
+      const ko = new Date(m.utcDate), day = ko.toISOString().slice(0, 10);
       const w = await getJSON(`https://api.open-meteo.com/v1/forecast?latitude=${ll[0]}&longitude=${ll[1]}&hourly=temperature_2m,precipitation,snowfall,wind_speed_10m&start_date=${day}&end_date=${day}&timezone=GMT`);
       const i = w.hourly?.time?.findIndex(t => Number(t.slice(11, 13)) === ko.getUTCHours());
-      if (i >= 0) weather[f.fixture.id] = {
-        temp: Math.round(w.hourly.temperature_2m[i]),
-        precip: Math.round(w.hourly.precipitation[i] * 10) / 10,
-        snow: w.hourly.snowfall[i] || 0,
-        wind: Math.round(w.hourly.wind_speed_10m[i])
-      };
-    } catch (e) { console.warn("weather:", city, e.message); }
+      if (i >= 0) weather[m.id] = { temp: Math.round(w.hourly.temperature_2m[i]), precip: Math.round(w.hourly.precipitation[i] * 10) / 10,
+        snow: w.hourly.snowfall[i] || 0, wind: Math.round(w.hourly.wind_speed_10m[i]) };
+    } catch (e) { console.warn("weather:", e.message); }
   }
 
-  // Output
-  const per = (v, n) => n >= 3 ? [+(v[0] / n).toFixed(2), +(v[1] / n).toFixed(2)] : null;
-  const outTeams = {};
-  for (const t of Object.values(teams)) {
-    outTeams[t.name] = { o: t.o, h: t.h, a: t.a, f: t.res.slice(-5).join(""),
-      xg: per(t.xg, t.xg[2]), cn: per(t.cn, t.cn[2]), cd: per(t.cd, t.cd[2]) };
+  // Bookmaker odds
+  const oddsByMatch = {};
+  if (ODDS_KEY && info.odds && next.length) {
+    if (oddsLeft !== null && oddsLeft < ODDS_MIN_LEFT) console.warn(`odds: skipped, only ${oddsLeft} credits left this month`);
+    else {
+      try {
+        const events = await odds(info.odds);
+        for (const ev of events) {
+          let bestM = null, bestS = 0;
+          for (const m of next) {
+            if (Math.abs(new Date(ev.commence_time) - new Date(m.utcDate)) > 6 * 3600e3) continue;
+            const sh = Math.max(sim(ev.home_team, m.homeTeam.name), sim(ev.home_team, m.homeTeam.shortName || ""));
+            const sa = Math.max(sim(ev.away_team, m.awayTeam.name), sim(ev.away_team, m.awayTeam.shortName || ""));
+            if (sh >= .5 && sa >= .5 && sh + sa >= 1.5 && sh + sa > bestS) { bestS = sh + sa; bestM = m; }
+          }
+          if (bestM) { const o = parseOdds(ev); if (o) oddsByMatch[bestM.id] = o; }
+        }
+        console.log(`  odds matched for ${Object.keys(oddsByMatch).length}/${next.length} matches`);
+      } catch (e) { console.warn("odds:", e.message); }
+    }
   }
-  const matches = next.map(f => {
-    const h = short(f.teams.home.name), a = short(f.teams.away.name);
-    const inj = injuries[f.fixture.id] || [];
-    const side = (teamId, teamName) => {
-      const list = inj.filter(x => x.team.id === teamId);
-      const keyIds = new Set((players[teamName] || []).map(p => p.id));
-      const keyNames = list.filter(x => keyIds.has(x.player.id)).map(x => x.player.name);
-      return { players: keyNames, others: Math.max(0, Math.min(3, list.length - keyNames.length)), all: list.map(x => x.player.name) };
-    };
-    const wx = weather[f.fixture.id] || null;
-    return { id: f.fixture.id, date: f.fixture.date, ...ukDate(f.fixture.date), h, a, v: f.fixture.venue?.name || "",
-      w: weatherKey(wx), wx, inj: { h: side(f.teams.home.id, h), a: side(f.teams.away.id, a) } };
+
+  const teams = {};
+  for (const t of Object.values(T)) teams[t.name] = { o: t.o, h: t.h, a: t.a, f: t.res.slice(-5).join(""), xg: null, cn: null, cd: null };
+  const outMatches = next.map(m => {
+    const wx = weather[m.id] || null;
+    return { id: m.id, date: m.utcDate, ...ukDate(m.utcDate), h: teamName(m.homeTeam), a: teamName(m.awayTeam),
+      v: addr[m.homeTeam.id]?.venue || "", w: weatherKey(wx), wx, odds: oddsByMatch[m.id] || null,
+      inj: { h: { players: [], others: 0, all: [] }, a: { players: [], others: 0, all: [] } } };
   });
 
-  const outPlayers = {};
-  for (const [team, list] of Object.entries(players)) outPlayers[team] = list.map(({ id, name, g, a, apps }) => ({ id, name, g, a, apps }));
-
-  return {
-    id: Number(id), name: info.name, round: next[0]?.league.round || prevLeague?.round || "",
-    teams: outTeams, players: outPlayers,
-    matches: matches.length ? matches : (prevLeague?.matches || []),
-    stats: { xg: Object.values(outTeams).filter(t => t.xg).length, corners: Object.values(outTeams).filter(t => t.cn).length }
-  };
+  return { code, name: info.name, round: md ? `Matchday ${md}` : (prev?.round || ""), teams,
+    players: Object.keys(players).length ? players : (prev?.players || {}),
+    matches: outMatches.length ? outMatches : (prev?.matches || []) };
 }
 
 async function main() {
-  const cache = await readJSON("data/cache.json", { stats: {}, geo: {} });
-  cache.stats ??= {}; cache.geo ??= {};
+  const cache = await readJSON("data/cache.json", {});
+  cache.teams ??= {}; cache.geo ??= {};
+  delete cache.stats; // left over from the API-Football version
   const previous = await readJSON("data/tips.json", null);
-  const prevById = Object.fromEntries((previous?.leagues || []).map(l => [String(l.id), l]));
+  const prevBy = Object.fromEntries((previous?.leagues || []).map(l => [l.code || l.name, l]));
 
   const leagues = [];
-  for (const id of LEAGUES) {
-    try { leagues.push(await buildLeague(id, cache, prevById[id])); }
+  for (const code of LEAGUES) {
+    const name = INFO[code]?.name;
+    try { leagues.push(await buildLeague(code, cache, prevBy[code] || prevBy[name])); }
     catch (e) {
-      console.warn(`League ${id} failed: ${e.message}`);
-      if (prevById[id]) leagues.push(prevById[id]);
+      console.warn(`League ${code} failed: ${e.message}`);
+      const p = prevBy[code] || prevBy[name]; if (p) leagues.push(p);
     }
   }
   if (!leagues.length) throw new Error("No league data built");
 
   const data = {
-    updated: new Date().toISOString(), mode: "live", season: SEASON,
-    sources: ["API-Football (fixtures, table, form, players, injuries, xG, corners, cards)", "Open-Meteo (kick-off weather)"],
+    updated: new Date().toISOString(), mode: "live",
+    sources: ["football-data.org (fixtures, results, tables, scorers)",
+      ODDS_KEY ? "The Odds API (UK bookmaker odds)" : "Odds: not configured",
+      "Open-Meteo (kick-off weather)"],
+    oddsCreditsLeft: oddsLeft,
     leagues
   };
   await fs.mkdir("data", { recursive: true });
   await fs.writeFile("data/tips.json", JSON.stringify(data, null, 1));
   await fs.writeFile("data/cache.json", JSON.stringify(cache));
-  console.log(`\nDone: ${leagues.map(l => `${l.name} ${l.matches.length} matches`).join(", ")}. ${used} API requests, ${remaining} left today.`);
+  console.log(`\nDone: ${leagues.map(l => `${l.name} ${l.matches.length}`).join(", ")}. football-data calls ${fdCalls}, odds credits used ${oddsUsed}${oddsLeft !== null ? `, ${oddsLeft} left this month` : ""}.`);
 }
 
 main().catch(e => { console.error(e); process.exit(1); });
