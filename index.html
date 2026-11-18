@@ -157,7 +157,7 @@ footer{font-size:11.5px;color:var(--mute);margin-top:22px;text-align:center}
   <div class="picks" id="picks"></div>
 
   <h2>Value finder · <span id="lgname3"></span></h2>
-  <div class="note" style="margin-bottom:8px">Bets where the best UK bookmaker price pays more than it should. To avoid false alarms, the chance used is a 50/50 blend of our model and the bookmakers' own consensus, and a bet is listed if that blend × the best price beats 1 by 3% or more. Bookmakers are usually sharper than a simple model, so check team news before trusting a big edge.</div>
+  <div class="note" style="margin-bottom:8px">Bets where the best UK bookmaker price pays more than it should. Bookmakers are sharper than a simple model, so the chance used is 30% our model + 70% the bookmakers' own consensus. A bet is listed when that × the best sportsbook price beats 1 by 3% or more. To cut false alarms it also skips longshots over 5.0 and bets where our model and the bookies disagree by more than 15 points. Exchanges are left out because they charge commission. Check team news before betting.</div>
   <div class="picks" id="value"></div>
 
   <h2>Accumulator builder</h2>
@@ -204,7 +204,7 @@ footer{font-size:11.5px;color:var(--mute);margin-top:22px;text-align:center}
     <li><b>Player form</b> – each team's top scorers and assisters. Tap a player who's out and their team's attack drops by their share of its goals (goals + half of assists), less ~40% for whoever replaces them. Mark players out yourself once team news is known.</li>
     <li><b>Weather</b> – heavy rain, strong wind and freezing conditions cut expected goals (roughly 2–10%).</li>
     <li><b>Goals markets</b> – expected goals feed a Poisson scoreline model (0–0 to 8–8) for win/draw/loss, double chance, over/under 1.5/2.5/3.5, both teams to score and the most likely score.</li>
-    <li><b>Value</b> – edge = (½ model chance + ½ bookmaker consensus) × best price − 1. The "Bookies" figure is the average UK price turned into a chance with the bookmaker's margin removed. If the model and the bookies disagree a lot, the bookies are more often right.</li>
+    <li><b>Value</b> – edge = (30% model chance + 70% bookmaker consensus) × best sportsbook price − 1, skipping longshots over 5.0 and big model/market disagreements. The "Bookies" figure is the average UK price turned into a chance with the bookmaker's margin removed. If the model and the bookies disagree a lot, the bookies are more often right.</li>
     <li><b>Accumulators</b> – the chance all legs land is each leg's chance multiplied together; fair odds = 1 ÷ that chance. Legs from the same match are linked, so for those the combined figure is only a rough guide.</li>
   </ul></div>
 
@@ -322,9 +322,12 @@ function mktProb(m,key){
   const inv=g.map(k=>1/m.odds[k].a),s=inv.reduce((a,b)=>a+b,0);
   return inv[g.indexOf(key)]/s;
 }
-// value is judged on a 50/50 blend of model and bookmaker consensus, so model blind spots don't show up as fake value
-const blendP=x=>x.mp!=null?.5*x.p+.5*x.mp:x.p;
-const edgeOf=x=>x.o&&x.mp!=null?blendP(x)*x.o.b-1:null;
+// value is judged on a 30/70 blend of model and bookmaker consensus, so model blind spots don't show up as fake value
+const W_MODEL=.3;
+const blendP=x=>x.mp!=null?W_MODEL*x.p+(1-W_MODEL)*x.mp:x.p;
+// a value bet must also be believable: not a longshot, and model not wildly off the market
+const credible=x=>x.o&&x.mp!=null&&x.o.b<=5&&Math.abs(x.p-x.mp)<=.15&&x.o.n>=2;
+const edgeOf=x=>credible(x)?blendP(x)*x.o.b-1:null;
 const market=(m,key)=>markets(m).find(x=>x.key===key);
 
 function grade(p){return p>=.6?["Strong","b-strong"]:p>=.5?["Good","b-good"]:p>=.4?["Lean","b-lean"]:["Avoid","b-avoid"]}
@@ -410,7 +413,7 @@ function renderCards(){
       <summary>All bets · why · weather · team news</summary>
       <div class="adj">
         <div class="mkts">${markets(m).filter(x=>x.o||!/^U|^CU|^KU|^BN/.test(x.key)).map(x=>{const e=edgeOf(x);return `<div class="mk ${e!=null&&e>=.05?"val":""}"><span>${esc(x.label)}${x.o?`<small> @${x.o.b.toFixed(2)}</small>`:""}</span><b>${pc(x.p)}</b></div>`}).join("")}</div>
-        ${m.odds?'<div class="mute" style="font-size:11.5px">@ = best UK bookmaker price. Green = value (blend of model + bookies beats that price by 3%+).</div>':""}
+        ${m.odds?'<div class="mute" style="font-size:11.5px">@ = best UK bookmaker price. Green = value (30% model + 70% bookies beats that price by 3%+).</div>':""}
         <ul class="why">${reasons(m,r).map(x=>`<li>${x}</li>`).join("")}</ul>
         <div class="row"><span>Weather</span>
           <select data-wx="${m.id}">${Object.entries(WX).map(([k,v])=>`<option value="${k}" ${k===m.w?"selected":""}>${v[0]}</option>`).join("")}</select></div>
@@ -446,7 +449,7 @@ function renderPicks(){
 function renderValue(){
   const el=document.getElementById("value"),list=[];
   const ms=inView();const anyOdds=ms.some(m=>m.odds);
-  for(const m of ms)for(const x of markets(m)){const e=edgeOf(x);if(e!=null&&e>=.03&&x.p>=.2&&x.o.n>=3)list.push({m,x,e});}
+  for(const m of ms)for(const x of markets(m)){const e=edgeOf(x);if(e!=null&&e>=.03&&x.p>=.2)list.push({m,x,e});}
   list.sort((a,b)=>b.e-a.e);
   if(!list.length){el.innerHTML=`<div class="empty">${anyOdds?"No bets right now where our model beats the best bookmaker price by 5% or more.":"Bookmaker odds arrive with the next data update."}</div>`;return;}
   el.innerHTML=list.slice(0,10).map(({m,x,e})=>`

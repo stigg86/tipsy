@@ -63,10 +63,17 @@ async function odds(sport) {
   return j;
 }
 
-async function getJSON(url) {
-  const r = await fetch(url);
-  if (!r.ok) throw new Error(`${url} HTTP ${r.status}`);
-  return r.json();
+async function getJSON(url, tries = 3) {
+  for (let i = 0; ; i++) {
+    try {
+      const r = await fetch(url);
+      if (!r.ok) throw new Error(`HTTP ${r.status}`);
+      return await r.json();
+    } catch (e) {
+      if (i >= tries - 1) throw new Error(`${new URL(url).host}: ${e.message}`);
+      await sleep(1500 * (i + 1));
+    }
+  }
 }
 async function readJSON(path, fallback) {
   try { return JSON.parse(await fs.readFile(path, "utf8")); } catch { return fallback; }
@@ -118,6 +125,7 @@ function parseOdds(ev, homeName, awayName) {
     if (!best[key] || price > best[key].b) best[key] = { b: price, k: book };
   };
   for (const bm of ev.bookmakers || []) {
+    if (/^(betfair_ex|matchbook|smarkets)/.test(bm.key || "")) continue; // exchanges charge commission – compare sportsbooks only
     for (const mk of bm.markets || []) {
       if (mk.key === "h2h") {
         for (const o of mk.outcomes || []) {
