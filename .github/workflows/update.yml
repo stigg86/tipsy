@@ -37,6 +37,7 @@ jobs:
         env:
           FOOTBALL_DATA_KEY: ${{ secrets.FOOTBALL_DATA_KEY }}
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          ODDSPAPI_KEY: ${{ secrets.ODDSPAPI_KEY }}
           LEAGUES: ${{ vars.LEAGUES }}
           FORCE_ODDS: ${{ github.event.inputs.force_odds == 'true' && '1' || '' }}
         run: node scripts/build.mjs
