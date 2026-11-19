@@ -10,6 +10,10 @@ on:
         description: "Refresh bookmaker odds even if under 6 hours old"
         required: false
         default: "false"
+      force_all:
+        description: "Refresh all-sports best bets even if under 20 hours old (uses ~6 of 250 monthly OddsPapi requests)"
+        required: false
+        default: "false"
 
 permissions:
   contents: write
@@ -36,6 +40,13 @@ jobs:
           LEAGUES: ${{ vars.LEAGUES }}
           FORCE_ODDS: ${{ github.event.inputs.force_odds == 'true' && '1' || '' }}
         run: node scripts/build.mjs
+
+      - name: All-sports best bets (once a day)
+        continue-on-error: true
+        env:
+          ODDSPAPI_KEY: ${{ secrets.ODDSPAPI_KEY }}
+          FORCE_ALLSPORTS: ${{ github.event.inputs.force_all == 'true' && '1' || '' }}
+        run: node scripts/allsports.mjs
 
       - name: Commit if changed
         run: |
