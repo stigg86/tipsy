@@ -557,7 +557,8 @@ function betLink(){return ""}
 const bestBook=(m,key)=>m.odds&&m.odds[key]?m.odds[key].k:null;
 
 // add/remove a bet from the user's own accumulator
-const inMine=(mid,key)=>(accaMode==="custom"?legs:ACCA.custom).some(l=>l.mid==mid&&l.key===key);
+// "In acca" means: in the slip you see on the Acca tab right now
+const inMine=(mid,key)=>legs.some(l=>l.mid==mid&&l.key===key);
 function accaBtn(mid,key){const on=inMine(mid,key);return `<button class="addtip ${on?"on":""}" data-addm="${mid}" data-addk="${key}">${on?"✓ In acca":"+ Acca"}</button>`}
 function refreshAccaBtns(){document.querySelectorAll("button[data-addm]").forEach(b=>{const on=inMine(b.dataset.addm,b.dataset.addk);b.classList.toggle("on",on);b.textContent=on?"✓ In acca":"+ Acca";});}
 
@@ -916,8 +917,10 @@ document.addEventListener("click",e=>{
   if(tb){document.querySelectorAll(".tab[data-m]").forEach(x=>x.classList.toggle("on",x===tb));mode=tb.dataset.m;renderPicks();return;}
   const at=t.closest("[data-addm]");
   if(at){
-    if(accaMode!=="custom")setAccaMode("custom");
-    const mid=at.dataset.addm,key=at.dataset.addk,i=legs.findIndex(l=>l.mid==mid&&l.key===key);
+    const mid=at.dataset.addm,key=at.dataset.addk;
+    // already on the slip you're looking at: take it off. Otherwise add it to your own acca.
+    if(accaMode!=="custom"&&!inMine(mid,key))setAccaMode("custom");
+    const i=legs.findIndex(l=>l.mid==mid&&l.key===key);
     if(i>=0){legs.splice(i,1);saveLegs();renderAcca();}
     else if(legs.length>=MAXLEGS){at.textContent="Acca full (20)";setTimeout(refreshAccaBtns,1500);return;}
     else addLeg(mid,key);
