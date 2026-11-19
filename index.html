@@ -242,6 +242,8 @@ section[data-sec]>h2:first-child{margin-top:10px}
 .tip .addtip{white-space:nowrap}
 .addtip.on{background:rgba(61,220,151,.14);border-color:var(--home)}
 .pick .pright{display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+.pick .rank.sp{background:none;font-size:20px;width:auto}
+.pick.os{cursor:default}
 .pick .pright .pct{min-width:0;line-height:1}
 .pick .addtip{white-space:nowrap}
 .sodds{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr 1fr;text-align:center;font:600 13px "Space Grotesk",Inter,sans-serif;color:var(--ink);opacity:.9}
@@ -289,7 +291,7 @@ section[data-sec]>h2:first-child{margin-top:10px}
 
   <div class="lgtabs" id="lgtabs"></div>
   <nav class="sectabs" id="sectabs" aria-label="Sections">
-    <button data-sec="tips" class="on">Tips</button><button data-sec="scores">Scores</button><button data-sec="value">Value</button><button data-sec="acca">Acca</button><button data-sec="matches">Matches</button><button data-sec="record">Record</button>
+    <button data-sec="tips" class="on">Tips</button><button data-sec="best">Best</button><button data-sec="scores">Scores</button><button data-sec="value">Value</button><button data-sec="acca">Acca</button><button data-sec="matches">Matches</button><button data-sec="record">Record</button>
   </nav>
   <p class="upd">Updated <span id="updated">…</span> · <a href="#record">about the data</a></p>
 
@@ -304,6 +306,13 @@ section[data-sec]>h2:first-child{margin-top:10px}
   </div>
   <div class="picks" id="picks"></div>
   </section>
+  <section data-sec="best" hidden>
+  <h2>Best bets · all sports</h2>
+  <p class="mute" style="margin:-4px 0 8px;font-size:13.5px">The most likely winners over the next day or so, from football, tennis, basketball, ice hockey, darts and more.</p>
+  <div class="tabs" id="bestSports"></div>
+  <div class="picks" id="best"></div>
+  </section>
+
   <section data-sec="scores" hidden>
   <h2>Score predictions · <span id="lgname4"></span></h2>
   <p class="upd" style="margin-top:-4px">Under each match are the best UK prices for a home win, a draw and an away win. Correct-score prices aren't in our free odds data, so "if it comes in" is an estimate: the chance of that exact score from the bookmakers' own match odds, with the margin bookmakers usually add to correct-score bets. Check the real price on the bookie's site.</p>
@@ -406,7 +415,7 @@ function prepLeague(L){
   });
 }
 const model=m=>TM.model(m,m.L,out[m.id]);
-const markets=m=>TM.markets(m);
+const markets=m=>m.os?osMarkets(m):TM.markets(m);
 const market=(m,key)=>markets(m).find(x=>x.key===key);
 function computeLeague(L){(L.matches||[]).forEach(m=>{m._r=model(m)});}
 
@@ -707,7 +716,7 @@ function whereToBet(){
   const L=legs.map(l=>{const m=MATCH[l.mid];return m&&{m,x:market(m,l.key)}}).filter(Boolean);
   if(!L.length)return"";
   const priced=L.filter(({x})=>x.o&&x.o.all);
-  if(!priced.length)return `<div class="accnote">🏦 None of these legs have bookmaker prices in our data (double chance and BTTS aren't in the free feed). Turn on "Only bets with bookie prices" to compare bookies.</div>`;
+  if(!priced.length)return `<div class="accnote">🏦 None of these legs have bookmaker prices in our data (double chance, BTTS and other sports aren't in our bookie feed). Turn on "Only bets with bookie prices" to compare bookies.</div>`;
   const books=new Set();priced.forEach(({x})=>x.o.all.forEach(r=>books.add(r[0])));
   const fmt=p=>p>=1000?Math.round(p).toLocaleString():p.toFixed(2);
   const rows=[...books].map(b=>{let p=1,c=0;for(const {m,x} of priced){const v=priceAt(m,x.key,b);if(v){p*=v;c++;}}return {b,p,c};})
@@ -724,7 +733,7 @@ function whereToBet(){
     :`<button class="wrow ${accaBook===r.b?"top chosen":""}" data-place="${esc(r.b)}"><span>${i+1}. ${esc(r.b)}<small class="tapnote">${accaBook===r.b?"✓ Showing ${esc(poss(r.b))} prices":"Tap to see their prices"}</small></span><b>${fmt(r.p)}</b></button>${accaBook===r.b?placeList(r.b):""}`).join("");
   let note;
   if(full.length) note=`${full.length} bookie${full.length===1?" prices":"s price"} every leg. £10 at ${esc(full[0].b)} would return £${(10*full[0].p).toFixed(2)} if it all lands.`;
-  else note=`No single bookie prices every leg${missing?` (${missing} leg${missing===1?" is a":"s are"} double chance or BTTS, which the free feed doesn't price)`:""}. Goals over/under is only priced by a few bookies in our data, so try swapping those legs for match results.`;
+  else note=`No single bookie prices every leg${missing?` (${missing} leg${missing===1?" is a":"s are"} double chance, BTTS or another sport, which our bookie feed doesn't price)`:""}. Goals over/under is only priced by a few bookies in our data, so try swapping those legs for match results.`;
   const top=rows[0],sumTxt=full.length?`🏦 Best place: <b>${esc(full[0].b)}</b> ${fmt(full[0].p)}`:`🏦 Best place: <b>${esc(top.b)}</b> <small class="mute">${top.c}/${L.length} bets</small>`;
   return `<details class="where" id="whereBox" ${whereOpen||accaBook?"open":""}><summary>${accaBook?`🏦 <b>${esc(accaBook)}</b> ${fmt(rows.find(r=>r.b===accaBook)?.p||0)}`:sumTxt}<small class="mute"> · compare bookies</small></summary>${head}${list}<div class="accnote">${note} Prices change, so check on the bookie's site.</div></details>`;
 }
@@ -739,7 +748,7 @@ function renderAcca(){
     const m=MATCH[l.mid],x=m&&market(m,l.key);if(!x)return"";
     comb*=x.p;bcomb*=blendP(x);counts[l.mid]=(counts[l.mid]||0)+1;if(x.o)price*=x.o.b;else allPriced=false;
     return `<div class="leg"><span class="n">${i+1}</span>
-      <div class="what"><b data-go="${m.id}" data-lgi="${LG.indexOf(m.L)}">${esc(x.label)}</b><small>${esc(m.h)} v ${esc(m.a)} · ${esc(m.L.name)} · ${esc(m.d)} ${esc(m.k)}</small>
+      <div class="what"><b ${m.os?"":`data-go="${m.id}" data-lgi="${LG.indexOf(m.L)}"`}>${esc(x.label)}</b><small>${esc(m.h)} v ${esc(m.a)} · ${esc(m.L.name)} · ${esc(m.d)} ${esc(m.k)}</small>
 </div>
       <span class="pct">${pc(x.p)}${x.o?`<small style="display:block;font:500 11px Inter;color:var(--mute)">${accaBook?`${priceAt(m,l.key,accaBook).toFixed(2)} · ${esc(accaBook)}`:`${x.o.b.toFixed(2)} · ${esc(x.o.k)}`}</small>`:""}</span><button class="legx" data-rm="${i}" aria-label="Remove">×</button></div>`;
   }).join("");
@@ -759,8 +768,50 @@ function renderAcca(){
     <div class="accnote">Only worth backing if the bookie's price is higher than the fair odds. Every extra leg cuts the chance it all lands.</div>`;
 }
 
+// ---------- Best bets across all sports ----------
+const SPORT_ICON={Soccer:"⚽",Tennis:"🎾",Basketball:"🏀","Ice Hockey":"🏒","American Football":"🏈",Darts:"🎯",Snooker:"🎱",Boxing:"🥊",MMA:"🥋",Rugby:"🏉",Cricket:"🏏","Aussie Rules":"🏉",Baseball:"⚾",Handball:"🤾",Volleyball:"🏐"};
+const SPORT_NAME={Soccer:"Football"};
+let OS=null, bestSport="all", bestMore=false;
+function prepOS(d){
+  OS=d&&Array.isArray(d.events)?d:null;if(!OS)return;
+  OS.events.forEach(e=>{const t=new Date(e.start);
+    MATCH["os:"+e.id]={id:"os:"+e.id,os:true,e,h:e.h,a:e.a,date:e.start,L:{name:e.comp},
+      d:t.toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"}),k:t.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})};});
+}
+// other sports: one "to win" bet per side, chance = Pinnacle's price with its margin removed
+function osMarkets(m){
+  return m.e.o.map(([side,price,p])=>({group:"Result",key:side==="home"?"1":side==="away"?"2":"X",
+    label:side==="draw"?"Draw":`${side==="home"?m.h:m.a} to win`,p,pm:p,mp:p,o:null,pin:price}));
+}
+function bestItems(){
+  const now=Date.now(),last=Math.max(now+36*36e5,...(OS?OS.events.map(e=>new Date(e.start).getTime()):[]));
+  const items=[];
+  for(const L of LG)for(const m of L.matches||[]){const t=new Date(m.date).getTime();if(!m._r||t<now||t>last)continue;
+    for(const k of ["1","2"]){const x=market(m,k);if(x)items.push({m,x,sport:"Soccer",tipsy:true});}}
+  for(const e of OS?OS.events:[]){const m=MATCH["os:"+e.id];if(!m||new Date(e.start).getTime()<now)continue;
+    for(const x of osMarkets(m))if(x.key!=="X")items.push({m,x,sport:e.sport});}
+  return items.filter(i=>i.x.p>=.55&&i.x.p<=.96).sort((a,b)=>b.x.p-a.x.p);
+}
+function renderBest(){
+  const el=document.getElementById("best");if(!el)return;
+  const all=bestItems(),sports=[...new Set(all.map(i=>i.sport))];
+  if(bestSport!=="all"&&!sports.includes(bestSport))bestSport="all";
+  document.getElementById("bestSports").innerHTML=[["all","All sports"],...sports.map(s=>[s,`${SPORT_ICON[s]||"🏅"} ${SPORT_NAME[s]||s}`])]
+    .map(([k,l])=>`<button class="tab ${bestSport===k?"on":""}" data-bsport="${esc(k)}">${esc(l)}</button>`).join("");
+  const list=all.filter(i=>bestSport==="all"||i.sport===bestSport),shown=list.slice(0,bestMore?80:15);
+  const upd=OS?new Date(OS.updated).toLocaleString("en-GB",{weekday:"short",hour:"2-digit",minute:"2-digit"}):null;
+  el.innerHTML=(shown.length?shown.map(({m,x,sport,tipsy})=>{const g=grade(x.p);return `
+    <div class="pick ${tipsy?"":"os"}" ${tipsy?`data-go="${m.id}" data-lgi="${LG.indexOf(m.L)}"`:""}><span class="rank sp" title="${esc(SPORT_NAME[sport]||sport)}">${SPORT_ICON[sport]||"🏅"}</span>
+      <div class="what"><b>${esc(x.label)}</b><small>${esc(m.h)} v ${esc(m.a)} · ${esc(m.L.name)} · ${esc(m.d)} ${esc(m.k)}</small>
+        <small class="oline">${tipsy?oddsTxt(m,x.key,x.p)+' <span class="bk">· Tipsy model</span>':`<span class="odds fair">fair odds ${(1/x.p).toFixed(2)}</span> <span class="bk">· check your bookie</span>`}</small></div>
+      <span class="pright"><span class="pct">${pc(x.p)}</span><span class="badge ${g[1]}">${g[0]}</span>${accaBtn(m.id,x.key)}</span></div>`}).join("")
+    +(list.length>shown.length?`<button class="btn ghost" data-bmore style="margin-top:4px">Show ${list.length-shown.length} more</button>`:"")
+    :`<div class="empty">${OS?"No strong favourites in the next day or so. Check back after the next update.":"The all-sports list arrives with the next daily update."}</div>`)
+    +`<div class="accnote">Football picks come from Tipsy's own model. Other sports use Pinnacle's prices with the bookie's margin taken off, so the % is the market's best guess, not a Tipsy prediction. Pinnacle doesn't take UK customers, so only back a pick if your bookie pays at least the fair odds.${upd?` Other sports updated ${esc(upd)}, once a day.`:""}</div>`;
+}
+
 // ---------- Sections ----------
-const SECS=["tips","scores","value","acca","matches","record"];
+const SECS=["tips","best","scores","value","acca","matches","record"];
 let sec="tips";
 function showSec(name,{scroll=true}={}){
   if(!SECS.includes(name))name="tips";
@@ -857,6 +908,9 @@ document.addEventListener("click",e=>{
   if(q){quick(q.dataset.quick);return;}
   const rm=t.closest("[data-rm]");
   if(rm){legs.splice(+rm.dataset.rm,1);saveLegs();renderAcca();renderCustom();return;}
+  const bs=t.closest("[data-bsport]");
+  if(bs){bestSport=bs.dataset.bsport;bestMore=false;renderBest();return;}
+  if(t.closest("[data-bmore]")){bestMore=true;renderBest();return;}
   const go=t.closest("[data-go]");
   if(go){
     if(cur>=0&&go.dataset.lgi!=null&&+go.dataset.lgi!==cur){cur=+go.dataset.lgi;renderTabs();renderPicks();renderScores();renderValue();renderCards();}
@@ -918,8 +972,9 @@ function init(d){
   LG.forEach(L=>{prepLeague(L);computeLeague(L);});
 }
 
-fetch("data/tips.json",{cache:"no-store"}).then(r=>{if(!r.ok)throw 0;return r.json()}).then(d=>{
-  init(d);
+const osLoad=fetch("data/allsports.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).catch(()=>null);
+fetch("data/tips.json",{cache:"no-store"}).then(r=>{if(!r.ok)throw 0;return r.json()}).then(async d=>{
+  init(d);prepOS(await osLoad);
   if(!LG.length)throw 0;
   document.getElementById("updated").textContent=new Date(d.updated).toLocaleString("en-GB",{weekday:"short",day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"});
   document.getElementById("srcs").textContent=(d.sources||[]).join(" · ");
@@ -928,7 +983,7 @@ fetch("data/tips.json",{cache:"no-store"}).then(r=>{if(!r.ok)throw 0;return r.js
   document.querySelectorAll('.tab[data-m="cards"]').forEach(b=>b.style.display=hasK?"":"none");
   fetch("data/history.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(renderAccuracy).catch(()=>renderAccuracy(null));
   showSec(location.hash.slice(1)||"tips",{scroll:false});
-  loadLegs();setAccaMode(accaMode);renderAuto();renderTabs();renderPicks();renderScores();renderValue();renderCards();renderCustom();renderAcca();
+  loadLegs();setAccaMode(accaMode);renderAuto();renderTabs();renderPicks();renderScores();renderValue();renderCards();renderCustom();renderAcca();renderBest();
 }).catch(()=>{document.getElementById("cards").innerHTML='<div class="note">Couldn\'t load the latest data. Try again shortly.</div>'});
 
 

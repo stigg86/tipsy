@@ -63,3 +63,11 @@ The model lives in `model.js`, which both the page and the data builder use. In 
 - `model.js` – the prediction model (shared)
 - `data/history.json` – saved predictions and results
 - `data/cache.json` – cached stadium locations, ClubElo ratings and odds timestamps
+
+## Best bets across all sports
+
+`scripts/allsports.mjs` runs once a day (after the football build) and uses the free [OddsPapi](https://oddspapi.io) plan
+(250 requests a month, secret `ODDSPAPI_KEY`). Each run makes 1 request for the fixture list and up to 5 odds requests
+(5 competitions each, Pinnacle prices), and stops at 235 requests a month. Pinnacle's prices, with the margin removed,
+give the chances shown on the **Best** tab. Football on that tab comes from Tipsy's own model.
+Writes `data/allsports.json`; usage is tracked in `data/oddspapi-cache.json`.

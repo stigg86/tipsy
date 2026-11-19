@@ -31,6 +31,7 @@ const WANT = [
   [10, /world cup.*qualif|nations league|friendl.*international|euro.*qualif/i],
   [11, /euroleague/i], [31, /\bafl\b/i], [14, /ncaa/i], [11, /ncaa(?!.*women)/i]
 ];
+const JUNK = /simulated|\bsrl\b|power slap|esoccer|virtual|cyber/i;
 const OUR_FOOTBALL = /^(england premier league|spain laliga|spain la liga|germany bundesliga|france ligue 1)$/i;
 
 async function get(path, params, usage) {
@@ -46,6 +47,15 @@ async function get(path, params, usage) {
     try { return JSON.parse(txt); } catch { return null; }
   }
   return null;
+}
+
+// "Shelton, Ben" -> "Ben Shelton"; doubles pairs and team names stay as they are
+const person = n => /^[^,\/]+, [^,\/]+$/.test(n) ? n.split(", ").reverse().join(" ") : n;
+// "ATP ATP World Tour Finals Men Singles" -> "ATP World Tour Finals Men Singles", "USA NBA" -> "NBA"
+function compName(f) {
+  const cat = (f.categoryName || "").trim(), t = (f.tournamentName || "").trim();
+  if (!cat || /^(international|usa|world)$/i.test(cat) || t.toLowerCase().startsWith(cat.toLowerCase())) return t;
+  return `${cat} ${t}`;
 }
 
 // Pinnacle's full-game moneyline: home / (draw) / away, with the margin removed
@@ -95,7 +105,7 @@ async function main() {
   }
   const chosen = [], seen = new Set();
   for (const [sportId, re] of WANT) {
-    const list = Object.values(comps).filter(c => c.sportId === sportId && !seen.has(c.id) && re.test(c.name) && !(sportId === 10 && OUR_FOOTBALL.test(c.name)))
+    const list = Object.values(comps).filter(c => c.sportId === sportId && !seen.has(c.id) && !JUNK.test(c.name) && re.test(c.name) && !(sportId === 10 && OUR_FOOTBALL.test(c.name)))
       .sort((a, b) => b.n - a.n);
     for (const c of list.slice(0, sportId === 12 ? 4 : 2)) { chosen.push(c); seen.add(c.id); }
     if (chosen.length >= ODDS_CALLS * 5) break;
@@ -113,8 +123,8 @@ async function main() {
       const f = byId.get(fx.fixtureId) || byTime.get(`${fx.tournamentId}|${fx.startTime}`);
       if (!f) continue;
       const ml = moneyline(fx); if (!ml) continue;
-      events.push({ id: f.fixtureId, sport: f.sportName, sportId: f.sportId, comp: comps[f.tournamentId]?.name || f.tournamentName,
-        start: f.startTime, h: f.participant1Name, a: f.participant2Name, o: ml });
+      events.push({ id: f.fixtureId, sport: f.sportName, sportId: f.sportId, comp: compName(f),
+        start: f.startTime, h: person(f.participant1Name), a: person(f.participant2Name), o: ml });
     }
   }
   events.sort((a, b) => new Date(a.start) - new Date(b.start));
