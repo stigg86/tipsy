@@ -832,6 +832,9 @@ function renderBest(){
     +`<div class="accnote">Football picks come from Tipsy's own model. Other sports use Pinnacle's prices with the bookie's margin taken off, so the % is the market's best guess, not a Tipsy prediction. Pinnacle doesn't take UK customers, so only back a pick if your bookie pays at least the fair odds.${upd?` Other sports updated ${esc(upd)}, once a day.`:""}</div>`;
 }
 
+// visitor counter (GoatCounter: no cookies, stats visible only to the owner)
+function track(path,title){try{window.goatcounter&&window.goatcounter.count&&window.goatcounter.count({path,title,event:true})}catch(e){}}
+
 // ---------- Sections ----------
 const SECS=["tips","best","scores","value","acca","matches","record"];
 let sec="tips";
@@ -903,6 +906,7 @@ document.addEventListener("click",e=>{
     else addLeg(mid,key);
     autoNote="";renderAuto();renderCustom();return;}
   const sb=t.closest(".sectabs [data-sec]");
+  if(sb)track("tab/"+sb.dataset.sec,"Tab: "+sb.textContent.trim());
   if(sb){showSec(sb.dataset.sec);return;}
   const hl=t.closest('a[href="#record"]');
   if(hl){e.preventDefault();showSec("record");document.getElementById("sectabs").scrollIntoView({behavior:"smooth"});return;}
@@ -919,12 +923,14 @@ document.addEventListener("click",e=>{
     else addLeg(mid,key);
     renderCustom();refreshAccaBtns();return;}
   const sc=t.closest("[data-scope]");
+  if(sc)track("acca/sports-"+sc.dataset.scope,"Acca: "+sc.dataset.scope);
   if(sc){autoScope=sc.dataset.scope;try{localStorage.setItem("tipsy-scope",autoScope)}catch(e){}renderAuto();if(legs.length&&autoRisk)autoBuild(autoRisk);return;}
   if(t.closest("#pricedOnly")){pricedOnly=!pricedOnly;renderAuto();if(legs.length)autoBuild(autoRisk);return;}
   const vm=t.closest("[data-vmode]");
   if(vm){valueMode=vm.dataset.vmode;renderValue();return;}
   if(t.closest("#scoresMore")){scoresAll=!scoresAll;renderScores();return;}
   const rk=t.closest("[data-risk]");
+  if(rk)track("acca/"+rk.dataset.risk,"Acca: "+rk.dataset.risk);
   if(rk){autoBuild(rk.dataset.risk);return;}
   const an=t.closest("[data-autod]");
   if(an){autoN=Math.max(1,Math.min(MAXLEGS,autoN+ +an.dataset.autod));renderAuto();if(legs.length&&autoRisk)autoBuild(autoRisk);return;}
@@ -1052,5 +1058,6 @@ fetch("data/tips.json",{cache:"no-store"}).then(r=>{if(!r.ok)throw 0;return r.js
 })();
 
 </script>
+<script data-goatcounter="https://tipsy.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </body>
 </html>
