@@ -12,7 +12,7 @@ async function get(path,params){
   await sleep(1500);return j;
 }
 const day=d=>new Date(Date.now()+d*864e5).toISOString().slice(0,10);
-const T="132,234,138,904526,33994,28333,24327,131,904297,648";
+const T="132,234,33994,28333,904297";
 for(const bk of ["pinnacle"]){
   const od=await get("odds-by-tournaments",{tournamentIds:T,bookmaker:bk,oddsFormat:"decimal"});
   const arr=Array.isArray(od)?od:(od&&od.data)||[];
