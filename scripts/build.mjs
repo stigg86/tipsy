@@ -267,10 +267,16 @@ async function loadBet365() {
   for (const f of list) {
     const mk = f.bookmakerOdds?.bet365?.markets; const h = teams.names[f.participant1Id], a = teams.names[f.participant2Id];
     if (!mk || !h || !a) continue;
+    // bet365 often flags prices "inactive" in this feed, so keep a market only when every outcome has a price
+    // and together they make sense (bookie margin between 0 and 15%)
     const p = {};
-    for (const [mid, outs] of Object.entries(MAP)) for (const [oid, key] of Object.entries(outs)) {
-      const pl = mk[mid]?.outcomes?.[oid]?.players?.["0"];
-      if (pl && pl.active !== false && pl.price > 1) p[key] = pl.price;
+    for (const [mid, outs] of Object.entries(MAP)) {
+      const m = mk[mid]; if (!m || m.marketActive === false) continue;
+      const got = Object.entries(outs).map(([oid, key]) => [key, m.outcomes?.[oid]?.players?.["0"]?.price]);
+      if (!got.every(([, pr]) => pr > 1)) continue;
+      const over = got.reduce((t, [, pr]) => t + 1 / pr, 0);
+      if (over < 1 || over > 1.15) continue;
+      for (const [key, pr] of got) p[key] = pr;
     }
     if (Object.keys(p).length) events.push({ t: f.tournamentId, start: f.startTime, h, a, p });
   }
