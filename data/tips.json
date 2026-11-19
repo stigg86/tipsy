@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-19T11:13:06.635Z",
+ "updated": "2026-11-19T15:18:45.012Z",
  "mode": "live",
  "sources": [
   "football-data.org (fixtures, results, tables, scorers)",
@@ -8,7 +8,7 @@
   "The Odds API (UK bookmaker odds)",
   "Open-Meteo (kick-off weather)"
  ],
- "oddsCreditsLeft": 428,
+ "oddsCreditsLeft": null,
  "leagues": [
   {
    "code": "PL",
@@ -834,7 +834,7 @@
       "temp": 5,
       "precip": 0,
       "snow": 0,
-      "wind": 7
+      "wind": 5
      },
      "odds": {
       "1": {
@@ -1166,7 +1166,7 @@
       "temp": 7,
       "precip": 0,
       "snow": 0,
-      "wind": 8
+      "wind": 7
      },
      "odds": {
       "1": {
@@ -1468,10 +1468,8 @@
       },
       "a": {
        "players": [],
-       "others": 1,
-       "all": [
-        "Stach – Foot injury - 50% chance of playing"
-       ]
+       "others": 0,
+       "all": []
       }
      }
     },
@@ -1488,7 +1486,7 @@
       "temp": 5,
       "precip": 0,
       "snow": 0,
-      "wind": 10
+      "wind": 6
      },
      "odds": {
       "1": {
@@ -1783,10 +1781,14 @@
        "all": []
       },
       "a": {
-       "players": [],
-       "others": 1,
+       "players": [
+        "Brian Brobbey"
+       ],
+       "others": 2,
        "all": [
-        "Ballard – Hamstring injury - Unknown return date"
+        "Ballard – Hamstring injury - Unknown return date",
+        "Xhaka – Calf injury - Unknown return date",
+        "Brobbey – Muscular injury - Unknown return date"
        ]
       }
      }
@@ -1804,7 +1806,7 @@
       "temp": 9,
       "precip": 0,
       "snow": 0,
-      "wind": 16
+      "wind": 12
      },
      "odds": {
       "1": {
@@ -2126,7 +2128,7 @@
       "temp": 7,
       "precip": 0,
       "snow": 0,
-      "wind": 8
+      "wind": 7
      },
      "odds": {
       "1": {
@@ -2437,10 +2439,10 @@
      "v": "Coventry Building Society Arena",
      "w": "dry",
      "wx": {
-      "temp": 7,
+      "temp": 6,
       "precip": 0,
       "snow": 0,
-      "wind": 10
+      "wind": 7
      },
      "odds": {
       "1": {
@@ -2731,10 +2733,9 @@
      "inj": {
       "h": {
        "players": [],
-       "others": 3,
+       "others": 2,
        "all": [
         "Onyeka – Groin injury - 50% chance of playing",
-        "Thomas – Calf injury - 50% chance of playing",
         "Amenda – Calf injury - Unknown return date"
        ]
       },
@@ -2755,10 +2756,10 @@
      "v": "St. James' Park",
      "w": "dry",
      "wx": {
-      "temp": 10,
+      "temp": 9,
       "precip": 0,
       "snow": 0,
-      "wind": 19
+      "wind": 22
      },
      "odds": {
       "1": {
@@ -8536,7 +8537,7 @@
       "temp": 8,
       "precip": 0,
       "snow": 0,
-      "wind": 20
+      "wind": 19
      },
      "odds": {
       "1": {
@@ -8834,7 +8835,7 @@
       "temp": 8,
       "precip": 0,
       "snow": 0,
-      "wind": 7
+      "wind": 5
      },
      "odds": {
       "1": {
@@ -9829,10 +9830,10 @@
      "v": "Stadion im Borussia-Park",
      "w": "dry",
      "wx": {
-      "temp": 8,
+      "temp": 7,
       "precip": 0,
       "snow": 0,
-      "wind": 10
+      "wind": 14
      },
      "odds": {
       "1": {
@@ -10497,7 +10498,7 @@
      "v": "Veltins-Arena",
      "w": "dry",
      "wx": {
-      "temp": 7,
+      "temp": 6,
       "precip": 0,
       "snow": 0,
       "wind": 8
@@ -12211,7 +12212,7 @@
       "temp": 11,
       "precip": 0.1,
       "snow": 0,
-      "wind": 27
+      "wind": 24
      },
      "odds": {
       "1": {
@@ -13193,10 +13194,10 @@
      "v": "Stade Bollaert-Delelis",
      "w": "dry",
      "wx": {
-      "temp": 4,
+      "temp": 3,
       "precip": 0,
       "snow": 0,
-      "wind": 8
+      "wind": 6
      },
      "odds": {
       "1": {
