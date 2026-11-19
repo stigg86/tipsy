@@ -526,7 +526,7 @@ async function main() {
         p: { 1: r4(r.pH), X: r4(r.pD), 2: r4(r.pA), O25: r4(r.o25), BY: r4(r.btts) },
         pure: { 1: r4(r.pure.pH), X: r4(r.pure.pD), 2: r4(r.pure.pA), O25: r4(r.pure.o25), BY: r4(r.pure.btts) },
         mkt: hasMkt ? { 1: r4(TM.mktProb(m, "1")), X: r4(TM.mktProb(m, "X")), 2: r4(TM.mktProb(m, "2")) } : null,
-        tip: { key: tipKey, p: r4(tip.p) }, score: { hg: r.pred[0], ag: r.pred[1], p: r4(r.pred[2]) },
+        tip: { key: tipKey, p: r4(tip.p), b: tip.o?.b ?? null, k: tip.o?.k ?? null }, // best bookie price just before kick-off score: { hg: r.pred[0], ag: r.pred[1], p: r4(r.pred[2]) },
         value, res: byId.get(m.id)?.res || null });
     }
   }
