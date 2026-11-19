@@ -152,7 +152,7 @@ header.pitch::after{content:"";position:absolute;inset:auto 0 0 0;height:34px;ba
 .autorow{display:flex;align-items:center;gap:12px}
 .step.big button{width:40px;height:40px;font-size:20px;border-radius:10px}
 .step.big span{font:700 24px "Space Grotesk";min-width:34px}
-.risk{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.risk{display:grid;grid-template-columns:1fr 1fr;gap:8px}.risk .wide{grid-column:1/-1}
 .rbtn{background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:11px;padding:10px;text-align:left;cursor:pointer;font:inherit}
 .rbtn b{display:block;font-size:14px}
 .rbtn small{color:var(--mute);font-size:11.5px}
@@ -339,6 +339,7 @@ section[data-sec]>h2:first-child{margin-top:10px}
         <button class="rbtn" data-risk="balanced"><b>⚖️ Balanced</b><small>52–78% each</small></button>
         <button class="rbtn" data-risk="risky"><b>🔥 Risky</b><small>30–56%, bigger odds</small></button>
         <button class="rbtn" data-risk="value"><b>💎 Best value</b><small>likely winners priced too high</small></button>
+        <button class="rbtn wide" data-risk="long"><b>🎯 Long shot</b><small>a double or treble at bigger prices, 2.2–4.5 each</small></button>
       </div>
       <button class="btn ghost" id="pricedOnly" style="margin-top:8px">💷 Only bets with bookie prices</button>
       <div class="mute" style="font-size:11.5px;margin-top:4px">Turn on to compare bookies for the whole accumulator – uses match result and goals over/under only.</div>
@@ -640,10 +641,12 @@ const RISK={
   safe:    {lo:.70,hi:.93, label:"Safe",       ok:k=>k!=="X"},
   balanced:{lo:.52,hi:.78, label:"Balanced",   ok:k=>!["12","X","U15"].includes(k)},
   risky:   {lo:.30,hi:.56, label:"Risky",      ok:k=>["1","2","X","O25","O35","BY"].includes(k)||/^(CO|KO)/.test(k)},
-  value:   {lo:.20,hi:.95, label:"Best value", ok:()=>true}
+  value:   {lo:.20,hi:.95, label:"Best value", ok:()=>true},
+  long:    {lo:.22,hi:.45, label:"Long shot",  ok:k=>["1","2","O35","BY","U25"].includes(k)}
 };
 function autoBuild(risk){
   if(accaMode!=="quick")setAccaMode("quick");
+  if(risk==="long"&&autoRisk!=="long"&&autoN>3)autoN=3; // long shots work best as doubles/trebles
   autoRisk=risk;const R=RISK[risk];
   const all=LG.flatMap(L=>(L.matches||[]).filter(m=>m._r));
   const picks=[];let filled=0;
@@ -653,6 +656,15 @@ function autoBuild(risk){
     if(risk==="value"){
       const v=opts.map(x=>({x,e:edgeOf(x)})).filter(o=>o.e!=null&&o.e>0&&blendP(o.x)>=.5).sort((a,b)=>b.e-a.e);
       if(v[0])best={mid:m.id,key:v[0].x.key,score:1+v[0].e};
+    }else if(risk==="long"){
+      // bigger prices that still stand a fair chance: 2.2–4.5 each, no bets the bookies price below what
+      // the model thinks they're worth, then the most likely of those first
+      const L=opts.filter(x=>{const fair=1/x.p;if(fair<2.2||fair>4.5)return false;
+          if(x.o&&(x.o.b<2||x.o.b>4.5))return false;
+          if(x.mp!=null&&x.pm<x.mp-.03)return false;
+          return !x.o||blendP(x)*x.o.b>=.97;})
+        .sort((a,b)=>b.p-a.p);
+      if(L[0])best={mid:m.id,key:L[0].key,score:L[0].p};
     }else if(risk==="risky"){
       // biggest likely payout: favour outright wins/BTTS/overs, rank by chance
       opts.sort((a,b)=>b.p-a.p);
@@ -676,7 +688,8 @@ function autoBuild(risk){
   const anyOdds=all.some(m=>m.odds);
   autoNote=[risk==="value"&&!anyOdds?"No bookmaker odds loaded yet, so these are balanced picks.":
             filled?`Only ${chosen.length-filled} value bet${chosen.length-filled===1?"":"s"} found – topped up with ${filled} balanced pick${filled===1?"":"s"}.`:"",
-            short>0?`Only ${chosen.length} suitable match${chosen.length===1?"":"es"} available for ${R.label.toLowerCase()} picks.`:""].filter(Boolean).join(" ");
+            short>0?`Only ${chosen.length} suitable match${chosen.length===1?"":"es"} available for ${R.label.toLowerCase()} picks.`:"",
+            risk==="long"&&autoN>3?"Long shots multiply fast – a double or treble is usually plenty.":""].filter(Boolean).join(" ");
   legs=chosen.map(({mid,key})=>({mid,key}));saveLegs();renderAuto();renderAcca();renderCustom();
   // stay where you are, so you can keep adjusting
 }
