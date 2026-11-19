@@ -335,10 +335,17 @@ section[data-sec]>h2:first-child{margin-top:10px}
   </div>
   <div class="builder" id="quickPanel">
     <div>
+      <label>Which sports?</label>
+      <div class="risk">
+        <button class="rbtn" data-scope="football"><b>⚽ Football</b><small>Tipsy's four leagues</small></button>
+        <button class="rbtn" data-scope="all"><b>🏅 All sports</b><small>football, tennis, NBA, darts and more</small></button>
+      </div>
+    </div>
+    <div>
       <label>How many bets?</label>
       <div class="autorow">
         <div class="step big"><button data-autod="-1" aria-label="Fewer">−</button><span id="autoN">4</span><button data-autod="1" aria-label="More">+</button></div>
-        <span class="mute">legs, one per match, across all leagues</span>
+        <span class="mute" id="scopeNote">legs, one per match, across all four leagues</span>
       </div>
     </div>
     <div>
@@ -646,6 +653,7 @@ function addLeg(mid,key){
 }
 // Auto-build: N legs, one per match, chosen by risk level
 let autoN=4, autoRisk="balanced", autoNote="", pricedOnly=false;
+let autoScope=(()=>{try{return localStorage.getItem("tipsy-scope")==="all"?"all":"football"}catch(e){return "football"}})();
 const RISK={
   safe:    {lo:.70,hi:.93, label:"Safe",       ok:k=>k!=="X"},
   balanced:{lo:.52,hi:.78, label:"Balanced",   ok:k=>!["12","X","U15"].includes(k)},
@@ -657,7 +665,9 @@ function autoBuild(risk){
   if(accaMode!=="quick")setAccaMode("quick");
   if(risk==="long"&&autoRisk!=="long"&&autoN>3)autoN=3; // long shots work best as doubles/trebles
   autoRisk=risk;const R=RISK[risk];
-  const all=LG.flatMap(L=>(L.matches||[]).filter(m=>m._r));
+  const now=Date.now();
+  const all=LG.flatMap(L=>(L.matches||[]).filter(m=>m._r))
+    .concat(autoScope==="all"?Object.values(MATCH).filter(m=>m.os&&new Date(m.date).getTime()>now):[]);
   const picks=[];let filled=0;
   for(const m of all){
     let opts=markets(m).filter(x=>x.p>=R.lo&&x.p<=R.hi&&R.ok(x.key)&&(!pricedOnly||x.o));
@@ -686,6 +696,11 @@ function autoBuild(risk){
   }
   picks.sort((a,b)=>b.score-a.score);
   let chosen=picks.slice(0,autoN);
+  if(autoScope==="all"){ // take turns between sports so the slip is a real mix, best sport first
+    const g={};for(const p of picks){const s=MATCH[p.mid].os?MATCH[p.mid].e.sport:"Soccer";(g[s]??=[]).push(p);}
+    const order=Object.values(g);chosen=[];
+    for(let r=0;chosen.length<autoN&&order.some(q=>q[r]);r++)for(const q of order){if(q[r]&&chosen.length<autoN)chosen.push(q[r]);}
+  }
   // value mode: top up with balanced picks if there aren't enough priced value bets
   if(risk==="value"&&chosen.length<autoN){
     const used=new Set(chosen.map(c=>c.mid));
@@ -705,6 +720,10 @@ function autoBuild(risk){
 function renderAuto(){
   document.getElementById("autoN").textContent=autoN;
   document.querySelectorAll("[data-risk]").forEach(b=>b.classList.toggle("on",b.dataset.risk===autoRisk&&legs.length>0));
+  document.querySelectorAll("[data-scope]").forEach(b=>b.classList.toggle("on",b.dataset.scope===autoScope));
+  const sn=document.getElementById("scopeNote");if(sn)sn.textContent=autoScope==="all"
+    ?(OS?"legs, one per match, from every sport":"legs – the all-sports list arrives with the next daily update")
+    :"legs, one per match, across all four leagues";
   const pb=document.getElementById("pricedOnly");if(pb){pb.classList.toggle("on",pricedOnly);pb.textContent=(pricedOnly?"✓ ":"")+"💷 Only bets with bookie prices";}
 }
 function quick(kind){
@@ -896,6 +915,8 @@ document.addEventListener("click",e=>{
     else if(legs.length>=MAXLEGS){at.textContent="Acca full (20)";setTimeout(refreshAccaBtns,1500);return;}
     else addLeg(mid,key);
     renderCustom();refreshAccaBtns();return;}
+  const sc=t.closest("[data-scope]");
+  if(sc){autoScope=sc.dataset.scope;try{localStorage.setItem("tipsy-scope",autoScope)}catch(e){}renderAuto();if(legs.length&&autoRisk)autoBuild(autoRisk);return;}
   if(t.closest("#pricedOnly")){pricedOnly=!pricedOnly;renderAuto();if(legs.length)autoBuild(autoRisk);return;}
   const vm=t.closest("[data-vmode]");
   if(vm){valueMode=vm.dataset.vmode;renderValue();return;}
