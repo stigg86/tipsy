@@ -242,6 +242,7 @@ section[data-sec]>h2:first-child{margin-top:10px}
 .tip .addtip{white-space:nowrap}
 .addtip.on{background:rgba(61,220,151,.14);border-color:var(--home)}
 .pick .pright{display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+.leg .what small.sportline{display:block;margin-top:2px}.leg .what small.sportline .sp{color:var(--ink);font-weight:600}
 .pick .rank.sp{background:none;font-size:20px;width:auto}
 .pick.os{cursor:default}
 .pick .pright .pct{min-width:0;line-height:1}
@@ -767,7 +768,7 @@ function renderAcca(){
     const m=MATCH[l.mid],x=m&&market(m,l.key);if(!x)return"";
     comb*=x.p;bcomb*=blendP(x);counts[l.mid]=(counts[l.mid]||0)+1;if(x.o)price*=x.o.b;else allPriced=false;
     return `<div class="leg"><span class="n">${i+1}</span>
-      <div class="what"><b ${m.os?"":`data-go="${m.id}" data-lgi="${LG.indexOf(m.L)}"`}>${esc(x.label)}</b><small>${esc(m.h)} v ${esc(m.a)} · ${esc(m.L.name)} · ${esc(m.d)} ${esc(m.k)}</small>
+      <div class="what"><b ${m.os?"":`data-go="${m.id}" data-lgi="${LG.indexOf(m.L)}"`}>${esc(x.label)}</b><small>${esc(m.h)} v ${esc(m.a)}</small><small class="sportline">${sportTag(m)} · ${esc(m.L.name)} · ${esc(m.d)} ${esc(m.k)}</small>
 </div>
       <span class="pct">${pc(x.p)}${x.o?`<small style="display:block;font:500 11px Inter;color:var(--mute)">${accaBook?`${priceAt(m,l.key,accaBook).toFixed(2)} · ${esc(accaBook)}`:`${x.o.b.toFixed(2)} · ${esc(x.o.k)}`}</small>`:""}</span><button class="legx" data-rm="${i}" aria-label="Remove">×</button></div>`;
   }).join("");
@@ -791,6 +792,8 @@ function renderAcca(){
 const SPORT_ICON={Soccer:"⚽",Tennis:"🎾",Basketball:"🏀","Ice Hockey":"🏒","American Football":"🏈",Darts:"🎯",Snooker:"🎱",Boxing:"🥊",MMA:"🥋",Rugby:"🏉",Cricket:"🏏","Aussie Rules":"🏉",Baseball:"⚾",Handball:"🤾",Volleyball:"🏐"};
 const SPORT_NAME={Soccer:"Football"};
 let OS=null, bestSport="all", bestMore=false;
+const sportOf=m=>m.os?m.e.sport:"Soccer";
+const sportTag=m=>{const s=sportOf(m);return `${SPORT_ICON[s]||"🏅"} <span class="sp">${esc(SPORT_NAME[s]||s)}</span>`};
 function prepOS(d){
   OS=d&&Array.isArray(d.events)?d:null;if(!OS)return;
   OS.events.forEach(e=>{const t=new Date(e.start);
