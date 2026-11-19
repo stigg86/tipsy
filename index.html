@@ -959,11 +959,12 @@ document.addEventListener("change",e=>{
 });
 
 // ---------- Accuracy tracking ----------
-// ---------- profit: £1 on every bet at the best bookie price saved before kick-off ----------
+// ---------- profit: £5 on every bet at the best bookie price saved before kick-off ----------
+const STAKE=5; // £ per bet in the profit tracker
 function profitOf(h){
   const g=((h&&h.entries)||[]).filter(e=>e.res);
   const out={tips:{n:0,w:0,pl:0},strong:{n:0,w:0,pl:0},value:{n:0,w:0,pl:0},acca:{n:0,w:0,pl:0,last:null}};
-  const add=(o,win,b)=>{o.n++;if(win){o.w++;o.pl+=b-1}else o.pl-=1;};
+  const add=(o,win,b)=>{o.n++;if(win){o.w++;o.pl+=(b-1)*STAKE}else o.pl-=STAKE;};
   for(const e of g){
     if(e.tip&&e.tip.b>1){const w=TM.settle(e.tip.key,e.res.hg,e.res.ag);if(w!=null){add(out.tips,w,e.tip.b);if(e.tip.p>=.6)add(out.strong,w,e.tip.b);}}
     for(const v of e.value||[]){const w=TM.settle(v.key,e.res.hg,e.res.ag);if(w!=null)add(out.value,w,v.b);}
@@ -996,7 +997,7 @@ function renderRecord(h){
   const P=profitOf(h).tips;
   el.innerHTML=`<span class="big">${Math.round(wins/g.length*100)}%</span>
     <span class="txt"><b>Tipsy's tips are right</b><small>${wins} of ${g.length} matches so far</small></span>
-    ${P.n?`<span class="vb">Profit<b style="color:${moneyCol(P.pl)}">${money(P.pl)}</b>£1 a tip</span>`:"<span></span>"}`;
+    ${P.n?`<span class="vb">Profit<b style="color:${moneyCol(P.pl)}">${money(P.pl)}</b>£${STAKE} a tip</span>`:"<span></span>"}`;
 }
 function renderAccuracy(h){
   renderRecord(h);
@@ -1018,10 +1019,10 @@ function renderAccuracy(h){
     <div class="accgrid">
       <div class="stat"><small>Matches checked</small><b>${g.length}</b></div>
       <div class="stat"><small>Main tip right</small><b>${pctTxt(wins,tips.length)}</b></div>
-      <div class="stat"><small>Profit, £1 a tip</small><b style="color:${moneyCol(PR.tips.pl)}">${PR.tips.n?money(PR.tips.pl):"–"}</b></div>
+      <div class="stat"><small>Profit, £${STAKE} a tip</small><b style="color:${moneyCol(PR.tips.pl)}">${PR.tips.n?money(PR.tips.pl):"–"}</b></div>
     </div>
-    <h3 class="profh">Profit if you'd staked £1 on every bet</h3>
-    <div class="accrows">${[["Every main tip",PR.tips],["Strong tips only (60%+)",PR.strong],["Value bets",PR.value],["Tipsy's weekend acca (top 4 tips)",PR.acca]].map(([l,o])=>`<div class="wrow"><span>${l}<small class="mute"> · ${o.n?`${o.w}/${o.n} won, £${o.n} staked`:"none settled yet"}</small></span><b style="color:${o.n?moneyCol(o.pl):"inherit"}">${o.n?money(o.pl):"–"}</b></div>`).join("")}</div>
+    <h3 class="profh">Profit if you'd staked £${STAKE} on every bet</h3>
+    <div class="accrows">${[["Every main tip",PR.tips],["Strong tips only (60%+)",PR.strong],["Value bets",PR.value],["Tipsy's weekend acca (top 4 tips)",PR.acca]].map(([l,o])=>`<div class="wrow"><span>${l}<small class="mute"> · ${o.n?`${o.w}/${o.n} won, £${o.n*STAKE} staked`:"none settled yet"}</small></span><b style="color:${o.n?moneyCol(o.pl):"inherit"}">${o.n?money(o.pl):"–"}</b></div>`).join("")}</div>
     ${PR.acca.last?`<div class="accnote">Last weekend acca ${PR.acca.last.win?"won":"lost"} at ${PR.acca.last.price.toFixed(2)}: ${esc(PR.acca.last.legs.join(", "))}.</div>`:""}
     <div class="accnote">Uses the best bookie price saved just before kick-off. Tips with no bookie price aren't counted. Real returns will be a bit lower, since you won't always get the very best price.</div>
     <div class="accrows">${["Strong","Good","Lean","Avoid"].filter(k=>bucket[k]).map(k=>`<div class="wrow"><span>${k} tips</span><b>${bucket[k][0]}/${bucket[k][1]} right</b></div>`).join("")}
