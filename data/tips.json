@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-19T15:29:56.452Z",
+ "updated": "2026-11-19T15:46:54.992Z",
  "mode": "live",
  "sources": [
   "football-data.org (fixtures, results, tables, scorers)",
@@ -9424,7 +9424,7 @@
       "temp": 8,
       "precip": 0,
       "snow": 0,
-      "wind": 5
+      "wind": 6
      },
      "odds": {
       "1": {
@@ -10419,10 +10419,10 @@
      "v": "Stadion im Borussia-Park",
      "w": "dry",
      "wx": {
-      "temp": 7,
+      "temp": 8,
       "precip": 0,
       "snow": 0,
-      "wind": 14
+      "wind": 13
      },
      "odds": {
       "1": {
@@ -11194,7 +11194,7 @@
       "temp": 6,
       "precip": 0,
       "snow": 0,
-      "wind": 8
+      "wind": 10
      },
      "odds": {
       "1": {
