@@ -74,7 +74,7 @@
   }
 
   // bookmaker consensus probability (average odds, margin removed within each market)
-  const MGROUPS = [["1", "X", "2"], ["O15", "U15"], ["O25", "U25"], ["O35", "U35"]];
+  const MGROUPS = [["1", "X", "2"], ["O15", "U15"], ["O25", "U25"], ["O35", "U35"], ["BY", "BN"]];
   function mktProb(m, key) {
     if (!m.odds || !m.odds[key]) return null;
     const g = MGROUPS.find(g => g.includes(key)); if (!g) return null;

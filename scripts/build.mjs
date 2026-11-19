@@ -225,6 +225,84 @@ function parseOdds(ev) {
   return Object.keys(out).length ? out : null;
 }
 
+// ---------- bet365 prices (OddsPapi free plan, shared 250/month budget with scripts/allsports.mjs) ----------
+// One request a day returns bet365's prices for all four leagues; team names come from a weekly-cached list.
+const ODDSPAPI_KEY = process.env.ODDSPAPI_KEY;
+const OP_TOURN = { PL: 17, PD: 8, BL1: 35, FL1: 34, SA: 23 };
+const OP_CAP = 235;
+let B365 = null; // { at, events: [{ t, start, h, a, p: { key: price } }] }
+async function opGet(path, params, usage) {
+  const u = new URL(`https://api.oddspapi.io/v4/${path}`);
+  for (const [k, v] of Object.entries({ ...params, apiKey: ODDSPAPI_KEY })) u.searchParams.set(k, v);
+  usage.used++;
+  const r = await fetch(u).catch(e => ({ ok: false, status: 0, text: async () => String(e) }));
+  const t = await r.text();
+  if (!r.ok) { console.warn(`  OddsPapi /${path} → ${r.status}: ${t.slice(0, 150)}`); return null; }
+  await new Promise(r => setTimeout(r, 1200));
+  try { return JSON.parse(t); } catch { return null; }
+}
+async function loadBet365() {
+  const saved = await readJSON("data/bet365.json", null);
+  if (!ODDSPAPI_KEY) return saved;
+  const fresh = saved?.at && Date.now() - new Date(saved.at) < 20 * 3600e3;
+  if (fresh && !process.env.FORCE_ODDS) { console.log(`  bet365: reusing prices from ${saved.at}`); return saved; }
+  const opc = await readJSON("data/oddspapi-cache.json", {});
+  const month = new Date().toISOString().slice(0, 7);
+  const usage = { used: opc.month === month ? opc.used || 0 : 0 };
+  const teams = await readJSON("data/oddspapi-teams.json", { names: {} });
+  const ids = LEAGUES.map(c => OP_TOURN[c]).filter(Boolean);
+  if (usage.used + 2 > OP_CAP - 6) { console.warn(`  bet365: skipped, OddsPapi budget nearly used (${usage.used}/${OP_CAP})`); return saved; }
+  const od = await opGet("odds-by-tournaments", { tournamentIds: ids.join(","), bookmaker: "bet365", oddsFormat: "decimal" }, usage);
+  const list = Array.isArray(od) ? od : [];
+  // team names: refresh the list when a team is missing (about once a week, or when promoted sides appear)
+  const need = new Set(list.flatMap(f => [f.participant1Id, f.participant2Id]).map(String));
+  if ([...need].some(id => !teams.names[id]) && usage.used + 1 <= OP_CAP - 6) {
+    const pa = await opGet("participants", { sportId: 10 }, usage);
+    if (pa && typeof pa === "object") { teams.names = {}; for (const id of need) if (pa[id]) teams.names[id] = pa[id]; teams.at = new Date().toISOString(); await fs.writeFile("data/oddspapi-teams.json", JSON.stringify(teams)); }
+  }
+  // OddsPapi market/outcome ids: 101 result (101 home, 102 draw, 103 away), 104 BTTS (104 yes, 105 no),
+  // 1010 over/under 2.5 (1010 over, 1011 under), 1012 over/under 3.5 (1012 over, 1013 under)
+  const MAP = { 101: { 101: "1", 102: "X", 103: "2" }, 104: { 104: "BY", 105: "BN" }, 1010: { 1010: "O25", 1011: "U25" }, 1012: { 1012: "O35", 1013: "U35" } };
+  const events = [];
+  for (const f of list) {
+    const mk = f.bookmakerOdds?.bet365?.markets; const h = teams.names[f.participant1Id], a = teams.names[f.participant2Id];
+    if (!mk || !h || !a) continue;
+    const p = {};
+    for (const [mid, outs] of Object.entries(MAP)) for (const [oid, key] of Object.entries(outs)) {
+      const pl = mk[mid]?.outcomes?.[oid]?.players?.["0"];
+      if (pl && pl.active !== false && pl.price > 1) p[key] = pl.price;
+    }
+    if (Object.keys(p).length) events.push({ t: f.tournamentId, start: f.startTime, h, a, p });
+  }
+  await fs.writeFile("data/oddspapi-cache.json", JSON.stringify({ ...opc, month, used: usage.used }));
+  if (!events.length) { console.warn("  bet365: no prices this run"); return saved; }
+  const out = { at: new Date().toISOString(), events };
+  await fs.writeFile("data/bet365.json", JSON.stringify(out));
+  console.log(`  bet365: ${events.length} matches priced (${usage.used}/${OP_CAP} OddsPapi requests this month)`);
+  return out;
+}
+// add bet365 to a match's price lists (replacing any older bet365 price), then re-rank
+function addBet365(code, m, o) {
+  const t = OP_TOURN[code]; if (!B365 || !t) return o;
+  let best = null, bestS = 0;
+  for (const e of B365.events) {
+    if (e.t !== t || Math.abs(new Date(e.start) - new Date(m.utcDate)) > 6 * 3600e3) continue;
+    const sh = Math.max(sim(e.h, m.homeTeam.name), sim(e.h, m.homeTeam.shortName || ""));
+    const sa = Math.max(sim(e.a, m.awayTeam.name), sim(e.a, m.awayTeam.shortName || ""));
+    if (sh >= .5 && sa >= .5 && sh + sa >= 1.5 && sh + sa > bestS) { bestS = sh + sa; best = e; }
+  }
+  if (!best) return o;
+  o = o ? JSON.parse(JSON.stringify(o)) : {};
+  for (const [key, price] of Object.entries(best.p)) {
+    const cur = o[key]?.all?.filter(x => x[0] !== "bet365") || [];
+    const all = [...cur, ["bet365", price]].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+    const avg = all.reduce((s, x) => s + x[1], 0) / all.length;
+    o[key] = { b: all[0][1], k: all[0][0], a: +avg.toFixed(3), n: all.length, all };
+  }
+  B365.matched = (B365.matched || 0) + 1;
+  return o;
+}
+
 async function buildLeague(code, cache, prev) {
   const info = INFO[code] || { name: code, country: "", odds: null };
   console.log(`\n== ${info.name} (${code})`);
@@ -387,7 +465,7 @@ async function buildLeague(code, cache, prev) {
   const outMatches = next.map(m => {
     const wx = weather[m.id] || prevWx[m.id] || null; // keep last forecast if the weather service had a blip
     return { id: m.id, date: m.utcDate, ...ukDate(m.utcDate), h: teamName(m.homeTeam), a: teamName(m.awayTeam),
-      v: addr[m.homeTeam.id]?.venue || "", w: weatherKey(wx), wx, odds: oddsByMatch[m.id] || null,
+      v: addr[m.homeTeam.id]?.venue || "", w: weatherKey(wx), wx, odds: addBet365(code, m, oddsByMatch[m.id] || null),
       rest: { h: restDays(m.homeTeam.id, m.utcDate), a: restDays(m.awayTeam.id, m.utcDate) },
       inj: { h: injSide(m.homeTeam), a: injSide(m.awayTeam) } };
   });
@@ -407,6 +485,7 @@ async function main() {
 
   if (LEAGUES.includes("PL")) FPL = await loadFPL();
   ELO = await loadElo(cache);
+  try { B365 = await loadBet365(); } catch (e) { console.warn("bet365:", e.message); }
   try { CL = (await fd("/competitions/CL/matches")).matches || []; console.log(`  Champions League: ${CL.length} matches (for rest days)`); }
   catch (e) { console.warn("Champions League:", e.message); CL = []; }
   const leagues = [];
@@ -457,7 +536,8 @@ async function main() {
       FPL ? "Fantasy Premier League feed (Premier League team news + xG)" : "FPL feed unavailable this run",
       ELO ? "ClubElo (team strength ratings)" : "ClubElo unavailable this run",
       ODDS_KEY ? "The Odds API (UK bookmaker odds)" : "Odds: not configured",
-      "Open-Meteo (kick-off weather)"],
+      B365?.events?.length ? "OddsPapi (bet365 prices, once a day)" : null,
+      "Open-Meteo (kick-off weather)"].filter(Boolean),
     oddsCreditsLeft: oddsLeft,
     leagues
   };

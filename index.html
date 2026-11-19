@@ -359,7 +359,7 @@ section[data-sec]>h2:first-child{margin-top:10px}
         <button class="rbtn wide" data-risk="long"><b>🎯 Long shot</b><small>a double or treble at bigger prices, 2.2–4.5 each</small></button>
       </div>
       <button class="btn ghost" id="pricedOnly" style="margin-top:8px">💷 Only bets with bookie prices</button>
-      <div class="mute" style="font-size:11.5px;margin-top:4px">Turn on to compare bookies for the whole accumulator – uses match result and goals over/under only.</div>
+      <div class="mute" style="font-size:11.5px;margin-top:4px">Turn on to compare bookies for the whole accumulator – uses match result, goals over/under and BTTS only.</div>
     </div>
     <div class="quick"><button class="btn ghost" data-quick="clear">Clear accumulator</button></div>
   </div>
@@ -737,7 +737,7 @@ function whereToBet(){
   const L=legs.map(l=>{const m=MATCH[l.mid];return m&&{m,x:market(m,l.key)}}).filter(Boolean);
   if(!L.length)return"";
   const priced=L.filter(({x})=>x.o&&x.o.all);
-  if(!priced.length)return `<div class="accnote">🏦 None of these legs have bookmaker prices in our data (double chance, BTTS and other sports aren't in our bookie feed). Turn on "Only bets with bookie prices" to compare bookies.</div>`;
+  if(!priced.length)return `<div class="accnote">🏦 None of these legs have bookmaker prices in our data (double chance and other sports aren't in our bookie feed). Turn on "Only bets with bookie prices" to compare bookies.</div>`;
   const books=new Set();priced.forEach(({x})=>x.o.all.forEach(r=>books.add(r[0])));
   const fmt=p=>p>=1000?Math.round(p).toLocaleString():p.toFixed(2);
   const rows=[...books].map(b=>{let p=1,c=0;for(const {m,x} of priced){const v=priceAt(m,x.key,b);if(v){p*=v;c++;}}return {b,p,c};})
@@ -754,7 +754,7 @@ function whereToBet(){
     :`<button class="wrow ${accaBook===r.b?"top chosen":""}" data-place="${esc(r.b)}"><span>${i+1}. ${esc(r.b)}<small class="tapnote">${accaBook===r.b?"✓ Showing ${esc(poss(r.b))} prices":"Tap to see their prices"}</small></span><b>${fmt(r.p)}</b></button>${accaBook===r.b?placeList(r.b):""}`).join("");
   let note;
   if(full.length) note=`${full.length} bookie${full.length===1?" prices":"s price"} every leg. £10 at ${esc(full[0].b)} would return £${(10*full[0].p).toFixed(2)} if it all lands.`;
-  else note=`No single bookie prices every leg${missing?` (${missing} leg${missing===1?" is a":"s are"} double chance, BTTS or another sport, which our bookie feed doesn't price)`:""}. Goals over/under is only priced by a few bookies in our data, so try swapping those legs for match results.`;
+  else note=`No single bookie prices every leg${missing?` (${missing} leg${missing===1?" is a":"s are"} double chance or another sport, which our bookie feed doesn't price)`:""}. Goals over/under is only priced by a few bookies in our data, so try swapping those legs for match results.`;
   const top=rows[0],sumTxt=full.length?`🏦 Best place: <b>${esc(full[0].b)}</b> ${fmt(full[0].p)}`:`🏦 Best place: <b>${esc(top.b)}</b> <small class="mute">${top.c}/${L.length} bets</small>`;
   return `<details class="where" id="whereBox" ${whereOpen||accaBook?"open":""}><summary>${accaBook?`🏦 <b>${esc(accaBook)}</b> ${fmt(rows.find(r=>r.b===accaBook)?.p||0)}`:sumTxt}<small class="mute"> · compare bookies</small></summary>${head}${list}<div class="accnote">${note} Prices change, so check on the bookie's site.</div></details>`;
 }
