@@ -310,8 +310,11 @@ async function loadBet365() {
     if (pa && typeof pa === "object") { teams.names = {}; for (const id of need) if (pa[id]) teams.names[id] = pa[id]; teams.at = new Date().toISOString(); await fs.writeFile("data/oddspapi-teams.json", JSON.stringify(teams)); }
   }
   // OddsPapi market/outcome ids: 101 result (101 home, 102 draw, 103 away), 104 BTTS (104 yes, 105 no),
-  // 1010 over/under 2.5 (1010 over, 1011 under), 1012 over/under 3.5 (1012 over, 1013 under)
-  const MAP = { 101: { 101: "1", 102: "X", 103: "2" }, 104: { 104: "BY", 105: "BN" }, 1010: { 1010: "O25", 1011: "U25" }, 1012: { 1012: "O35", 1013: "U35" } };
+  // 1010 over/under 2.5 (1010 over, 1011 under), 1012 over/under 3.5 (1012 over, 1013 under), plus corners and bookings below
+  const MAP = { 101: { 101: "1", 102: "X", 103: "2" }, 104: { 104: "BY", 105: "BN" }, 1010: { 1010: "O25", 1011: "U25" }, 1012: { 1012: "O35", 1013: "U35" },
+    // corners over/under 8.5 / 9.5 / 10.5 and bookings (cards) over/under 2.5 / 3.5 / 4.5
+    10799: { 10799: "CO8.5", 10800: "CU8.5" }, 10803: { 10803: "CO9.5", 10804: "CU9.5" }, 10807: { 10807: "CO10.5", 10808: "CU10.5" },
+    10922: { 10922: "KO2.5", 10923: "KU2.5" }, 10926: { 10926: "KO3.5", 10927: "KU3.5" }, 10930: { 10930: "KO4.5", 10931: "KU4.5" } };
   const events = [];
   for (const f of list) {
     const mk = f.bookmakerOdds?.bet365?.markets; const h = teams.names[f.participant1Id], a = teams.names[f.participant2Id];
