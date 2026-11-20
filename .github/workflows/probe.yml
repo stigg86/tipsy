@@ -1,0 +1,14 @@
+name: Check domain (manual)
+on: workflow_dispatch
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - run: |
+          for n in tipsy-tips.com www.tipsy-tips.com; do echo "== $n"; dig +short A $n @1.1.1.1; dig +short CNAME $n @1.1.1.1; dig +short AAAA $n @1.1.1.1; done
+          echo "== NS"; dig +short NS tipsy-tips.com @1.1.1.1
+          echo "== http"; curl -sI http://tipsy-tips.com | head -5
+          echo "== https"; curl -sI https://tipsy-tips.com 2>&1 | head -5 || true
+          echo "== old link"; curl -sI https://stigg86.github.io/tipsy/ | head -5
