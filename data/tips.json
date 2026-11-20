@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-20T11:28:07.604Z",
+ "updated": "2026-11-20T15:30:37.428Z",
  "mode": "live",
  "sources": [
   "football-data.org (fixtures, results, tables, scorers)",
@@ -9,7 +9,7 @@
   "OddsPapi (bet365 prices, once a day)",
   "Open-Meteo (kick-off weather)"
  ],
- "oddsCreditsLeft": 410,
+ "oddsCreditsLeft": null,
  "leagues": [
   {
    "code": "PL",
@@ -835,7 +835,7 @@
       "temp": 7,
       "precip": 0,
       "snow": 0,
-      "wind": 4
+      "wind": 5
      },
      "odds": {
       "1": {
@@ -1152,7 +1152,7 @@
      "v": "Stamford Bridge",
      "w": "dry",
      "wx": {
-      "temp": 10,
+      "temp": 9,
       "precip": 0,
       "snow": 0,
       "wind": 9
@@ -1492,7 +1492,7 @@
      "v": "Villa Park",
      "w": "dry",
      "wx": {
-      "temp": 8,
+      "temp": 7,
       "precip": 0,
       "snow": 0,
       "wind": 9
@@ -1774,8 +1774,10 @@
      "inj": {
       "h": {
        "players": [],
-       "others": 0,
-       "all": []
+       "others": 1,
+       "all": [
+        "Cash – Concussion - Expected back 28 Nov"
+       ]
       },
       "a": {
        "players": [
@@ -1803,7 +1805,7 @@
       "temp": 11,
       "precip": 0,
       "snow": 0,
-      "wind": 8
+      "wind": 10
      },
      "odds": {
       "1": {
@@ -2110,7 +2112,7 @@
      "v": "Tottenham Hotspur Stadium",
      "w": "dry",
      "wx": {
-      "temp": 10,
+      "temp": 9,
       "precip": 0,
       "snow": 0,
       "wind": 9
@@ -2412,7 +2414,7 @@
      "v": "Coventry Building Society Arena",
      "w": "dry",
      "wx": {
-      "temp": 8,
+      "temp": 7,
       "precip": 0,
       "snow": 0,
       "wind": 8
@@ -2716,7 +2718,7 @@
      "v": "St. James' Park",
      "w": "dry",
      "wx": {
-      "temp": 11,
+      "temp": 10,
       "precip": 0,
       "snow": 0,
       "wind": 14
@@ -3023,9 +3025,9 @@
      "w": "dry",
      "wx": {
       "temp": 8,
-      "precip": 0,
+      "precip": 0.1,
       "snow": 0,
-      "wind": 10
+      "wind": 9
      },
      "odds": {
       "1": {
@@ -3327,7 +3329,7 @@
       "temp": 7,
       "precip": 0,
       "snow": 0,
-      "wind": 12
+      "wind": 14
      },
      "odds": {
       "1": {
@@ -4692,7 +4694,7 @@
       "temp": 15,
       "precip": 0,
       "snow": 0,
-      "wind": 9
+      "wind": 7
      },
      "odds": {
       "1": {
@@ -5014,7 +5016,7 @@
       "temp": 12,
       "precip": 0.2,
       "snow": 0,
-      "wind": 9
+      "wind": 10
      },
      "odds": {
       "1": {
@@ -5304,7 +5306,7 @@
       "temp": 13,
       "precip": 0,
       "snow": 0,
-      "wind": 2
+      "wind": 3
      },
      "odds": {
       "1": {
@@ -8445,7 +8447,7 @@
       "temp": 8,
       "precip": 0,
       "snow": 0,
-      "wind": 18
+      "wind": 20
      },
      "odds": {
       "1": {
@@ -8731,7 +8733,7 @@
       "temp": 8,
       "precip": 0,
       "snow": 0,
-      "wind": 8
+      "wind": 9
      },
      "odds": {
       "1": {
@@ -9057,7 +9059,7 @@
       "temp": 6,
       "precip": 0,
       "snow": 0,
-      "wind": 17
+      "wind": 18
      },
      "odds": {
       "1": {
@@ -9391,7 +9393,7 @@
       "temp": 7,
       "precip": 0,
       "snow": 0,
-      "wind": 2
+      "wind": 3
      },
      "odds": {
       "1": {
@@ -9690,7 +9692,7 @@
      "v": "Stadion im Borussia-Park",
      "w": "dry",
      "wx": {
-      "temp": 8,
+      "temp": 7,
       "precip": 0,
       "snow": 0,
       "wind": 11
@@ -10011,7 +10013,7 @@
       "temp": 8,
       "precip": 0,
       "snow": 0,
-      "wind": 5
+      "wind": 4
      },
      "odds": {
       "1": {
@@ -10334,7 +10336,7 @@
      "v": "Veltins-Arena",
      "w": "dry",
      "wx": {
-      "temp": 6,
+      "temp": 5,
       "precip": 0,
       "snow": 0,
       "wind": 8
@@ -12012,7 +12014,7 @@
       "temp": 10,
       "precip": 0,
       "snow": 0,
-      "wind": 16
+      "wind": 20
      },
      "odds": {
       "1": {
@@ -12354,7 +12356,7 @@
       "temp": 16,
       "precip": 0,
       "snow": 0,
-      "wind": 1
+      "wind": 2
      },
      "odds": {
       "1": {
@@ -12993,7 +12995,7 @@
       "temp": 3,
       "precip": 0,
       "snow": 0,
-      "wind": 5
+      "wind": 2
      },
      "odds": {
       "1": {
@@ -13653,7 +13655,7 @@
       "temp": 7,
       "precip": 0,
       "snow": 0,
-      "wind": 5
+      "wind": 3
      },
      "odds": {
       "1": {
@@ -15511,7 +15513,7 @@
       "temp": 15,
       "precip": 0,
       "snow": 0,
-      "wind": 5
+      "wind": 6
      },
      "odds": {
       "1": {
@@ -15845,7 +15847,7 @@
       "temp": 17,
       "precip": 0,
       "snow": 0,
-      "wind": 9
+      "wind": 10
      },
      "odds": {
       "1": {
@@ -16765,7 +16767,7 @@
      "w": "light",
      "wx": {
       "temp": 8,
-      "precip": 0.3,
+      "precip": 0.7,
       "snow": 0,
       "wind": 5
      },
