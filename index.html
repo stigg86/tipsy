@@ -339,10 +339,7 @@ section[data-sec]>h2:first-child{margin-top:10px}
   <div class="builder" id="quickPanel">
     <div>
       <label>Which sports?</label>
-      <div class="risk">
-        <button class="rbtn" data-scope="football"><b>⚽ Football</b><small>Tipsy's five leagues</small></button>
-        <button class="rbtn" data-scope="all"><b>🏅 All sports</b><small>football, tennis, NBA, darts and more</small></button>
-      </div>
+      <div class="tabs" id="scopeTabs" style="margin:0"></div>
     </div>
     <div>
       <label>How many bets?</label>
@@ -657,7 +654,11 @@ function addLeg(mid,key){
 }
 // Auto-build: N legs, one per match, chosen by risk level
 let autoN=4, autoRisk="balanced", autoNote="", pricedOnly=false;
-let autoScope=(()=>{try{return localStorage.getItem("tipsy-scope")==="all"?"all":"football"}catch(e){return "football"}})();
+let autoScope=(()=>{try{return localStorage.getItem("tipsy-scope")||"football"}catch(e){return "football"}})();
+// other sports with games still to come, busiest first
+const osSports=()=>{const now=Date.now(),c={};for(const m of Object.values(MATCH))if(m.os&&new Date(m.date).getTime()>now)c[m.e.sport]=(c[m.e.sport]||0)+1;
+  return Object.keys(c).sort((a,b)=>c[b]-c[a]);};
+const scopeOK=()=>autoScope==="football"||autoScope==="all"&&OS||osSports().includes(autoScope);
 const RISK={
   safe:    {lo:.70,hi:.93, label:"Safe",       ok:k=>k!=="X"},
   balanced:{lo:.52,hi:.78, label:"Balanced",   ok:k=>!["12","X","U15"].includes(k)},
@@ -670,8 +671,11 @@ function autoBuild(risk){
   if(risk==="long"&&autoRisk!=="long"&&autoN>3)autoN=3; // long shots work best as doubles/trebles
   autoRisk=risk;const R=RISK[risk];
   const now=Date.now();
-  const all=LG.flatMap(L=>(L.matches||[]).filter(m=>m._r))
-    .concat(autoScope==="all"?Object.values(MATCH).filter(m=>m.os&&new Date(m.date).getTime()>now):[]);
+  if(!scopeOK())autoScope="football";
+  const osUp=Object.values(MATCH).filter(m=>m.os&&new Date(m.date).getTime()>now);
+  const all=autoScope==="football"?LG.flatMap(L=>(L.matches||[]).filter(m=>m._r))
+    :autoScope==="all"?LG.flatMap(L=>(L.matches||[]).filter(m=>m._r)).concat(osUp)
+    :osUp.filter(m=>m.e.sport===autoScope);
   const picks=[];let filled=0;
   for(const m of all){
     let opts=markets(m).filter(x=>x.p>=R.lo&&x.p<=R.hi&&R.ok(x.key)&&(!pricedOnly||x.o));
@@ -724,10 +728,13 @@ function autoBuild(risk){
 function renderAuto(){
   document.getElementById("autoN").textContent=autoN;
   document.querySelectorAll("[data-risk]").forEach(b=>b.classList.toggle("on",b.dataset.risk===autoRisk&&legs.length>0));
-  document.querySelectorAll("[data-scope]").forEach(b=>b.classList.toggle("on",b.dataset.scope===autoScope));
-  const sn=document.getElementById("scopeNote");if(sn)sn.textContent=autoScope==="all"
-    ?(OS?"legs, one per match, from every sport":"legs – the all-sports list arrives with the next daily update")
-    :"legs, one per match, across all five leagues";
+  const scope=scopeOK()?autoScope:"football"; // don't forget a saved sport just because its games haven't loaded yet
+  const st=document.getElementById("scopeTabs");
+  if(st)st.innerHTML=[["football","⚽ Football"],...(OS?[["all","🏅 All sports"]]:[]),...osSports().map(s=>[s,`${SPORT_ICON[s]||"🏅"} ${s==="Soccer"?"More football":s}`])]
+    .map(([k,l])=>`<button class="tab ${scope===k?"on":""}" data-scope="${esc(k)}">${esc(l)}</button>`).join("");
+  const sn=document.getElementById("scopeNote");if(sn)sn.textContent=scope==="football"?"legs, one per match, across Tipsy's five leagues"
+    :scope==="all"?"legs, one per match, from every sport"
+    :`legs, one per match, ${scope==="Soccer"?"from other football leagues (Championship, Eredivisie and more)":scope+" only"}`;
   const pb=document.getElementById("pricedOnly");if(pb){pb.classList.toggle("on",pricedOnly);pb.textContent=(pricedOnly?"✓ ":"")+"💷 Only bets with bookie prices";}
 }
 function quick(kind){
@@ -1049,7 +1056,7 @@ fetch("data/tips.json",{cache:"no-store"}).then(r=>{if(!r.ok)throw 0;return r.js
   document.querySelectorAll('.tab[data-m="cards"]').forEach(b=>b.style.display=hasK?"":"none");
   fetch("data/history.json",{cache:"no-store"}).then(r=>r.ok?r.json():null).then(renderAccuracy).catch(()=>renderAccuracy(null));
   showSec(location.hash.slice(1)||"tips",{scroll:false});
-  loadLegs();setAccaMode(accaMode);renderAuto();renderTabs();renderPicks();renderScores();renderValue();renderCards();renderCustom();renderAcca();renderBest();
+  loadLegs();setAccaMode(accaMode);renderAuto();renderTabs();renderPicks();renderScores();renderValue();renderCards();renderCustom();renderAcca();renderBest();renderAuto();
 }).catch(()=>{document.getElementById("cards").innerHTML='<div class="note">Couldn\'t load the latest data. Try again shortly.</div>'});
 
 
