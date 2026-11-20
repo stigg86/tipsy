@@ -27,7 +27,7 @@ const WANT = [
   [26, /premiership|top 14|united rugby|six nations|champions cup|autumn|international|nrl|super rugby|world cup/i],
   [27, /international|test|odi|t20i|ipl|indian premier|big bash|the hundred|ashes|world cup/i],
   [10, /england.*championship|efl championship/i], [10, /scotland.*premiership/i],
-  [10, /netherlands.*eredivisie/i], [10, /portugal.*(liga portugal|primeira)/i], [10, /fa cup|carabao|efl cup|copa del rey|dfb pokal|coupe de france|coppa italia/i],
+  [10, /netherlands.*eredivisie/i], [10, /portugal.*(liga portugal|primeira)(?! ?[23])/i], [10, /fa cup|carabao|efl cup|copa del rey|dfb pokal|coupe de france|coppa italia/i],
   [10, /world cup.*qualif|nations league|friendl.*international|euro.*qualif/i],
   [11, /euroleague/i], [31, /\bafl\b/i], [14, /ncaa/i], [11, /ncaa(?!.*women)/i]
 ];
