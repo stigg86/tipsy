@@ -358,7 +358,7 @@ section[data-sec]>h2:first-child{margin-top:10px}
         <button class="rbtn wide" data-risk="long"><b>🎯 Long shot</b><small>a double or treble at bigger prices, 2.2–4.5 each</small></button>
       </div>
       <button class="btn ghost" id="pricedOnly" style="margin-top:8px">💷 Only bets with bookie prices</button>
-      <div class="mute" style="font-size:11.5px;margin-top:4px">Turn on to compare bookies for the whole accumulator – uses match result, goals over/under and BTTS only.</div>
+      <div class="mute" style="font-size:11.5px;margin-top:4px">Turn on to compare bookies for the whole accumulator – uses match result, goals, BTTS, corners and cards.</div>
     </div>
     <div class="quick"><button class="btn ghost" data-quick="clear">Clear accumulator</button></div>
   </div>
@@ -524,8 +524,8 @@ function pickFor(m){
   if(mode==="result"){const k=resultTip(m,r),x=market(m,k);return {m,p:x.p,what:x.label,sub,key:k}}
   if(mode==="goals"){const o=r.o25>=.5;return {m,p:o?r.o25:1-r.o25,what:(o?"Over":"Under")+" 2.5 goals",sub:sub+` · xG ${(r.lh+r.la).toFixed(1)}`,key:o?"O25":"U25"}}
   if(mode==="btts"){const y=r.btts>=.5;return {m,p:y?r.btts:1-r.btts,what:"BTTS: "+(y?"Yes":"No"),sub,key:y?"BY":"BN"}}
-  if(mode==="corners"){if(!r.cMu)return null;const o=r.c95>=.5;return {m,p:o?r.c95:1-r.c95,what:(o?"Over":"Under")+" 9.5 corners",sub:sub+` · exp ${r.cMu.toFixed(1)}`,key:o?"CO9.5":"CU9.5"}}
-  if(mode==="cards"){if(!r.kMu)return null;const o=r.k35>=.5;return {m,p:o?r.k35:1-r.k35,what:(o?"Over":"Under")+" 3.5 cards",sub:sub+` · exp ${r.kMu.toFixed(1)}`,key:o?"KO3.5":"KU3.5"}}
+  if(mode==="corners"){if(!r.cMu)return null;const x=market(m,"CO9.5"),y=market(m,"CU9.5"),b=x.p>=y.p?x:y;return {m,p:b.p,what:b.label,sub:sub+` · exp ${r.cMu.toFixed(1)}`,key:b.key}}
+  if(mode==="cards"){if(!r.kMu)return null;const x=market(m,"KO3.5"),y=market(m,"KU3.5"),b=x.p>=y.p?x:y;return {m,p:b.p,what:b.label,sub:sub+` · exp ${r.kMu.toFixed(1)}`,key:b.key}}
 }
 function renderPicks(){
   const list=inView().map(pickFor).filter(Boolean).sort((a,b)=>b.p-a.p).slice(0,cur<0?8:5);

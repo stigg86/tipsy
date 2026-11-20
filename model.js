@@ -74,7 +74,8 @@
   }
 
   // bookmaker consensus probability (average odds, margin removed within each market)
-  const MGROUPS = [["1", "X", "2"], ["O15", "U15"], ["O25", "U25"], ["O35", "U35"], ["BY", "BN"]];
+  const MGROUPS = [["1", "X", "2"], ["O15", "U15"], ["O25", "U25"], ["O35", "U35"], ["BY", "BN"],
+    ["CO8.5", "CU8.5"], ["CO9.5", "CU9.5"], ["CO10.5", "CU10.5"], ["KO2.5", "KU2.5"], ["KO3.5", "KU3.5"], ["KO4.5", "KU4.5"]];
   function mktProb(m, key) {
     if (!m.odds || !m.odds[key]) return null;
     const g = MGROUPS.find(g => g.includes(key)); if (!g) return null;
@@ -159,7 +160,12 @@
     ];
     if (r.cMu) { for (const [k, l] of [["c85", 8.5], ["c95", 9.5], ["c105", 10.5]]) { M.push(["Corners", "CO" + l, `Over ${l} corners`, r[k], r[k]], ["Corners", "CU" + l, `Under ${l} corners`, 1 - r[k], 1 - r[k]]); } }
     if (r.kMu) { for (const [k, l] of [["k25", 2.5], ["k35", 3.5], ["k45", 4.5]]) { M.push(["Cards", "KO" + l, `Over ${l} cards`, r[k], r[k]], ["Cards", "KU" + l, `Under ${l} cards`, 1 - r[k], 1 - r[k]]); } }
-    return M.map(([group, key, label, p, pm]) => ({ group, key, label, p, pm, o: (m.odds && m.odds[key]) || null, mp: mktProb(m, key) }));
+    return M.map(([group, key, label, p, pm]) => {
+      const mp = mktProb(m, key);
+      // corners & cards: the model alone is rough, so lean half on bet365's view when it has a price (goals already do this inside the model)
+      if ((group === "Corners" || group === "Cards") && mp != null) p = (1 - W_MARKET_TIP) * pm + W_MARKET_TIP * mp;
+      return { group, key, label, p, pm, o: (m.odds && m.odds[key]) || null, mp };
+    });
   }
 
   // value: 30% pure model + 70% bookmakers, only for believable cases
