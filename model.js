@@ -146,6 +146,33 @@
     };
   }
 
+  const SHARE_H1 = .445, SHARE_30 = .29;
+  function timing(total) {
+    const a = total * SHARE_H1, b = total * (1 - SHARE_H1); let more1 = 0, more2 = 0, same = 0;
+    for (let i = 0; i <= 12; i++) for (let j = 0; j <= 12; j++) { const p = pois(a, i) * pois(b, j); if (i > j) more1 += p; else if (j > i) more2 += p; else same += p; }
+    return { h1: 1 - Math.exp(-a), g30: 1 - Math.exp(-total * SHARE_30), more1, more2, same };
+  }
+
+  // whole-season simulation: play every remaining fixture N times from the model's expected goals
+  function poisSample(l, rnd) { const L = Math.exp(-l); let k = 0, p = 1; do { k++; p *= rnd(); } while (p > L); return k - 1; }
+  function simulateSeason(table, fixtures, N, rnd = Math.random) {
+    const names = Object.keys(table), n = names.length, ix = Object.fromEntries(names.map((t, i) => [t, i]));
+    const fx = fixtures.filter(f => ix[f.h] != null && ix[f.a] != null && f.lh > 0 && f.la > 0).map(f => [ix[f.h], ix[f.a], f.lh, f.la]);
+    const pos = names.map(() => new Float64Array(n)), ptsSum = new Float64Array(n);
+    const P = new Float64Array(n), GD = new Float64Array(n), GF = new Float64Array(n), order = [...Array(n).keys()];
+    for (let s = 0; s < N; s++) {
+      for (let i = 0; i < n; i++) { const t = table[names[i]]; P[i] = t.pts; GD[i] = t.gf - t.ga; GF[i] = t.gf; }
+      for (const [h, a, lh, la] of fx) {
+        const g1 = poisSample(lh, rnd), g2 = poisSample(la, rnd);
+        GD[h] += g1 - g2; GD[a] += g2 - g1; GF[h] += g1; GF[a] += g2;
+        if (g1 > g2) P[h] += 3; else if (g2 > g1) P[a] += 3; else { P[h]++; P[a]++; }
+      }
+      order.sort((x, y) => P[y] - P[x] || GD[y] - GD[x] || GF[y] - GF[x] || rnd() - .5);
+      order.forEach((t, k) => { pos[t][k]++; ptsSum[t] += P[t]; });
+    }
+    return names.map((t, i) => ({ t, xp: ptsSum[i] / N, pos: Array.from(pos[i], c => c / N) }));
+  }
+
   // every bet for a match: p = tip chance (model + bookies), pm = pure model chance, mp = bookmaker consensus
   function markets(m) {
     const r = m._r; if (!r) return [];
@@ -158,6 +185,12 @@
       ["Goals", "O35", "Over 3.5 goals", r.o35, q.o35], ["Goals", "U35", "Under 3.5 goals", 1 - r.o35, 1 - q.o35],
       ["Both teams to score", "BY", "BTTS – Yes", r.btts, q.btts], ["Both teams to score", "BN", "BTTS – No", 1 - r.btts, 1 - q.btts]
     ];
+    // goal timing: goals arrive through the match, about 44.5% in the first half, about 29% before the 30th minute
+    const T1 = timing(r.lh + r.la), T0 = timing(q.lh + q.la);
+    M.push(["Goal timing", "H1Y", "Goal in the 1st half", T1.h1, T0.h1], ["Goal timing", "H1N", "No goal in the 1st half", 1 - T1.h1, 1 - T0.h1],
+      ["Goal timing", "G30Y", "Goal before 30 mins", T1.g30, T0.g30], ["Goal timing", "G30N", "No goal before 30 mins", 1 - T1.g30, 1 - T0.g30],
+      ["Goal timing", "HH1", "More goals in the 1st half", T1.more1, T0.more1], ["Goal timing", "HH2", "More goals in the 2nd half", T1.more2, T0.more2],
+      ["Goal timing", "HHX", "Same goals in each half", T1.same, T0.same]);
     if (r.cMu) { for (const [k, l] of [["c85", 8.5], ["c95", 9.5], ["c105", 10.5]]) { M.push(["Corners", "CO" + l, `Over ${l} corners`, r[k], r[k]], ["Corners", "CU" + l, `Under ${l} corners`, 1 - r[k], 1 - r[k]]); } }
     if (r.kMu) { for (const [k, l] of [["k25", 2.5], ["k35", 3.5], ["k45", 4.5]]) { M.push(["Cards", "KO" + l, `Over ${l} cards`, r[k], r[k]], ["Cards", "KU" + l, `Under ${l} cards`, 1 - r[k], 1 - r[k]]); } }
     return M.map(([group, key, label, p, pm]) => {
@@ -191,6 +224,6 @@
     }
   }
 
-  G.TipsyModel = { WX, RHO, W_MARKET_TIP, W_MODEL_VALUE, formPPG, formFactor, pois, nbOver, prepLeague, outFor, playerHit, scoreProbs,
+  G.TipsyModel = { timing, simulateSeason, WX, RHO, W_MARKET_TIP, W_MODEL_VALUE, formPPG, formFactor, pois, nbOver, prepLeague, outFor, playerHit, scoreProbs,
     mktProb, fitMarket, lambdas, model, markets, blendP, credible, edgeOf, grade, resultTip, settle };
 })(typeof window !== "undefined" ? window : globalThis);

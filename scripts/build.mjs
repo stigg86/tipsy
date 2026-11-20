@@ -530,7 +530,17 @@ async function buildLeague(code, cache, prev) {
   });
 
   const results = {}; for (const m of done) results[m.id] = { hg: m.score.fullTime.home, ag: m.score.fullTime.away };
-  return { _results: results, code, name: info.name, round: md ? `Matchday ${md}` : (prev?.round || ""), teams,
+  // league table now, plus every fixture still to play (for the season simulation)
+  const table = {};
+  const row = t => (table[teamName(t)] ??= { p: 0, w: 0, d: 0, l: 0, gf: 0, ga: 0, pts: 0 });
+  for (const t of Object.values(fdTeamList)) row(t);
+  for (const m of done) {
+    const h = row(m.homeTeam), a = row(m.awayTeam), hg = m.score.fullTime.home, ag = m.score.fullTime.away;
+    h.p++; a.p++; h.gf += hg; h.ga += ag; a.gf += ag; a.ga += hg;
+    if (hg > ag) { h.w++; a.l++; h.pts += 3; } else if (ag > hg) { a.w++; h.l++; a.pts += 3; } else { h.d++; a.d++; h.pts++; a.pts++; }
+  }
+  const toPlay = matches.filter(m => ["SCHEDULED", "TIMED", "POSTPONED"].includes(m.status)).map(m => ({ id: m.id, h: teamName(m.homeTeam), a: teamName(m.awayTeam) }));
+  return { _results: results, _table: table, _toPlay: toPlay, code, name: info.name, round: md ? `Matchday ${md}` : (prev?.round || ""), teams,
     players: Object.keys(players).length ? players : (prev?.players || {}),
     matches: outMatches.length ? outMatches : (prev?.matches || []) };
 }
@@ -541,6 +551,7 @@ async function main() {
   delete cache.stats; // left over from the API-Football version
   const previous = await readJSON("data/tips.json", null);
   const prevBy = Object.fromEntries((previous?.leagues || []).map(l => [l.code || l.name, l]));
+  const prevSim = Object.fromEntries((previous?.leagues || []).filter(l => l.sim).map(l => [l.code, l.sim]));
 
   if (LEAGUES.includes("PL")) FPL = await loadFPL();
   ELO = await loadElo(cache);
@@ -566,7 +577,23 @@ async function main() {
   const now = Date.now();
   for (const L of leagues) {
     Object.assign(results, L._results || {}); delete L._results;
+    const table = L._table, toPlay = L._toPlay; delete L._table; delete L._toPlay;
     const Lc = TM.prepLeague(JSON.parse(JSON.stringify(L)));
+    // season simulation: every remaining fixture played 10,000 times
+    if (table && toPlay?.length) {
+      try {
+        const known = new Map((Lc.matches || []).map(m => [m.id, m]));
+        const fx = toPlay.map(f => {
+          const m = known.get(f.id), r = m ? TM.model(m, Lc, TM.outFor(Lc, m)) : TM.model({ h: f.h, a: f.a, w: "light" }, Lc, {});
+          return r ? { h: f.h, a: f.a, lh: r.lh, la: r.la } : null;
+        }).filter(Boolean);
+        const N = 10000, sim = TM.simulateSeason(table, fx, N), n = sim.length, r3 = x => Math.round(x * 1000) / 1000;
+        L.sim = { at: new Date().toISOString(), n: N, left: fx.length,
+          rows: sim.map(x => ({ t: x.t, ...table[x.t], xp: Math.round(x.xp * 10) / 10, title: r3(x.pos[0]), top4: r3(x.pos.slice(0, 4).reduce((a, b) => a + b, 0)),
+            rel: r3(x.pos.slice(n - 3).reduce((a, b) => a + b, 0)), pos: x.pos.map(r3) })).sort((a, b) => b.xp - a.xp) };
+        console.log(`  ${L.name}: season simulated ${N.toLocaleString()} times (${fx.length} fixtures left)`);
+      } catch (e) { console.warn(`  ${L.name}: season simulation failed: ${e.message}`); }
+    } else if (prevSim[L.code]) L.sim = prevSim[L.code];
     for (const m of Lc.matches || []) {
       if (new Date(m.date) <= now) continue; // frozen at kick-off
       const r = TM.model(m, Lc, TM.outFor(Lc, m)); if (!r) continue;
