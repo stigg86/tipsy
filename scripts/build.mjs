@@ -78,6 +78,55 @@ async function loadElo(cache) {
 }
 let ELO = null, CL = null;
 // one-to-one match of ClubElo clubs to this league's teams
+// ---------- corners & cards: Football-Data.co.uk season CSVs (free, updated a few times a week) ----------
+const FDUK = { PL: "E0", PD: "SP1", BL1: "D1", FL1: "F1", SA: "I1" };
+const FDUK_ALIAS = { "Nott'm Forest": "Nottingham Forest", "Man City": "Manchester City", "Man United": "Manchester United", "Ath Bilbao": "Athletic Club",
+  "Ath Madrid": "Atletico Madrid", "Sociedad": "Real Sociedad", "Vallecano": "Rayo Vallecano", "Espanol": "Espanyol", "Celta": "Celta Vigo", "Betis": "Real Betis",
+  "M'gladbach": "Borussia Monchengladbach", "Ein Frankfurt": "Eintracht Frankfurt", "FC Koln": "Koln", "Paris SG": "Paris Saint-Germain", "Sheffield United": "Sheffield United",
+  "La Coruna": "Deportivo La Coruna", "Sp Gijon": "Sporting Gijon", "Bayern Munich": "Bayern Munchen" };
+async function loadMatchStats(code, fdTeams, cache) {
+  const div = FDUK[code]; if (!div) return {};
+  const now = new Date(), y = now.getUTCMonth() >= 6 ? now.getUTCFullYear() : now.getUTCFullYear() - 1;
+  const season = `${String(y).slice(2)}${String(y + 1).slice(2)}`;
+  cache.fduk ??= {};
+  let rows = null;
+  try {
+    const r = await fetch(`https://www.football-data.co.uk/mmz4281/${season}/${div}.csv`);
+    if (r.ok) {
+      const lines = (await r.text()).replace(/^﻿/, "").split(/\r?\n/).filter(Boolean);
+      const head = lines[0].split(","), ix = k => head.indexOf(k);
+      const need = ["HomeTeam", "AwayTeam", "HC", "AC", "HY", "AY", "HR", "AR"];
+      if (need.every(k => ix(k) >= 0)) {
+        rows = lines.slice(1).map(l => l.split(",")).filter(c => c[ix("HC")] !== "" && c[ix("HC")] !== undefined)
+          .map(c => ({ h: c[ix("HomeTeam")], a: c[ix("AwayTeam")], hc: +c[ix("HC")], ac: +c[ix("AC")], hk: +c[ix("HY")] + +c[ix("HR")], ak: +c[ix("AY")] + +c[ix("AR")] }))
+          .filter(x => [x.hc, x.ac, x.hk, x.ak].every(Number.isFinite));
+        cache.fduk[code] = { at: new Date().toISOString(), rows };
+      }
+    } else console.warn(`  corners/cards: Football-Data.co.uk ${div} → ${r.status}`);
+  } catch (e) { console.warn(`  corners/cards: ${e.message}`); }
+  if (!rows) rows = cache.fduk[code]?.rows || null;
+  if (!rows?.length) return {};
+  // per-team totals, then shrink towards the league average (3 games' worth) so early-season numbers stay sensible
+  const S = {}, add = (t, cf, ca, kf, ka) => { const x = S[t] ??= { n: 0, cf: 0, ca: 0, kf: 0, ka: 0 }; x.n++; x.cf += cf; x.ca += ca; x.kf += kf; x.ka += ka; };
+  for (const g of rows) { add(g.h, g.hc, g.ac, g.hk, g.ak); add(g.a, g.ac, g.hc, g.ak, g.hk); }
+  const L = rows.length, avgC = rows.reduce((t, g) => t + g.hc + g.ac, 0) / L / 2, avgK = rows.reduce((t, g) => t + g.hk + g.ak, 0) / L / 2, K = 3;
+  const shr = (sum, n, avg) => +((sum + K * avg) / (n + K)).toFixed(2);
+  // match Football-Data.co.uk names ("Man City", "Ath Bilbao") to football-data.org teams, one to one
+  const pairs = [];
+  for (const t of fdTeams) for (const name of Object.keys(S)) {
+    const full = FDUK_ALIAS[name] || ELO_ALIAS[name] || name;
+    const sc = Math.max(sim(full, t.name), sim(full, t.shortName || ""));
+    if (sc >= .5) pairs.push({ t: t.id, name, sc: sc + Math.max(jac(full, t.name), jac(full, t.shortName || "")) });
+  }
+  pairs.sort((a, b) => b.sc - a.sc);
+  const out = {}, used = new Set();
+  for (const p of pairs) { if (out[p.t] || used.has(p.name)) continue; used.add(p.name);
+    const x = S[p.name]; out[p.t] = { cn: [shr(x.cf, x.n, avgC), shr(x.ca, x.n, avgC)], cd: [shr(x.kf, x.n, avgK), shr(x.ka, x.n, avgK)] }; }
+  const missing = fdTeams.filter(t => !out[t.id]).map(t => t.shortName || t.name);
+  console.log(`  corners/cards: ${L} matches, ${Object.keys(out).length}/${fdTeams.length} teams${missing.length ? " (no match: " + missing.join(", ") + ")" : ""}`);
+  return out;
+}
+
 function matchElo(code, fdTeams) {
   if (!ELO) return {};
   const pool = ELO.filter(x => x.country === ELO_COUNTRY[code]);
@@ -439,6 +488,7 @@ async function buildLeague(code, cache, prev) {
   // ClubElo ratings
   const fdTeamList = {}; for (const m of [...done, ...next]) { fdTeamList[m.homeTeam.id] = m.homeTeam; fdTeamList[m.awayTeam.id] = m.awayTeam; }
   const elo = matchElo(code, Object.values(fdTeamList));
+  const stats = await loadMatchStats(code, Object.values(fdTeamList), cache);
   console.log(`  ClubElo matched ${Object.keys(elo).length}/${Object.keys(fdTeamList).length} teams`);
 
   // rest days: time since each team's previous league or Champions League game
@@ -455,7 +505,7 @@ async function buildLeague(code, cache, prev) {
   const restDays = (tid, iso) => { const k = new Date(iso), l = lastBefore(tid, k); return l ? Math.round((k - l) / 864e5 * 10) / 10 : null; };
 
   const teams = {};
-  for (const [tid, t] of Object.entries(T)) teams[t.name] = { o: t.o, h: t.h, a: t.a, f: t.res.slice(-5).join(""), xg: fplXg[tid] || null, cn: null, cd: null, elo: elo[tid] || null };
+  for (const [tid, t] of Object.entries(T)) teams[t.name] = { o: t.o, h: t.h, a: t.a, f: t.res.slice(-5).join(""), xg: fplXg[tid] || null, cn: stats[tid]?.cn || null, cd: stats[tid]?.cd || null, elo: elo[tid] || null };
   const injSide = (team) => {
     const list = fplInj[team.id] || [], name = teamName(team);
     const keys = (players[name] || []);
@@ -543,7 +593,7 @@ async function main() {
       ELO ? "ClubElo (team strength ratings)" : "ClubElo unavailable this run",
       ODDS_KEY ? "The Odds API (UK bookmaker odds)" : "Odds: not configured",
       B365?.events?.length ? "OddsPapi (bet365 prices, once a day)" : null,
-      "Open-Meteo (kick-off weather)"].filter(Boolean),
+      "Open-Meteo (kick-off weather)", "Football-Data.co.uk (corners & cards)"].filter(Boolean),
     oddsCreditsLeft: oddsLeft,
     leagues
   };
