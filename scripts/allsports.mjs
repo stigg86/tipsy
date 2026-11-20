@@ -79,7 +79,98 @@ function moneyline(fx) {
   return null;
 }
 
+// ---------- tracking: save each Best-tab pick, then settle it from ESPN's free scoreboards ----------
+const HIST = "data/history-os.json";
+const MIN_P = 0.55, MAX_P = 0.96; // same range as the Best tab
+// which ESPN scoreboard holds the result, from the sport and competition name
+function espnPaths(e) {
+  const c = e.comp.toLowerCase(), s = e.sport;
+  if (s === "Basketball") return /nba/.test(c) ? ["basketball/nba"] : /ncaa/.test(c) ? [/women/.test(c) ? "basketball/womens-college-basketball" : "basketball/mens-college-basketball"] : [];
+  if (s === "Ice Hockey") return /nhl/.test(c) ? ["hockey/nhl"] : [];
+  if (s === "American Football") return /nfl/.test(c) ? ["football/nfl"] : /ncaa/.test(c) ? ["football/college-football"] : [];
+  if (s === "MMA") return /ufc/.test(c) ? ["mma/ufc"] : [];
+  if (s === "Tennis") return /^atp/.test(c) ? ["tennis/atp"] : /^wta(?! 125)/.test(c) ? ["tennis/wta"] : [];
+  if (s === "Soccer") {
+    const M = [[/champions league/, "uefa.champions"], [/europa league/, "uefa.europa"], [/conference league/, "uefa.europa.conf"], [/england.*championship/, "eng.2"],
+      [/scotland.*premiership/, "sco.1"], [/eredivisie/, "ned.1"], [/portugal/, "por.1"], [/fa cup/, "eng.fa"], [/carabao|efl cup|league cup/, "eng.league_cup"],
+      [/copa del rey/, "esp.copa_del_rey"], [/pokal/, "ger.dfb_pokal"], [/coupe de france/, "fra.coupe_de_france"], [/coppa italia/, "ita.coppa_italia"]];
+    const m = M.find(([re]) => re.test(c)); return m ? ["soccer/" + m[1]] : [];
+  }
+  return [];
+}
+const norm = n => (n || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9 ]/g, " ").split(/\s+/).filter(w => w.length > 1 && !["fc", "the", "de", "st"].includes(w));
+function sim(a, b) { const A = new Set(norm(a)), B = norm(b); if (!A.size || !B.length) return 0; const hit = B.filter(w => A.has(w)).length; return hit / Math.min(A.size, new Set(B).size); }
+const espnCache = new Map();
+async function espnDay(path, ymd) {
+  const k = path + ymd; if (espnCache.has(k)) return espnCache.get(k);
+  let comps = [];
+  try {
+    const r = await fetch(`https://site.api.espn.com/apis/site/v2/sports/${path}/scoreboard?dates=${ymd}&limit=500`);
+    if (r.ok) {
+      const j = await r.json();
+      for (const ev of j.events || []) {
+        const list = ev.competitions?.length ? [...ev.competitions] : [];
+        for (const g of ev.groupings || []) list.push(...(g.competitions || []));
+        for (const c of list) {
+          if (!c.status?.type?.completed) continue;
+          const t = (c.competitors || []).map(x => ({ name: x.team?.displayName || x.athlete?.displayName || x.roster?.displayName || "", score: Number(x.score), winner: !!x.winner }));
+          if (t.length === 2) comps.push(t);
+        }
+      }
+    }
+  } catch {}
+  espnCache.set(k, comps); return comps;
+}
+async function settle(hist) {
+  const t0 = Date.now(); let done = 0;
+  for (const e of hist.entries) {
+    if (e.res || e.void) continue;
+    const t = new Date(e.start).getTime();
+    if (t0 - t < 3 * 3600e3) continue;                          // not finished yet
+    const paths = espnPaths(e);
+    if (!paths.length) { e.untracked = true; continue; }         // no free results feed for this one
+    let found = null;
+    for (const path of paths) for (const dd of [-1, 0, 1]) {
+      const ymd = new Date(t + dd * 864e5).toISOString().slice(0, 10).replace(/-/g, "");
+      for (const c of await espnDay(path, ymd)) {
+        const [x, y] = c;
+        const s1 = sim(e.h, x.name) + sim(e.a, y.name), s2 = sim(e.h, y.name) + sim(e.a, x.name);
+        const pair = s1 >= s2 ? [x, y] : [y, x];
+        if (Math.max(s1, s2) >= 1.5 && sim(e.h, pair[0].name) >= .5 && sim(e.a, pair[1].name) >= .5) { found = pair; break; }
+      }
+      if (found) break;
+    }
+    if (found) {
+      const [home, away] = found;
+      const winner = home.winner ? "home" : away.winner ? "away" : home.score > away.score ? "home" : away.score > home.score ? "away" : "draw";
+      e.res = { winner, score: Number.isFinite(home.score) && Number.isFinite(away.score) ? `${home.score}-${away.score}` : null };
+      e.won = e.side === winner; done++;
+    } else if (t0 - t > 4 * 864e5) e.void = true;               // couldn't find it after 4 days: leave it out
+  }
+  return done;
+}
+function record(hist, events) {
+  const byId = new Map(hist.entries.map(x => [x.id, x]));
+  const t0 = Date.now(); let added = 0;
+  for (const ev of events) {
+    if (new Date(ev.start).getTime() <= t0) continue;
+    const fav = ev.o.filter(([side]) => side !== "draw").sort((a, b) => b[2] - a[2])[0];
+    if (!fav || fav[2] < MIN_P || fav[2] > MAX_P) continue;
+    const cur = byId.get(ev.id);
+    if (cur?.res) continue;
+    const entry = { id: ev.id, sport: ev.sport, comp: ev.comp, start: ev.start, h: ev.h, a: ev.a, side: fav[0], pick: fav[0] === "home" ? ev.h : ev.a, p: fav[2], price: fav[1] };
+    if (cur) Object.assign(cur, entry); else { hist.entries.push(entry); added++; }
+  }
+  return added;
+}
+
 async function main() {
+  // settle finished picks every run (ESPN is free, no OddsPapi requests used)
+  const hist = await readJSON(HIST, { entries: [] });
+  const settled = await settle(hist);
+  hist.entries = hist.entries.filter(x => Date.now() - new Date(x.start) < 120 * 864e5 || x.res);
+  await writeFile(HIST, JSON.stringify(hist));
+  console.log(`All sports: ${settled} picks settled, ${hist.entries.filter(x => x.res).length} settled in total, ${hist.entries.filter(x => !x.res && !x.void && !x.untracked).length} waiting`);
   if (!KEY) { console.log("All sports: no ODDSPAPI_KEY secret, skipping."); return; }
   const cache = await readJSON(CACHE, {});
   const month = new Date().toISOString().slice(0, 7);
@@ -131,6 +222,7 @@ async function main() {
   const bySport = events.reduce((s, e) => (s[e.sport] = (s[e.sport] || 0) + 1, s), {});
   console.log(`All sports: ${events.length} events priced`, JSON.stringify(bySport), `· ${usage.used}/${MONTH_CAP} requests used this month`);
 
+  if (events.length) { const n = record(hist, events); await writeFile(HIST, JSON.stringify(hist)); console.log(`All sports: ${n} new picks recorded`); }
   if (events.length) await writeFile(OUT, JSON.stringify({ updated: new Date().toISOString(), book: "Pinnacle", used: usage.used, cap: 250, events }));
   await writeFile(CACHE, JSON.stringify({ at: events.length ? new Date().toISOString() : cache.at || null, month, used: usage.used }));
 }
