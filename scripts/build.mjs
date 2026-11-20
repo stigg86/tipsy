@@ -20,7 +20,7 @@ const FD_KEY = process.env.FOOTBALL_DATA_KEY;
 const ODDS_KEY = process.env.ODDS_API_KEY || "";
 if (!FD_KEY) { console.error("Missing FOOTBALL_DATA_KEY"); process.exit(1); }
 
-const LEAGUES = (process.env.LEAGUES || "PL,PD,BL1,FL1").split(",").map(s => s.trim()).filter(Boolean);
+const LEAGUES = (process.env.LEAGUES || "PL,PD,BL1,FL1,SA").split(",").map(s => s.trim()).filter(Boolean);
 const ODDS_MIN_LEFT = Number(process.env.ODDS_MIN_LEFT || 20);
 const FD = "https://api.football-data.org/v4";
 const ODDS = "https://api.the-odds-api.com/v4";

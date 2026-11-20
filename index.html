@@ -285,7 +285,7 @@ section[data-sec]>h2:first-child{margin-top:10px}
         <path d="M24 3.5 l8 1.5 8-1.5 M58.5 26 l-2.5-4 2-7.5 M51 54.5 l-4.5-3.5 -7.5 4 M13 54.5 l4.5-3.5 7.5 4 M5.5 26 l2.5-4 -2-7.5" stroke="#1a1a18" stroke-width="2.5" fill="none"/>
       </svg>
     </h1>
-    <p class="sub">Football tips from form, xG and bookmakers' prices for the Premier League, La Liga, Bundesliga and Ligue 1. Tips, not bets.</p>
+    <p class="sub">Football tips from form, xG and bookmakers' prices for the Premier League, La Liga, Serie A, Bundesliga and Ligue 1. Tips, not bets.</p>
   </div>
 </header>
 
@@ -340,7 +340,7 @@ section[data-sec]>h2:first-child{margin-top:10px}
     <div>
       <label>Which sports?</label>
       <div class="risk">
-        <button class="rbtn" data-scope="football"><b>⚽ Football</b><small>Tipsy's four leagues</small></button>
+        <button class="rbtn" data-scope="football"><b>⚽ Football</b><small>Tipsy's five leagues</small></button>
         <button class="rbtn" data-scope="all"><b>🏅 All sports</b><small>football, tennis, NBA, darts and more</small></button>
       </div>
     </div>
@@ -348,7 +348,7 @@ section[data-sec]>h2:first-child{margin-top:10px}
       <label>How many bets?</label>
       <div class="autorow">
         <div class="step big"><button data-autod="-1" aria-label="Fewer">−</button><span id="autoN">4</span><button data-autod="1" aria-label="More">+</button></div>
-        <span class="mute" id="scopeNote">legs, one per match, across all four leagues</span>
+        <span class="mute" id="scopeNote">legs, one per match, across all five leagues</span>
       </div>
     </div>
     <div>
@@ -727,7 +727,7 @@ function renderAuto(){
   document.querySelectorAll("[data-scope]").forEach(b=>b.classList.toggle("on",b.dataset.scope===autoScope));
   const sn=document.getElementById("scopeNote");if(sn)sn.textContent=autoScope==="all"
     ?(OS?"legs, one per match, from every sport":"legs – the all-sports list arrives with the next daily update")
-    :"legs, one per match, across all four leagues";
+    :"legs, one per match, across all five leagues";
   const pb=document.getElementById("pricedOnly");if(pb){pb.classList.toggle("on",pricedOnly);pb.textContent=(pricedOnly?"✓ ":"")+"💷 Only bets with bookie prices";}
 }
 function quick(kind){

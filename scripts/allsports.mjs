@@ -26,13 +26,13 @@ const WANT = [
   [20, /ufc/i], [21, /.*/], // MMA (UFC), boxing: any
   [26, /premiership|top 14|united rugby|six nations|champions cup|autumn|international|nrl|super rugby|world cup/i],
   [27, /international|test|odi|t20i|ipl|indian premier|big bash|the hundred|ashes|world cup/i],
-  [10, /england.*championship|efl championship/i], [10, /italy.*serie a\b/i], [10, /scotland.*premiership/i],
+  [10, /england.*championship|efl championship/i], [10, /scotland.*premiership/i],
   [10, /netherlands.*eredivisie/i], [10, /portugal.*(liga portugal|primeira)/i], [10, /fa cup|carabao|efl cup|copa del rey|dfb pokal|coupe de france|coppa italia/i],
   [10, /world cup.*qualif|nations league|friendl.*international|euro.*qualif/i],
   [11, /euroleague/i], [31, /\bafl\b/i], [14, /ncaa/i], [11, /ncaa(?!.*women)/i]
 ];
 const JUNK = /simulated|\bsrl\b|power slap|esoccer|virtual|cyber/i;
-const OUR_FOOTBALL = /^(england premier league|spain laliga|spain la liga|germany bundesliga|france ligue 1)$/i;
+const OUR_FOOTBALL = /^(england premier league|spain laliga|spain la liga|germany bundesliga|france ligue 1|italy serie a)$/i;
 
 async function get(path, params, usage) {
   const u = new URL(`${BASE}/${path}`);

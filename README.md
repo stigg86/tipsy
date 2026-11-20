@@ -1,8 +1,8 @@
 # Tipsy
 
-Football tips for the Premier League, La Liga, Bundesliga and Ligue 1, built only on free data. It includes:
+Football tips for the Premier League, La Liga, Serie A, Bundesliga and Ligue 1, built only on free data. It includes:
 
-- best bets across all four leagues
+- best bets across all five leagues
 - a **value finder** that lists bets where the best UK bookmaker price pays more than it should
 - an accumulator builder (up to 20 legs) covering results, double chance, goals over/under and both teams to score
 
