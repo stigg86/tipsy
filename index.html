@@ -962,7 +962,7 @@ document.addEventListener("click",e=>{
   if(hl){e.preventDefault();showSec("record");document.getElementById("sectabs").scrollIntoView({behavior:"smooth"});return;}
   const lg=t.closest(".lgtab");
   if(lg){cur=+lg.dataset.lg;renderTabs();renderPicks();renderScores();renderValue();renderCards();renderCustom();renderTable();return;}
-  const tb=t.closest("[data-tbl]");if(tb){tblSel=+tb.dataset.tbl;renderTable();return;}
+  const tbl=t.closest("[data-tbl]");if(tbl){tblSel=+tbl.dataset.tbl;renderTable();return;}
   const tb=t.closest(".tab[data-m]");
   if(tb){document.querySelectorAll(".tab[data-m]").forEach(x=>x.classList.toggle("on",x===tb));mode=tb.dataset.m;renderPicks();return;}
   const at=t.closest("[data-addm]");
