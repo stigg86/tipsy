@@ -584,7 +584,7 @@ async function main() {
       try {
         const known = new Map((Lc.matches || []).map(m => [m.id, m]));
         const fx = toPlay.map(f => {
-          const m = known.get(f.id), r = m ? TM.model(m, Lc, TM.outFor(Lc, m)) : TM.model({ h: f.h, a: f.a, w: "light" }, Lc, {});
+          const m = known.get(f.id), r = m ? TM.model(m, Lc, TM.outFor(Lc, m)) : TM.model({ h: f.h, a: f.a, w: "light" }, Lc, { h: 0, a: 0 });
           return r ? { h: f.h, a: f.a, lh: r.lh, la: r.la } : null;
         }).filter(Boolean);
         const N = 10000, sim = TM.simulateSeason(table, fx, N), n = sim.length, r3 = x => Math.round(x * 1000) / 1000;

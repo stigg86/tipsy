@@ -155,15 +155,18 @@
 
   // whole-season simulation: play every remaining fixture N times from the model's expected goals
   function poisSample(l, rnd) { const L = Math.exp(-l); let k = 0, p = 1; do { k++; p *= rnd(); } while (p > L); return k - 1; }
-  function simulateSeason(table, fixtures, N, rnd = Math.random) {
+  // each simulated season, every team's attack and defence are nudged up or down a little (SD 12%):
+  // nobody knows exactly how good a team is, and form changes over a season
+  function simulateSeason(table, fixtures, N, rnd = Math.random, sd = 0.12) {
+    const gauss = () => Math.sqrt(-2 * Math.log(rnd() || 1e-12)) * Math.cos(2 * Math.PI * rnd());
     const names = Object.keys(table), n = names.length, ix = Object.fromEntries(names.map((t, i) => [t, i]));
     const fx = fixtures.filter(f => ix[f.h] != null && ix[f.a] != null && f.lh > 0 && f.la > 0).map(f => [ix[f.h], ix[f.a], f.lh, f.la]);
     const pos = names.map(() => new Float64Array(n)), ptsSum = new Float64Array(n);
-    const P = new Float64Array(n), GD = new Float64Array(n), GF = new Float64Array(n), order = [...Array(n).keys()];
+    const P = new Float64Array(n), GD = new Float64Array(n), GF = new Float64Array(n), ATT = new Float64Array(n), DEF = new Float64Array(n), order = [...Array(n).keys()];
     for (let s = 0; s < N; s++) {
-      for (let i = 0; i < n; i++) { const t = table[names[i]]; P[i] = t.pts; GD[i] = t.gf - t.ga; GF[i] = t.gf; }
+      for (let i = 0; i < n; i++) { const t = table[names[i]]; P[i] = t.pts; GD[i] = t.gf - t.ga; GF[i] = t.gf; ATT[i] = Math.exp(sd * gauss()); DEF[i] = Math.exp(sd * gauss()); }
       for (const [h, a, lh, la] of fx) {
-        const g1 = poisSample(lh, rnd), g2 = poisSample(la, rnd);
+        const g1 = poisSample(lh * ATT[h] * DEF[a], rnd), g2 = poisSample(la * ATT[a] * DEF[h], rnd);
         GD[h] += g1 - g2; GD[a] += g2 - g1; GF[h] += g1; GF[a] += g2;
         if (g1 > g2) P[h] += 3; else if (g2 > g1) P[a] += 3; else { P[h]++; P[a]++; }
       }
