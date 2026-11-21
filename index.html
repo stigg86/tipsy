@@ -1074,14 +1074,15 @@ function sportTable(h,hos){
   if(!list.length&&!waiting)return "";
   const tot=list.reduce((t,[,r])=>({n:t.n+r.n,w:t.w+r.w,pl:t.pl+r.pl}),{n:0,w:0,pl:0});
   const head=(icon,name,r)=>`<span>${icon} ${esc(name)}<small class="mute"> · ${r.w}/${r.n} right (${pctTxt(r.w,r.n)})</small></span><b style="color:${moneyCol(r.pl)}">${money(r.pl)}</b>`;
-  const betRow=b=>{const pl=b.price?(b.won?(b.price-1)*STAKE:-STAKE):null;
-    return `<div class="betres ${b.won?"won":"lost"}"><span class="mk">${b.won?"✓":"✗"}</span><span class="bw"><b>${esc(b.what)}</b><small>${esc(b.match)} · ${new Date(b.date).toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"})}${b.price?` · ${b.price.toFixed(2)}`:" · no price"} · ${pc(b.p)}</small></span><span class="bp" style="color:${pl==null?"var(--mute)":moneyCol(pl)}">${pl==null?"–":money(pl)}</span></div>`;};
+  const betRow=(b,icon="")=>{const pl=b.price?(b.won?(b.price-1)*STAKE:-STAKE):null;
+    return `<div class="betres ${b.won?"won":"lost"}"><span class="mk">${b.won?"✓":"✗"}</span><span class="bw"><b>${icon?icon+" ":""}${esc(b.what)}</b><small>${esc(b.match)} · ${new Date(b.date).toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"})}${b.price?` · ${b.price.toFixed(2)}`:" · no price"} · ${pc(b.p)}</small></span><span class="bp" style="color:${pl==null?"var(--mute)":moneyCol(pl)}">${pl==null?"–":money(pl)}</span></div>`;};
   const sportRow=(s,r)=>{const bs=(bets[s]||[]).sort((a,b)=>new Date(b.date)-new Date(a.date));
     return `<details class="sportres"><summary class="wrow">${head(SPORT_ICON[s]||"🏅",s==="Soccer"?"Football (Tipsy model)":(SPORT_NAME[s]||s),r)}<span class="chev">›</span></summary>
       <div class="betlist">${bs.map(betRow).join("")||'<div class="mute" style="padding:8px 0;font-size:13px">No results yet.</div>'}</div></details>`;};
   return `<h3 class="profh">By sport · £${STAKE} a tip <small class="mute" style="font-weight:400">· tap a sport to see each bet</small></h3>
     <div class="accrows">${list.map(([s,r])=>sportRow(s,r)).join("")}
-      ${list.length>1?`<div class="wrow">${head("🏅","All sports",tot)}<span class="chev" style="visibility:hidden">›</span></div>`:""}
+      ${list.length>1?`<details class="sportres"><summary class="wrow">${head("🏅","All sports",tot)}<span class="chev">›</span></summary>
+        <div class="betlist">${Object.entries(bets).flatMap(([s,bs])=>bs.map(b=>({...b,icon:SPORT_ICON[s]||"🏅"}))).sort((a,b)=>new Date(b.date)-new Date(a.date)).map(b=>betRow(b,b.icon)).join("")}</div></details>`:""}
       ${!list.length?`<div class="wrow"><span>No results yet</span><b>–</b></div>`:""}</div>
     <div class="accnote">Other sports track every Best-tab pick at Pinnacle's price, settled from ESPN's results. Football bets with no bookie price (like double chance) are listed but don't count towards profit.${waiting?` ${waiting} waiting for results.`:""}${untr.length?` Not tracked yet (no free results feed): ${esc(untr.join(", "))}.`:""}</div>`;
 }
