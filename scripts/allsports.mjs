@@ -196,7 +196,7 @@ async function main() {
   }
   const chosen = [], seen = new Set();
   for (const [sportId, re] of WANT) {
-    const list = Object.values(comps).filter(c => c.sportId === sportId && !seen.has(c.id) && !JUNK.test(c.name) && re.test(c.name) && !(sportId === 10 && OUR_FOOTBALL.test(c.name)))
+    const list = Object.values(comps).filter(c => c.sportId === sportId && !seen.has(c.id) && !JUNK.test(c.name) && !/uefa champions league|^champions league/i.test(c.name) && re.test(c.name) && !(sportId === 10 && OUR_FOOTBALL.test(c.name)))
       .sort((a, b) => b.n - a.n);
     for (const c of list.slice(0, sportId === 12 ? 4 : 2)) { chosen.push(c); seen.add(c.id); }
     if (chosen.length >= ODDS_CALLS * 5) break;

@@ -20,7 +20,7 @@ const FD_KEY = process.env.FOOTBALL_DATA_KEY;
 const ODDS_KEY = process.env.ODDS_API_KEY || "";
 if (!FD_KEY) { console.error("Missing FOOTBALL_DATA_KEY"); process.exit(1); }
 
-const LEAGUES = (process.env.LEAGUES || "PL,PD,BL1,FL1,SA").split(",").map(s => s.trim()).filter(Boolean);
+const LEAGUES = (process.env.LEAGUES || "PL,PD,BL1,FL1,SA,CL").split(",").map(s => s.trim()).filter(Boolean);
 const ODDS_MIN_LEFT = Number(process.env.ODDS_MIN_LEFT || 20);
 const FD = "https://api.football-data.org/v4";
 const ODDS = "https://api.the-odds-api.com/v4";
@@ -31,7 +31,8 @@ const INFO = {
   PD:  { name: "La Liga",        country: "ES", odds: "soccer_spain_la_liga" },
   BL1: { name: "Bundesliga",     country: "DE", odds: "soccer_germany_bundesliga" },
   FL1: { name: "Ligue 1",        country: "FR", odds: "soccer_france_ligue_one" },
-  SA:  { name: "Serie A",        country: "IT", odds: "soccer_italy_serie_a" }
+  SA:  { name: "Serie A",        country: "IT", odds: "soccer_italy_serie_a" },
+  CL:  { name: "Champions League", country: "", odds: "soccer_uefa_champs_league" }
 };
 
 const FPL_URL = "https://fantasy.premierleague.com/api/bootstrap-static/";
@@ -277,7 +278,7 @@ function parseOdds(ev) {
 // ---------- bet365 prices (OddsPapi free plan, shared 250/month budget with scripts/allsports.mjs) ----------
 // One request a day returns bet365's prices for all four leagues; team names come from a weekly-cached list.
 const ODDSPAPI_KEY = process.env.ODDSPAPI_KEY;
-const OP_TOURN = { PL: 17, PD: 8, BL1: 35, FL1: 34, SA: 23 };
+const OP_TOURN = { PL: 17, PD: 8, BL1: 35, FL1: 34, SA: 23, CL: 7 };
 const OP_CAP = 235;
 let B365 = null; // { at, events: [{ t, start, h, a, p: { key: price } }] }
 async function opGet(path, params, usage) {
@@ -300,9 +301,13 @@ async function loadBet365() {
   const usage = { used: opc.month === month ? opc.used || 0 : 0 };
   const teams = await readJSON("data/oddspapi-teams.json", { names: {} });
   const ids = LEAGUES.map(c => OP_TOURN[c]).filter(Boolean);
-  if (usage.used + 2 > OP_CAP - 6) { console.warn(`  bet365: skipped, OddsPapi budget nearly used (${usage.used}/${OP_CAP})`); return saved; }
-  const od = await opGet("odds-by-tournaments", { tournamentIds: ids.join(","), bookmaker: "bet365", oddsFormat: "decimal" }, usage);
-  const list = Array.isArray(od) ? od : [];
+  if (usage.used + 1 + Math.ceil(ids.length / 5) > OP_CAP - 6) { console.warn(`  bet365: skipped, OddsPapi budget nearly used (${usage.used}/${OP_CAP})`); return saved; }
+  // OddsPapi allows 5 competitions per request
+  const list = [];
+  for (let i = 0; i < ids.length; i += 5) {
+    const od = await opGet("odds-by-tournaments", { tournamentIds: ids.slice(i, i + 5).join(","), bookmaker: "bet365", oddsFormat: "decimal" }, usage);
+    if (Array.isArray(od)) list.push(...od);
+  }
   // team names: refresh the list when a team is missing (about once a week, or when promoted sides appear)
   const need = new Set(list.flatMap(f => [f.participant1Id, f.participant2Id]).map(String));
   if ([...need].some(id => !teams.names[id]) && usage.used + 1 <= OP_CAP - 6) {
@@ -568,6 +573,13 @@ async function main() {
     }
   }
   if (!leagues.length) throw new Error("No league data built");
+  // Champions League sides: borrow corners & cards from their domestic league (Football-Data.co.uk has no Champions League file)
+  const CLg = leagues.find(L => L.code === "CL");
+  if (CLg) {
+    const dom = {}; for (const L of leagues) if (L.code !== "CL") for (const [n, t] of Object.entries(L.teams || {})) dom[n] = t;
+    let k = 0; for (const [n, t] of Object.entries(CLg.teams || {})) if (!t.cn && dom[n]?.cn) { t.cn = dom[n].cn; t.cd = dom[n].cd; k++; }
+    console.log(`  Champions League: corners & cards from domestic leagues for ${k}/${Object.keys(CLg.teams || {}).length} teams`);
+  }
 
   // --- accuracy tracking: save each prediction until kick-off, then attach the result ---
   const hist = await readJSON("data/history.json", { entries: [] });
@@ -580,7 +592,7 @@ async function main() {
     const table = L._table, toPlay = L._toPlay; delete L._table; delete L._toPlay;
     const Lc = TM.prepLeague(JSON.parse(JSON.stringify(L)));
     // season simulation: every remaining fixture played 10,000 times
-    if (table && toPlay?.length) {
+    if (table && toPlay?.length && L.code !== "CL") {
       try {
         const known = new Map((Lc.matches || []).map(m => [m.id, m]));
         const fx = toPlay.map(f => {

@@ -301,7 +301,7 @@ section[data-sec]>h2:first-child{margin-top:10px}
         <path d="M24 3.5 l8 1.5 8-1.5 M58.5 26 l-2.5-4 2-7.5 M51 54.5 l-4.5-3.5 -7.5 4 M13 54.5 l4.5-3.5 7.5 4 M5.5 26 l2.5-4 -2-7.5" stroke="#1a1a18" stroke-width="2.5" fill="none"/>
       </svg>
     </h1>
-    <p class="sub">Football tips from form, xG and bookmakers' prices for the Premier League, La Liga, Serie A, Bundesliga and Ligue 1. Tips, not bets.</p>
+    <p class="sub">Football tips from form, xG and bookmakers' prices for the Premier League, La Liga, Serie A, Bundesliga, Ligue 1 and the Champions League. Tips, not bets.</p>
   </div>
 </header>
 
@@ -362,7 +362,7 @@ section[data-sec]>h2:first-child{margin-top:10px}
       <label>How many bets?</label>
       <div class="autorow">
         <div class="step big"><button data-autod="-1" aria-label="Fewer">−</button><span id="autoN">4</span><button data-autod="1" aria-label="More">+</button></div>
-        <span class="mute" id="scopeNote">legs, one per match, across all five leagues</span>
+        <span class="mute" id="scopeNote">legs, one per match, across Tipsy's leagues</span>
       </div>
     </div>
     <div>
@@ -761,7 +761,7 @@ function renderAuto(){
   const st=document.getElementById("scopeTabs");
   if(st)st.innerHTML=[["football","⚽ Football"],...(OS?[["all","🏅 All sports"]]:[]),...osSports().map(s=>[s,`${SPORT_ICON[s]||"🏅"} ${s==="Soccer"?"More football":s}`])]
     .map(([k,l])=>`<button class="tab ${scope===k?"on":""}" data-scope="${esc(k)}">${esc(l)}</button>`).join("");
-  const sn=document.getElementById("scopeNote");if(sn)sn.textContent=scope==="football"?"legs, one per match, across Tipsy's five leagues"
+  const sn=document.getElementById("scopeNote");if(sn)sn.textContent=scope==="football"?"legs, one per match, across Tipsy's leagues"
     :scope==="all"?"legs, one per match, from every sport"
     :`legs, one per match, ${scope==="Soccer"?"from other football leagues (Championship, Eredivisie and more)":scope+" only"}`;
   const pb=document.getElementById("pricedOnly");if(pb){pb.classList.toggle("on",pricedOnly);pb.textContent=(pricedOnly?"✓ ":"")+"💷 Only bets with bookie prices";}
