@@ -128,6 +128,62 @@ async function loadMatchStats(code, fdTeams, cache) {
   return out;
 }
 
+// ---------- shots-based xG for every league: Big Balls Sports Data (free plan, football, 1,000 requests a day) ----------
+// One request per finished match for its stats (cached forever), so the first run backfills and later runs only add new games.
+const BBS_KEY = process.env.BIGBALLS_KEY;
+const BBS_LEAGUE = { PL: "epl", PD: "laliga", BL1: "bundesliga", FL1: "ligue1", SA: "seriea", CL: "ucl" };
+const BBS_RUN_CAP = 420;              // stats requests per run, at most (shared across leagues)
+let BBS = null, bbsUsed = 0;
+async function bbsGet(path) {
+  bbsUsed++;
+  const r = await fetch("https://api.bigballsdata.com" + path, { headers: { Authorization: "Bearer " + BBS_KEY } }).catch(() => null);
+  await new Promise(res => setTimeout(res, 700)); // 100 a minute allowed
+  if (!r) return null;
+  if (r.status === 429) { console.warn("  shots: Big Balls rate limit reached, carrying on next run"); bbsUsed = 1e9; return null; }
+  return r.ok ? r.json().catch(() => null) : null;
+}
+async function loadShots(code, done, fdTeams) {
+  const lg = BBS_LEAGUE[code]; if (!BBS_KEY || !lg) return {};
+  BBS ??= await readJSON("data/bbs-cache.json", { matches: {} });
+  // 1) the league's finished matches (newest 100, plus any older dates we still need)
+  const listed = new Map();
+  const add = rows => { for (const m of rows || []) if (m.status === "finished" && m.home && m.away) listed.set(m.id, m); };
+  const j = await bbsGet(`/v1/matches?sport=football&league=${lg}&status=finished&limit=100`); add(j?.data);
+  const day = d => new Date(d).toISOString().slice(0, 10);
+  const haveDays = new Set([...listed.values()].map(m => day(m.kickoff_utc)));
+  const cachedDays = new Set(Object.values(BBS.matches).filter(x => x.lg === lg).map(x => x.day));
+  for (const d of [...new Set(done.map(m => day(m.utcDate)))].filter(d => !haveDays.has(d) && !cachedDays.has(d))) {
+    if (bbsUsed > BBS_RUN_CAP) break;
+    const k = await bbsGet(`/v1/matches?sport=football&league=${lg}&date=${d}&limit=50`); add(k?.data);
+  }
+  // 2) stats for any match we haven't stored yet
+  for (const m of listed.values()) {
+    if (BBS.matches[m.id] || bbsUsed > BBS_RUN_CAP) continue;
+    const st = await bbsGet(`/v1/matches/${m.id}/statistics?sport=football`);
+    const H = st?.data?.home, A = st?.data?.away;
+    if (!H || !A || H.shots_on_target == null) { BBS.matches[m.id] = { lg, day: day(m.kickoff_utc), h: m.home.name, a: m.away.name, none: true }; continue; }
+    BBS.matches[m.id] = { lg, day: day(m.kickoff_utc), h: m.home.name, a: m.away.name, hg: m.score?.home, ag: m.score?.away,
+      hs: H.total_shots, as: A.total_shots, hsot: H.shots_on_target, asot: A.shots_on_target };
+  }
+  // 3) line them up with football-data.org's matches (same day, both team names alike) and build an xG-style rating
+  const rows = Object.values(BBS.matches).filter(x => x.lg === lg && !x.none);
+  const raw = x => [0.30 * x.hsot + 0.03 * (x.hs - x.hsot), 0.30 * x.asot + 0.03 * (x.as - x.asot)];
+  const games = [];
+  for (const m of done) {
+    const d = day(m.utcDate);
+    const x = rows.find(r => Math.abs(new Date(r.day) - new Date(d)) <= 864e5 && sim(r.h, m.homeTeam.name) + sim(r.h, m.homeTeam.shortName || "") > .5 && sim(r.a, m.awayTeam.name) + sim(r.a, m.awayTeam.shortName || "") > .5);
+    if (x) games.push({ h: m.homeTeam.id, a: m.awayTeam.id, g: [m.score.fullTime.home, m.score.fullTime.away], x: raw(x) });
+  }
+  if (games.length < 20) { console.log(`  shots: ${games.length}/${done.length} matches so far, not enough yet`); return {}; }
+  // calibrate so the league's shot-xG adds up to its real goals
+  const k = games.reduce((t, g) => t + g.g[0] + g.g[1], 0) / games.reduce((t, g) => t + g.x[0] + g.x[1], 0);
+  const per = {};
+  for (const g of games) for (const [t, f, a] of [[g.h, g.x[0], g.x[1]], [g.a, g.x[1], g.x[0]]]) { const p = per[t] ??= { n: 0, f: 0, a: 0 }; p.n++; p.f += f * k; p.a += a * k; }
+  const out = {}; for (const [t, p] of Object.entries(per)) if (p.n >= 3) out[t] = [+(p.f / p.n).toFixed(2), +(p.a / p.n).toFixed(2)];
+  console.log(`  shots: ${games.length}/${done.length} matches with shot data, xG for ${Object.keys(out).length}/${fdTeams.length} teams (${bbsUsed} Big Balls requests so far)`);
+  return out;
+}
+
 function matchElo(code, fdTeams) {
   if (!ELO) return {};
   const pool = ELO.filter(x => x.country === ELO_COUNTRY[code]);
@@ -496,6 +552,7 @@ async function buildLeague(code, cache, prev) {
   // ClubElo ratings
   const fdTeamList = {}; for (const m of [...done, ...next]) { fdTeamList[m.homeTeam.id] = m.homeTeam; fdTeamList[m.awayTeam.id] = m.awayTeam; }
   const elo = matchElo(code, Object.values(fdTeamList));
+  let shotXg = {}; try { shotXg = await loadShots(code, done, Object.values(fdTeamList)); } catch (e) { console.warn(`  shots: ${e.message}`); }
   const stats = await loadMatchStats(code, Object.values(fdTeamList), cache);
   console.log(`  ClubElo matched ${Object.keys(elo).length}/${Object.keys(fdTeamList).length} teams`);
 
@@ -513,7 +570,7 @@ async function buildLeague(code, cache, prev) {
   const restDays = (tid, iso) => { const k = new Date(iso), l = lastBefore(tid, k); return l ? Math.round((k - l) / 864e5 * 10) / 10 : null; };
 
   const teams = {};
-  for (const [tid, t] of Object.entries(T)) teams[t.name] = { o: t.o, h: t.h, a: t.a, f: t.res.slice(-5).join(""), xg: fplXg[tid] || null, cn: stats[tid]?.cn || null, cd: stats[tid]?.cd || null, elo: elo[tid] || null };
+  for (const [tid, t] of Object.entries(T)) teams[t.name] = { o: t.o, h: t.h, a: t.a, f: t.res.slice(-5).join(""), xg: fplXg[tid] || shotXg[tid] || null, cn: stats[tid]?.cn || null, cd: stats[tid]?.cd || null, elo: elo[tid] || null };
   const injSide = (team) => {
     const list = fplInj[team.id] || [], name = teamName(team);
     const keys = (players[name] || []);
@@ -573,6 +630,7 @@ async function main() {
     }
   }
   if (!leagues.length) throw new Error("No league data built");
+  if (BBS) await fs.writeFile("data/bbs-cache.json", JSON.stringify(BBS));
   // Champions League sides: borrow corners & cards from their domestic league (Football-Data.co.uk has no Champions League file)
   const CLg = leagues.find(L => L.code === "CL");
   if (CLg) {
@@ -635,7 +693,7 @@ async function main() {
       ELO ? "ClubElo (team strength ratings)" : "ClubElo unavailable this run",
       ODDS_KEY ? "The Odds API (UK bookmaker odds)" : "Odds: not configured",
       B365?.events?.length ? "OddsPapi (bet365 prices, once a day)" : null,
-      "Open-Meteo (kick-off weather)", "Football-Data.co.uk (corners & cards)"].filter(Boolean),
+      "Open-Meteo (kick-off weather)", "Football-Data.co.uk (corners & cards)", BBS_KEY ? "Big Balls Sports Data (shots → xG for every league)" : null].filter(Boolean),
     oddsCreditsLeft: oddsLeft,
     leagues
   };
