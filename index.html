@@ -1018,13 +1018,26 @@ document.addEventListener("change",e=>{
 // ---------- Accuracy tracking ----------
 // ---------- profit: £5 on every bet at the best bookie price saved before kick-off ----------
 const STAKE=5; // £ per bet in the profit tracker
+// ----- tappable bet lists (shared by the Record tab) -----
+const keyLabel=(e,k)=>({"1":`${e.h} to win`,"2":`${e.a} to win`,"X":"Draw","1X":`${e.h} or draw`,"X2":`${e.a} or draw`,"12":"Home or Away (no draw)",
+  "BY":"Both teams to score","BN":"Not both teams to score"}[k]||(/^O(\d)(\d)$/.test(k)?`Over ${k[1]}.${k[2]} goals`:/^U(\d)(\d)$/.test(k)?`Under ${k[1]}.${k[2]} goals`:k));
+const scoreLine=e=>`${e.h} ${e.res.hg}–${e.res.ag} ${e.a}`;
+function betRowHTML(b,icon=""){const pl=b.price?(b.won?(b.price-1)*STAKE:-STAKE):null;
+  return `<div class="betres ${b.won?"won":"lost"}"><span class="mk">${b.won?"✓":"✗"}</span><span class="bw"><b>${icon?icon+" ":""}${esc(b.what)}</b><small>${esc(b.match)} · ${new Date(b.date).toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"})}${b.price?` · ${b.price.toFixed(2)}`:" · no price"}${b.p!=null?` · ${pc(b.p)}`:""}</small></span><span class="bp" style="color:${pl==null?"var(--mute)":moneyCol(pl)}">${pl==null?"–":money(pl)}</span></div>`;}
+function tapRow(headInner,bets,icon=""){
+  const bs=[...(bets||[])].sort((a,b)=>new Date(b.date)-new Date(a.date));
+  if(!bs.length)return `<div class="wrow">${headInner}<span class="chev" style="visibility:hidden">›</span></div>`;
+  return `<details class="sportres"><summary class="wrow">${headInner}<span class="chev">›</span></summary><div class="betlist">${bs.map(b=>betRowHTML(b,b.icon||icon)).join("")}</div></details>`;
+}
+
 function profitOf(h){
   const g=((h&&h.entries)||[]).filter(e=>e.res);
-  const out={tips:{n:0,w:0,pl:0},strong:{n:0,w:0,pl:0},value:{n:0,w:0,pl:0},acca:{n:0,w:0,pl:0,last:null}};
-  const add=(o,win,b)=>{o.n++;if(win){o.w++;o.pl+=(b-1)*STAKE}else o.pl-=STAKE;};
+  const out={tips:{n:0,w:0,pl:0,bets:[]},strong:{n:0,w:0,pl:0,bets:[]},value:{n:0,w:0,pl:0,bets:[]},acca:{n:0,w:0,pl:0,last:null,bets:[]}};
+  const add=(o,win,b,bet)=>{o.n++;if(win){o.w++;o.pl+=(b-1)*STAKE}else o.pl-=STAKE;if(bet)o.bets.push(bet);};
   for(const e of g){
-    if(e.tip&&e.tip.b>1){const w=TM.settle(e.tip.key,e.res.hg,e.res.ag);if(w!=null){add(out.tips,w,e.tip.b);if(e.tip.p>=.6)add(out.strong,w,e.tip.b);}}
-    for(const v of e.value||[]){const w=TM.settle(v.key,e.res.hg,e.res.ag);if(w!=null)add(out.value,w,v.b);}
+    if(e.tip&&e.tip.b>1){const w=TM.settle(e.tip.key,e.res.hg,e.res.ag);
+      if(w!=null){const bet={won:w,what:keyLabel(e,e.tip.key),match:scoreLine(e),date:e.date,price:e.tip.b,p:e.tip.p};add(out.tips,w,e.tip.b,bet);if(e.tip.p>=.6)add(out.strong,w,e.tip.b,bet);}}
+    for(const v of e.value||[]){const w=TM.settle(v.key,e.res.hg,e.res.ag);if(w!=null)add(out.value,w,v.b,{won:w,what:v.label||keyLabel(e,v.key),match:scoreLine(e),date:e.date,price:v.b,p:v.p??null});}
   }
   // Tipsy's weekend acca: the 4 most likely priced tips of each Friday–Thursday week, chosen from what was saved before kick-off
   const all=((h&&h.entries)||[]).filter(e=>e.tip&&e.tip.b>1),wk={};
@@ -1035,7 +1048,8 @@ function profitOf(h){
     if(legs.length<4||legs.some(e=>!e.res))continue;
     const win=legs.every(e=>TM.settle(e.tip.key,e.res.hg,e.res.ag));
     const price=legs.reduce((s,e)=>s*e.tip.b,1);
-    add(out.acca,win,price);out.acca.last={win,price,legs:legs.map(e=>`${e.h} v ${e.a}`)};
+    add(out.acca,win,price,{won:win,what:`4-fold: ${legs.map(e=>keyLabel(e,e.tip.key)).join(", ")}`,match:legs.map(e=>`${scoreLine(e)} ${TM.settle(e.tip.key,e.res.hg,e.res.ag)?"✓":"✗"}`).join(" · "),date:legs[legs.length-1].date,price,p:null});
+    out.acca.last={win,price,legs:legs.map(e=>`${e.h} v ${e.a}`)};
   }
   return out;
 }
@@ -1069,13 +1083,14 @@ function sportTable(h,hos){
   for(const e of E)if(e.res&&e.price>1){add(e.sport,e.won,e.price);
     (bets[e.sport]??=[]).push({won:e.won,what:`${e.pick} to win`,match:e.res.score?`${e.h} ${e.res.score.replace("-","–")} ${e.a}`:`${e.h} v ${e.a}`,date:e.start,price:e.price,p:e.p});}
   const waiting=E.filter(e=>!e.res&&!e.void&&!e.untracked).length;
-  const untr=[...new Set(E.filter(e=>e.untracked&&!e.res).map(e=>SPORT_NAME[e.sport]||e.sport))];
+  const untrBy={};for(const e of E.filter(e=>e.untracked&&!e.res))(untrBy[SPORT_NAME[e.sport]||e.sport]??=new Set()).add(e.comp.replace(/ (Men|Women) Singles$/,"").replace(/^(ATP|WTA) /,"$1 "));
+  const tracked=new Set(Object.keys(rows).map(s=>SPORT_NAME[s]||s));
+  const untr=Object.entries(untrBy).map(([s,c])=>tracked.has(s)||(s==="Tennis")?`${s} (${[...c].slice(0,2).join(", ")}${c.size>2?" and others":""})`:s);
   const list=Object.entries(rows).sort((a,b)=>b[1].n-a[1].n);
   if(!list.length&&!waiting)return "";
   const tot=list.reduce((t,[,r])=>({n:t.n+r.n,w:t.w+r.w,pl:t.pl+r.pl}),{n:0,w:0,pl:0});
   const head=(icon,name,r)=>`<span>${icon} ${esc(name)}<small class="mute"> · ${r.w}/${r.n} right (${pctTxt(r.w,r.n)})</small></span><b style="color:${moneyCol(r.pl)}">${money(r.pl)}</b>`;
-  const betRow=(b,icon="")=>{const pl=b.price?(b.won?(b.price-1)*STAKE:-STAKE):null;
-    return `<div class="betres ${b.won?"won":"lost"}"><span class="mk">${b.won?"✓":"✗"}</span><span class="bw"><b>${icon?icon+" ":""}${esc(b.what)}</b><small>${esc(b.match)} · ${new Date(b.date).toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short"})}${b.price?` · ${b.price.toFixed(2)}`:" · no price"} · ${pc(b.p)}</small></span><span class="bp" style="color:${pl==null?"var(--mute)":moneyCol(pl)}">${pl==null?"–":money(pl)}</span></div>`;};
+  const betRow=betRowHTML;
   const sportRow=(s,r)=>{const bs=(bets[s]||[]).sort((a,b)=>new Date(b.date)-new Date(a.date));
     return `<details class="sportres"><summary class="wrow">${head(SPORT_ICON[s]||"🏅",s==="Soccer"?"Football (Tipsy model)":(SPORT_NAME[s]||s),r)}<span class="chev">›</span></summary>
       <div class="betlist">${bs.map(betRow).join("")||'<div class="mute" style="padding:8px 0;font-size:13px">No results yet.</div>'}</div></details>`;};
@@ -1094,7 +1109,8 @@ function renderAccuracy(h,hos){
   if(!g.length){el.innerHTML=`<div class="empty">Tipsy saves every prediction before kick-off and checks it against the result. Scores appear here once this round has been played.</div>`+sportTable(h,hos);return;}
   const hit=e=>TM.settle(e.tip.key,e.res.hg,e.res.ag);
   const tips=g.filter(e=>e.tip),wins=tips.filter(hit).length;
-  const bucket={};for(const e of tips){const k=grade(e.tip.p)[0];(bucket[k]??=[0,0]);bucket[k][1]++;if(hit(e))bucket[k][0]++;}
+  const bucket={},bucketBets={};for(const e of tips){const k=grade(e.tip.p)[0];(bucket[k]??=[0,0]);bucket[k][1]++;if(hit(e))bucket[k][0]++;
+    (bucketBets[k]??=[]).push({won:!!hit(e),what:keyLabel(e,e.tip.key),match:scoreLine(e),date:e.date,price:e.tip.b>1?e.tip.b:null,p:e.tip.p});}
   const brier=(e,src)=>{const p=e[src];if(!p)return null;const o=e.res.hg>e.res.ag?"1":e.res.hg===e.res.ag?"X":"2";return ["1","X","2"].reduce((s,k)=>s+((p[k]||0)-(k===o?1:0))**2,0);};
   const both=g.filter(e=>e.mkt&&e.pure&&e.p);
   const avg=src=>both.length?both.reduce((s,e)=>s+brier(e,src),0)/both.length:null;
@@ -1111,11 +1127,11 @@ function renderAccuracy(h,hos){
     </div>
     ${sportTable(h,hos)}
     <h3 class="profh">Football: profit if you'd staked £${STAKE} on every bet</h3>
-    <div class="accrows">${[["Every main tip",PR.tips],["Strong tips only (60%+)",PR.strong],["Value bets",PR.value],["Tipsy's weekend acca (top 4 tips)",PR.acca]].map(([l,o])=>`<div class="wrow"><span>${l}<small class="mute"> · ${o.n?`${o.w}/${o.n} won, £${o.n*STAKE} staked`:"none settled yet"}</small></span><b style="color:${o.n?moneyCol(o.pl):"inherit"}">${o.n?money(o.pl):"–"}</b></div>`).join("")}</div>
+    <div class="accrows">${[["Every main tip",PR.tips],["Strong tips only (60%+)",PR.strong],["Value bets",PR.value],["Tipsy's weekend acca (top 4 tips)",PR.acca]].map(([l,o])=>tapRow(`<span>${l}<small class="mute"> · ${o.n?`${o.w}/${o.n} won, £${o.n*STAKE} staked`:"none settled yet"}</small></span><b style="color:${o.n?moneyCol(o.pl):"inherit"}">${o.n?money(o.pl):"–"}</b>`,o.bets)).join("")}</div>
     ${PR.acca.last?`<div class="accnote">Last weekend acca ${PR.acca.last.win?"won":"lost"} at ${PR.acca.last.price.toFixed(2)}: ${esc(PR.acca.last.legs.join(", "))}.</div>`:""}
     <div class="accnote">Uses the best bookie price saved just before kick-off. Tips with no bookie price aren't counted. Real returns will be a bit lower, since you won't always get the very best price.</div>
-    <div class="accrows">${["Strong","Good","Lean","Avoid"].filter(k=>bucket[k]).map(k=>`<div class="wrow"><span>${k} tips</span><b>${bucket[k][0]}/${bucket[k][1]} right</b></div>`).join("")}
-      ${vb?`<div class="wrow"><span>Value bets won</span><b>${vw}/${vb}</b></div>`:""}
+    <div class="accrows">${["Strong","Good","Lean","Avoid"].filter(k=>bucket[k]).map(k=>tapRow(`<span>${k} tips</span><b>${bucket[k][0]}/${bucket[k][1]} right</b>`,bucketBets[k])).join("")}
+      ${vb?tapRow(`<span>Value bets won</span><b>${vw}/${vb}</b>`,PR.value.bets):""}
       ${sc.length?`<div class="wrow"><span>Exact score right</span><b>${scHit}/${sc.length} (${pctTxt(scHit,sc.length)})</b></div>`:""}</div>
     ${both.length?`<div class="accnote">Accuracy score on match results (Brier, lower is better) over ${both.length} matches: Tipsy ${bT.toFixed(3)} · our model alone ${bM.toFixed(3)} · bookmakers ${bB.toFixed(3)}.</div>`:""}
     <div class="accnote">${g.length<50?"Early days – this needs a few hundred matches before it really means something.":"Based on predictions saved before kick-off."}</div>`;
