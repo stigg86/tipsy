@@ -134,6 +134,16 @@ const BBS_KEY = process.env.BIGBALLS_KEY;
 const BBS_LEAGUE = { PL: "epl", PD: "laliga", BL1: "bundesliga", FL1: "ligue1", SA: "seriea", CL: "ucl" };
 const BBS_RUN_CAP = 420;              // stats requests per run, at most (shared across leagues)
 let BBS = null, bbsUsed = 0;
+const LU = {};          // fd team id -> recent starting XIs [{ d, n: [names] }] from Big Balls line-ups (any competition)
+let INJ = null;         // normalised names of players Big Balls lists as injured
+const pname = n => (n || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z ]/g, " ").replace(/\s+/g, " ").trim();
+async function loadInjuries() {
+  if (!BBS_KEY) return new Set();
+  const j = await bbsGet("/v1/injuries?sport=football");
+  const v = j?.data?.injuries?.value || [];
+  console.log(`  team news: ${v.length} injured players listed by Big Balls`);
+  return new Set(v.flatMap(x => [pname(x.display_name), pname(x.full_name)]).filter(Boolean));
+}
 async function bbsGet(path) {
   bbsUsed++;
   const r = await fetch("https://api.bigballsdata.com" + path, { headers: { Authorization: "Bearer " + BBS_KEY } }).catch(() => null);
@@ -166,13 +176,27 @@ async function loadShots(code, done, fdTeams) {
       hs: H.total_shots, as: A.total_shots, hsot: H.shots_on_target, asot: A.shots_on_target };
   }
   // 3) line them up with football-data.org's matches (same day, both team names alike) and build an xG-style rating
-  const rows = Object.values(BBS.matches).filter(x => x.lg === lg && !x.none);
+  const rows = Object.entries(BBS.matches).filter(([, x]) => x.lg === lg && !x.none).map(([id, x]) => ({ id, ...x }));
+  BBS.lu ??= {};
   const raw = x => [0.30 * x.hsot + 0.03 * (x.hs - x.hsot), 0.30 * x.asot + 0.03 * (x.as - x.asot)];
   const games = [];
   for (const m of done) {
     const d = day(m.utcDate);
     const x = rows.find(r => Math.abs(new Date(r.day) - new Date(d)) <= 864e5 && sim(r.h, m.homeTeam.name) + sim(r.h, m.homeTeam.shortName || "") > .5 && sim(r.a, m.awayTeam.name) + sim(r.a, m.awayTeam.shortName || "") > .5);
-    if (x) games.push({ h: m.homeTeam.id, a: m.awayTeam.id, g: [m.score.fullTime.home, m.score.fullTime.away], x: raw(x) });
+    if (x) games.push({ h: m.homeTeam.id, a: m.awayTeam.id, g: [m.score.fullTime.home, m.score.fullTime.away], x: raw(x), id: x.id, d: m.utcDate });
+  }
+  // starting XIs for each team's recent games (to know who the regulars are), newest first
+  for (const g of [...games].sort((a, b) => new Date(b.d) - new Date(a.d))) {
+    if (Date.now() - new Date(g.d) > 60 * 864e5) continue;
+    if (!BBS.lu[g.id] && bbsUsed <= BBS_RUN_CAP) {
+      const l = await bbsGet(`/v1/stored/matches/${g.id}/lineups`);
+      const st = side => (l?.data?.[side] || []).filter(p => p.starter).map(p => p.name);
+      BBS.lu[g.id] = st("home").length >= 9 ? { h: st("home"), a: st("away") } : { none: true, at: Date.now() };
+    }
+    const lu = BBS.lu[g.id];
+    if (lu?.none && Date.now() - (lu.at || 0) > 864e5) delete BBS.lu[g.id]; // try again tomorrow
+    if (!lu || lu.none) continue;
+    (LU[g.h] ??= []).push({ d: g.d, n: lu.h }); (LU[g.a] ??= []).push({ d: g.d, n: lu.a });
   }
   if (games.length < 20) { console.log(`  shots: ${games.length}/${done.length} matches so far, not enough yet`); return {}; }
   // calibrate so the league's shot-xG adds up to its real goals
@@ -571,7 +595,24 @@ async function buildLeague(code, cache, prev) {
 
   const teams = {};
   for (const [tid, t] of Object.entries(T)) teams[t.name] = { o: t.o, h: t.h, a: t.a, f: t.res.slice(-5).join(""), xg: fplXg[tid] || shotXg[tid] || null, cn: stats[tid]?.cn || null, cd: stats[tid]?.cd || null, elo: elo[tid] || null };
+  // team news outside the Premier League: injured players who have been starting regularly (from Big Balls line-ups)
+  if (code !== "PL") { try { INJ ??= await loadInjuries(); } catch { INJ = new Set(); } }
+  const bbsSide = (team) => {
+    const seen = new Set(), lu = (LU[team.id] || []).sort((a, b) => new Date(b.d) - new Date(a.d)).filter(x => !seen.has(x.d) && seen.add(x.d)).slice(0, 6);
+    if (lu.length < 3 || !INJ?.size) return { players: [], others: 0, all: [] };
+    const starts = {}; for (const x of lu) for (const n of x.n) starts[n] = (starts[n] || 0) + 1;
+    const out = Object.keys(starts).filter(n => starts[n] >= Math.ceil(lu.length / 2) && INJ.has(pname(n)));
+    // name the injured scorers the way the scorers list does ("D. Ceballos" -> "Dani Ceballos")
+    const keys = players[teamName(team)] || [], keyOut = [];
+    for (const n of out) {
+      const pn = pname(n).split(" "), sur = pn[pn.length - 1], ini = pn[0][0];
+      const k = keys.find(p => { const q = pname(p.name).split(" "); return q[q.length - 1] === sur && q[0][0] === ini; });
+      if (k) keyOut.push(k.name);
+    }
+    return { players: keyOut, others: Math.min(3, out.length - keyOut.length), all: out.map(n => `${n} – injured (starts ${starts[n]} of last ${lu.length})`) };
+  };
   const injSide = (team) => {
+    if (code !== "PL") return bbsSide(team);
     const list = fplInj[team.id] || [], name = teamName(team);
     const keys = (players[name] || []);
     const keyOut = [], others = [];
