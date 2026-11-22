@@ -17,20 +17,23 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 // Competitions worth showing, best first. Matched against "category tournament" names from OddsPapi.
 // Our own four football leagues are left out: Tipsy's model covers those.
+// Only the big competitions UK bookies actually price (and that we can usually settle). Best first.
 const WANT = [
-  [10, /champions league(?!.*(women|qualif|afc|caf|concacaf))/i], [10, /europa league(?!.*women)/i], [10, /conference league/i],
-  [14, /\bnfl\b/i], [11, /\bnba\b(?!.*(g league|cup))/i], [15, /\bnhl\b/i],
-  [12, /^(atp|wta)\b|davis cup|billie jean|united cup/i],
-  [19, /pdc|premier league|world championship|grand slam|players championship|world series|world matchplay|grand prix|masters/i],
-  [24, /.*/], // snooker: any
-  [20, /ufc/i], [21, /.*/], // MMA (UFC), boxing: any
-  [26, /premiership|top 14|united rugby|six nations|champions cup|autumn|international|nrl|super rugby|world cup/i],
-  [27, /international|test|odi|t20i|ipl|indian premier|big bash|the hundred|ashes|world cup/i],
-  [10, /england.*championship|efl championship/i], [10, /scotland.*premiership/i],
-  [10, /netherlands.*eredivisie/i], [10, /portugal.*(liga portugal|primeira)(?! ?[23])/i], [10, /fa cup|carabao|efl cup|copa del rey|dfb pokal|coupe de france|coppa italia/i],
-  [10, /world cup.*qualif|nations league|friendl.*international|euro.*qualif/i],
-  [11, /euroleague/i], [31, /\bafl\b/i], [14, /ncaa/i], [11, /ncaa(?!.*women)/i]
+  [10, /uefa champions league|^champions league/i], [10, /europa league/i], [10, /conference league/i],
+  [14, /\bnfl\b/i], [11, /^nba$|^usa nba$|\bnba\b(?!.*(g league|cup|summer))/i], [15, /\bnhl\b/i],
+  [12, /^(atp|wta) /i],
+  [19, /pdc|premier league|world championship|grand slam|players championship finals|world matchplay|world grand prix|grand prix|masters|uk open/i],
+  [24, /.*/],                                    // snooker: the tour events
+  [20, /\bufc\b/i], [21, /.*/],                  // MMA: UFC only; boxing: the main fights Pinnacle lists
+  [26, /premiership rugby|gallagher premiership|top 14|united rugby|six nations|champions cup|autumn nations|rugby championship|world cup|super league|nrl/i],
+  [27, /\b(test|odi|t20i)\b|ashes|ipl|indian premier|big bash|the hundred|world cup/i],
+  [10, /england.*championship|efl championship/i], [10, /scotland.*premiership/i], [10, /netherlands.*eredivisie/i],
+  [10, /portugal.*(liga portugal|primeira)(?! ?[23])/i], [10, /fa cup|carabao|efl cup|copa del rey|dfb pokal|coupe de france|coppa italia/i],
+  [10, /world cup.*qualif|nations league|euro.*qualif/i]
 ];
+// never: youth, reserves, women's football/cricket side events, college sport, lower-tier tennis and team cups we can't settle
+const NOT_TOP = /\bu-?(17|19|20|21|23)\b|youth|reserve|ncaa|college|challenger|\bitf\b|125k|doubles|davis cup|billie jean|united cup|emerging|exhibition/i;
+const WOMEN_OK = new Set([12]); // women's tennis (WTA) is fine; other sports' women's events are thin on UK books
 const JUNK = /simulated|\bsrl\b|power slap|esoccer|virtual|cyber/i;
 const OUR_FOOTBALL = /^(england premier league|spain laliga|spain la liga|germany bundesliga|france ligue 1|italy serie a)$/i;
 
@@ -196,7 +199,7 @@ async function main() {
   }
   const chosen = [], seen = new Set();
   for (const [sportId, re] of WANT) {
-    const list = Object.values(comps).filter(c => c.sportId === sportId && !seen.has(c.id) && !JUNK.test(c.name) && !/uefa champions league|^champions league/i.test(c.name) && re.test(c.name) && !(sportId === 10 && OUR_FOOTBALL.test(c.name)))
+    const list = Object.values(comps).filter(c => c.sportId === sportId && !seen.has(c.id) && !JUNK.test(c.name) && !NOT_TOP.test(c.name) && (WOMEN_OK.has(sportId) || !/women/i.test(c.name)) && !(sportId === 10 && /uefa champions league|^champions league/i.test(c.name)) && re.test(c.name) && !(sportId === 10 && OUR_FOOTBALL.test(c.name)))
       .sort((a, b) => b.n - a.n);
     for (const c of list.slice(0, sportId === 12 ? 4 : 2)) { chosen.push(c); seen.add(c.id); }
     if (chosen.length >= ODDS_CALLS * 5) break;
