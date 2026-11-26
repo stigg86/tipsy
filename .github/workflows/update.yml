@@ -2,8 +2,8 @@ name: Update tips
 
 on:
   schedule:
-    - cron: "15 6 * * *"        # every day, 06:15 UTC
-    - cron: "15 11 * * 5,6,0,1"  # Fri–Mon late morning, for fresher team news
+    - cron: "15 */3 * * *"      # every 3 hours: GitHub often starts scheduled jobs hours late, so run often
+                                 # (odds, bet365 and other paid-for calls have their own refresh limits)
   workflow_dispatch:             # "Run workflow" button on the Actions tab
     inputs:
       force_odds:

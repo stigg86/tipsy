@@ -547,11 +547,14 @@ async function buildLeague(code, cache, prev) {
     } catch (e) { console.warn("weather:", e.message); }
   }
 
-  // Bookmaker odds (refreshed at most every 6 hours to save credits; otherwise reuse the last prices)
+  // Bookmaker odds: refresh every 12 hours when this league has a game in the next 2 days, otherwise every 48 hours
+  // (the update runs every few hours, so this keeps the 500 monthly credits in budget)
   const oddsByMatch = {};
   const prevOdds = Object.fromEntries((prev?.matches || []).filter(x => x.odds).map(x => [x.id, x.odds]));
-  const fresh = !process.env.FORCE_ODDS && cache.oddsAt?.[code] && Date.now() - cache.oddsAt[code] < 6 * 3600e3 && Object.keys(prevOdds).length;
-  if (fresh) { Object.assign(oddsByMatch, prevOdds); console.log(`  odds: reusing prices from ${new Date(cache.oddsAt[code]).toISOString()} (under 6 hours old)`); }
+  const soon = next.some(m => new Date(m.utcDate) - Date.now() < 48 * 3600e3);
+  const maxAge = (soon ? 12 : 48) * 3600e3;
+  const fresh = !process.env.FORCE_ODDS && cache.oddsAt?.[code] && Date.now() - cache.oddsAt[code] < maxAge && Object.keys(prevOdds).length;
+  if (fresh) { Object.assign(oddsByMatch, prevOdds); console.log(`  odds: reusing prices from ${new Date(cache.oddsAt[code]).toISOString()} (refresh every ${soon ? 12 : 48}h)`); }
   else if (ODDS_KEY && info.odds && next.length) {
     if (oddsLeft !== null && oddsLeft < ODDS_MIN_LEFT) console.warn(`odds: skipped, only ${oddsLeft} credits left this month`);
     else {

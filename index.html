@@ -1140,6 +1140,10 @@ function renderAccuracy(h,hos){
 function init(d){
   DATA=d;
   LG=(d.leagues||[]).filter(L=>L&&L.teams);
+  // games that have already kicked off are no longer tips: drop them (their results arrive with the next data update)
+  const now=Date.now();let gone=0;
+  LG.forEach(L=>{const n=(L.matches||[]).length;L.matches=(L.matches||[]).filter(m=>new Date(m.date).getTime()>now);gone+=n-L.matches.length;});
+  DATA.startedGone=gone;
   LG.forEach(L=>{prepLeague(L);computeLeague(L);});
 }
 
@@ -1149,6 +1153,7 @@ fetch("data/tips.json",{cache:"no-store"}).then(r=>{if(!r.ok)throw 0;return r.js
   if(!LG.length)throw 0;
   document.getElementById("updated").textContent=new Date(d.updated).toLocaleString("en-GB",{weekday:"short",day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"});
   document.getElementById("srcs").textContent=(d.sources||[]).join(" · ");
+  if(d.startedGone){const u=document.getElementById("updated");u.textContent+=` · ${d.startedGone} game${d.startedGone===1?"":"s"} already kicked off, hidden until results are in`;}
   const hasC=LG.some(L=>Object.keys(L.CN).length),hasK=LG.some(L=>Object.keys(L.CD).length);
   document.querySelectorAll('.tab[data-m="corners"]').forEach(b=>b.style.display=hasC?"":"none");
   document.querySelectorAll('.tab[data-m="cards"]').forEach(b=>b.style.display=hasK?"":"none");
