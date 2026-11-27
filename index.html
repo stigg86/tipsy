@@ -259,6 +259,7 @@ section[data-sec]>h2:first-child{margin-top:10px}
 .betres.won .mk{background:rgba(61,220,151,.18);color:var(--home)}.betres.lost .mk{background:rgba(255,107,107,.16);color:var(--bad)}
 .betres .bw{flex:1;min-width:0}.betres .bw b{display:block;font-weight:600}.betres .bw small{color:var(--mute);font-size:12px}
 .betres .bp{font-weight:600;white-space:nowrap}
+.howbox{margin:24px 0 8px;border-top:1px solid var(--line);padding-top:12px}.howbox>summary{cursor:pointer;font-weight:600;font-size:15px;color:var(--mute)}
 .profh{font-size:15px;margin:14px 0 6px}
 .accrows .wrow b{white-space:nowrap}
 .pick .rank.sp{background:none;font-size:20px;width:auto}
@@ -306,13 +307,13 @@ section[data-sec]>h2:first-child{margin-top:10px}
 </header>
 
 <div class="wrap">
-  <a class="record" id="record" href="#record" aria-label="Tipsy's record – see details"></a>
+  <div class="record" id="record" aria-label="Tipsy's win rate"></div>
 
   <div class="lgtabs" id="lgtabs"></div>
   <nav class="sectabs" id="sectabs" aria-label="Sections">
-    <button data-sec="tips" class="on">Tips</button><button data-sec="best">Best</button><button data-sec="scores">Scores</button><button data-sec="value">Value</button><button data-sec="acca">Acca</button><button data-sec="matches">Matches</button><button data-sec="table">Table</button><button data-sec="record">Record</button>
+    <button data-sec="tips" class="on">Tips</button><button data-sec="best">Best</button><button data-sec="scores">Scores</button><button data-sec="value">Value</button><button data-sec="acca">Acca</button><button data-sec="matches">Matches</button><button data-sec="table">Table</button>
   </nav>
-  <p class="upd">Updated <span id="updated">…</span> · <a href="#record">about the data</a></p>
+  <p class="upd">Updated <span id="updated">…</span> · <a href="#how" id="howlink">how it works</a></p>
 
   <section data-sec="tips">
   <h2>Top tips · <span id="lgname"></span></h2>
@@ -397,16 +398,14 @@ section[data-sec]>h2:first-child{margin-top:10px}
   <div id="tbl"></div>
   </section>
 
-  <section data-sec="record" hidden>
-  <h2>How accurate is Tipsy?</h2>
-  <div id="acc"></div>
 
-  <h2>How the model works</h2>
-  <div class="how"><ul>
+  <details class="howbox"><summary>How Tipsy works</summary>
+    <div class="how"><ul>
+    <li><b>Expected goals (xG)</b> – Premier League xG from FPL; every other league and the Champions League get an xG-style rating from shots and shots on target, blended 50/50 with real goals.</li>
     <li><b>Attack & defence strength</b> – goals scored and conceded per game (home/away split plus overall), pulled slightly towards the league average for small samples. Each league is modelled against its own averages. For the Premier League, season xG from the FPL feed is blended in 50/50.</li>
     <li><b>Last 5 form</b> – recent games weighted heavier (newest ×5, oldest ×1). Hot teams get up to ~+15% on expected goals, cold teams lose the same.</li>
     <li><b>Home advantage</b> – built in, because home and away goal rates are modelled separately.</li>
-    <li><b>Team news</b> – for the Premier League, absent regulars come from the FPL feed. If a top scorer is out, their team's attack drops by their share of its goals (goals + half of assists), less ~40% for whoever replaces them; each other regular out trims attack 6% and adds 3% to what they concede.</li>
+    <li><b>Team news</b> – Premier League absences come from the FPL feed; for the other leagues and the Champions League, injured players who have been starting regularly (from Big Balls Sports Data). A missing top scorer takes their share of goals off the attack; other missing regulars cost about 6% each.</li>
     <li><b>Weather</b> – heavy rain, strong wind and freezing conditions cut expected goals (roughly 2–10%).</li>
     <li><b>Club Elo</b> – long-run team strength from clubelo.com. It counts for about half of team strength after 10 games and fades as the season builds up evidence.</li>
     <li><b>Rest</b> – a team playing 3 or fewer days after its last league or Champions League game loses 4% attack and concedes 3% more. Europa League and Conference League games aren't in the free data.</li>
@@ -416,9 +415,9 @@ section[data-sec]>h2:first-child{margin-top:10px}
     <li><b>Value</b> – edge = (30% model chance + 70% bookmaker consensus) × best sportsbook price − 1, skipping longshots over 5.0 and big model/market disagreements. The "Bookies" figure is the average UK price turned into a chance with the bookmaker's margin removed. If the model and the bookies disagree a lot, the bookies are more often right.</li>
     <li><b>Accumulators</b> – the chance all legs land is each leg's chance multiplied together; fair odds = 1 ÷ that chance. Legs from the same match are linked, so for those the combined figure is only a rough guide.</li>
   </ul></div>
-  <h2>About the data</h2>
-  <div class="note">Fixtures, tables, last-5 form, top scorers, UK bookmaker odds and kick-off weather refresh automatically. Premier League team news and xG come from the official Fantasy Premier League feed, and injured, suspended or doubtful regulars are taken into account automatically. Team news for La Liga, Bundesliga and Ligue 1 isn't in the free data yet. Percentages are model estimates, not certainties. 18+ · BeGambleAware.org</div>
-  </section>
+    <h3 class="profh">About the data</h3>
+    <div class="note">Fixtures, tables, last-5 form, top scorers, UK bookmaker odds and kick-off weather refresh automatically. Premier League team news and xG come from the official Fantasy Premier League feed, and injured, suspended or doubtful regulars are taken into account automatically. Team news for La Liga, Bundesliga and Ligue 1 isn't in the free data yet. Percentages are model estimates, not certainties. 18+ · BeGambleAware.org</div>
+  </details>
   <footer>Sources: <span id="srcs"></span><br>For fun and info only. Never stake what you can't afford to lose.</footer>
 </div>
 
@@ -895,7 +894,7 @@ function renderTable(){
 }
 
 // ---------- Sections ----------
-const SECS=["tips","best","scores","value","acca","matches","table","record"];
+const SECS=["tips","best","scores","value","acca","matches","table"];
 let sec="tips";
 function showSec(name,{scroll=true}={}){
   if(!SECS.includes(name))name="tips";
@@ -967,8 +966,7 @@ document.addEventListener("click",e=>{
   const sb=t.closest(".sectabs [data-sec]");
   if(sb)track("tab/"+sb.dataset.sec,"Tab: "+sb.textContent.trim());
   if(sb){showSec(sb.dataset.sec);return;}
-  const hl=t.closest('a[href="#record"]');
-  if(hl){e.preventDefault();showSec("record");document.getElementById("sectabs").scrollIntoView({behavior:"smooth"});return;}
+  if(t.closest("#howlink")){e.preventDefault();const hb=document.querySelector(".howbox");hb.open=true;hb.scrollIntoView({behavior:"smooth"});return;}
   const lg=t.closest(".lgtab");
   if(lg){cur=+lg.dataset.lg;renderTabs();renderPicks();renderScores();renderValue();renderCards();renderCustom();renderTable();return;}
   const tbl=t.closest("[data-tbl]");if(tbl){tblSel=+tbl.dataset.tbl;renderTable();return;}
@@ -1065,10 +1063,8 @@ function renderRecord(h){
     return;
   }
   const wins=g.filter(e=>TM.settle(e.tip.key,e.res.hg,e.res.ag)).length;
-  const P=profitOf(h).tips;
   el.innerHTML=`<span class="big">${Math.round(wins/g.length*100)}%</span>
-    <span class="txt"><b>Tipsy's tips are right</b><small>${wins} of ${g.length} matches so far</small></span>
-    ${P.n?`<span class="vb">Profit<b style="color:${moneyCol(P.pl)}">${money(P.pl)}</b>£${STAKE} a tip</span>`:"<span></span>"}`;
+    <span class="txt"><b>Tipsy's tips are right</b><small>${wins} of ${g.length} matches so far</small></span><span></span>`;
 }
 // results by sport: football from Tipsy's own tips, other sports from the Best tab's picks (Pinnacle price, £5 each)
 function sportTable(h,hos){
