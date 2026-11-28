@@ -259,6 +259,10 @@ section[data-sec]>h2:first-child{margin-top:10px}
 .betres.won .mk{background:rgba(61,220,151,.18);color:var(--home)}.betres.lost .mk{background:rgba(255,107,107,.16);color:var(--bad)}
 .betres .bw{flex:1;min-width:0}.betres .bw b{display:block;font-weight:600}.betres .bw small{color:var(--mute);font-size:12px}
 .betres .bp{font-weight:600;white-space:nowrap}
+.record{cursor:pointer;flex-wrap:wrap}.record .chev{transition:transform .15s}.record.open .chev{transform:rotate(90deg)}
+.recbreak{display:none;grid-column:1/-1;border-top:1px solid var(--line);padding-top:8px;margin-top:2px}.record.open .recbreak{display:block}
+.recbreak .rb{display:grid;grid-template-columns:1fr auto 48px;gap:10px;padding:5px 0;font-size:14px}.recbreak .rb b{text-align:right}
+.recbreak small{display:block;margin-top:6px;font-size:12px}
 .howbox{margin:24px 0 8px;border-top:1px solid var(--line);padding-top:12px}.howbox>summary{cursor:pointer;font-weight:600;font-size:15px;color:var(--mute)}
 .profh{font-size:15px;margin:14px 0 6px}
 .accrows .wrow b{white-space:nowrap}
@@ -966,6 +970,7 @@ document.addEventListener("click",e=>{
   const sb=t.closest(".sectabs [data-sec]");
   if(sb)track("tab/"+sb.dataset.sec,"Tab: "+sb.textContent.trim());
   if(sb){showSec(sb.dataset.sec);return;}
+  if(t.closest("#record")){document.getElementById("record").classList.toggle("open");return;}
   if(t.closest("#howlink")){e.preventDefault();const hb=document.querySelector(".howbox");hb.open=true;hb.scrollIntoView({behavior:"smooth"});return;}
   const lg=t.closest(".lgtab");
   if(lg){cur=+lg.dataset.lg;renderTabs();renderPicks();renderScores();renderValue();renderCards();renderCustom();renderTable();return;}
@@ -1063,8 +1068,13 @@ function renderRecord(h){
     return;
   }
   const wins=g.filter(e=>TM.settle(e.tip.key,e.res.hg,e.res.ag)).length;
+  // per-competition breakdown, shown when the strip is tapped
+  const by={};for(const e of g){const b=by[e.lg||"Other"]??={n:0,w:0};b.n++;if(TM.settle(e.tip.key,e.res.hg,e.res.ag))b.w++;}
+  const order=LG.map(L=>L.name).filter(n=>by[n]).concat(Object.keys(by).filter(n=>!LG.some(L=>L.name===n)));
   el.innerHTML=`<span class="big">${Math.round(wins/g.length*100)}%</span>
-    <span class="txt"><b>Tipsy's tips are right</b><small>${wins} of ${g.length} matches so far</small></span><span></span>`;
+    <span class="txt"><b>Tipsy's football tips are right</b><small>${wins} of ${g.length} matches · tap for each league</small></span><span class="chev">›</span>
+    <div class="recbreak">${order.map(n=>`<div class="rb"><span>${esc(n)}</span><span class="mute">${by[n].w} of ${by[n].n}</span><b>${Math.round(by[n].w/by[n].n*100)}%</b></div>`).join("")}
+      <small class="mute">All football, using Tipsy's main tip for each match. Other sports aren't included.</small></div>`;
 }
 // results by sport: football from Tipsy's own tips, other sports from the Best tab's picks (Pinnacle price, £5 each)
 function sportTable(h,hos){
