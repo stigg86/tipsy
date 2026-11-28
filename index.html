@@ -262,6 +262,9 @@ section[data-sec]>h2:first-child{margin-top:10px}
 .record{cursor:pointer;flex-wrap:wrap}.record .chev{transition:transform .15s}.record.open .chev{transform:rotate(90deg)}
 .recbreak{display:none;grid-column:1/-1;border-top:1px solid var(--line);padding-top:8px;margin-top:2px}.record.open .recbreak{display:block}
 .recbreak .rb{display:grid;grid-template-columns:1fr auto 48px;gap:10px;padding:5px 0;font-size:14px}.recbreak .rb b{text-align:right}
+.rbd>summary{list-style:none;cursor:pointer}.rbd>summary::-webkit-details-marker{display:none}.rbd>summary::marker{content:""}.rbd>summary::after,.rbd[open]>summary::after{content:none}
+.rbd .chev{display:inline-block;margin-left:4px;font-size:15px}.rbd[open] .chev{transform:rotate(90deg)}
+.rbd .betlist{padding:0 0 6px}.upset{font-size:12px;color:var(--bad);margin:-4px 0 4px 32px}
 .recbreak small{display:block;margin-top:6px;font-size:12px}
 .howbox{margin:24px 0 8px;border-top:1px solid var(--line);padding-top:12px}.howbox>summary{cursor:pointer;font-weight:600;font-size:15px;color:var(--mute)}
 .profh{font-size:15px;margin:14px 0 6px}
@@ -970,6 +973,7 @@ document.addEventListener("click",e=>{
   const sb=t.closest(".sectabs [data-sec]");
   if(sb)track("tab/"+sb.dataset.sec,"Tab: "+sb.textContent.trim());
   if(sb){showSec(sb.dataset.sec);return;}
+  if(t.closest("#record .recbreak"))return; // league rows open on their own
   if(t.closest("#record")){document.getElementById("record").classList.toggle("open");return;}
   if(t.closest("#howlink")){e.preventDefault();const hb=document.querySelector(".howbox");hb.open=true;hb.scrollIntoView({behavior:"smooth"});return;}
   const lg=t.closest(".lgtab");
@@ -1069,11 +1073,13 @@ function renderRecord(h){
   }
   const wins=g.filter(e=>TM.settle(e.tip.key,e.res.hg,e.res.ag)).length;
   // per-competition breakdown, shown when the strip is tapped
-  const by={};for(const e of g){const b=by[e.lg||"Other"]??={n:0,w:0};b.n++;if(TM.settle(e.tip.key,e.res.hg,e.res.ag))b.w++;}
+  const by={};for(const e of g){const b=by[e.lg||"Other"]??={n:0,w:0,bets:[]};const won=!!TM.settle(e.tip.key,e.res.hg,e.res.ag);b.n++;if(won)b.w++;
+    b.bets.push({won,what:keyLabel(e,e.tip.key),match:scoreLine(e),date:e.date,price:e.tip.b>1?e.tip.b:null,p:e.tip.p});}
   const order=LG.map(L=>L.name).filter(n=>by[n]).concat(Object.keys(by).filter(n=>!LG.some(L=>L.name===n)));
   el.innerHTML=`<span class="big">${Math.round(wins/g.length*100)}%</span>
     <span class="txt"><b>Tipsy's football tips are right</b><small>${wins} of ${g.length} matches · tap for each league</small></span><span class="chev">›</span>
-    <div class="recbreak">${order.map(n=>`<div class="rb"><span>${esc(n)}</span><span class="mute">${by[n].w} of ${by[n].n}</span><b>${Math.round(by[n].w/by[n].n*100)}%</b></div>`).join("")}
+    <div class="recbreak">${order.map(n=>`<details class="rbd"><summary class="rb"><span>${esc(n)} <span class="chev">›</span></span><span class="mute">${by[n].w} of ${by[n].n}</span><b>${Math.round(by[n].w/by[n].n*100)}%</b></summary>
+      <div class="betlist">${by[n].bets.sort((x,y)=>new Date(y.date)-new Date(x.date)).map(b=>betRowHTML(b)+(!b.won&&b.p>=.7?'<div class="upset">Upset: Tipsy had this at '+pc(b.p)+'</div>':"")).join("")}</div></details>`).join("")}
       <small class="mute">All football, using Tipsy's main tip for each match. Other sports aren't included.</small></div>`;
 }
 // results by sport: football from Tipsy's own tips, other sports from the Best tab's picks (Pinnacle price, £5 each)
